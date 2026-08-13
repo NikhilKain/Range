@@ -14,6 +14,11 @@ log() { echo "$@" | tee -a "$REPORT"; }
 shot() {
   sleep "${2:-2}"
   adb exec-out screencap -p > "$SHOTS/$1.png" 2>/dev/null
+  # A black grab means the compositor handed us a mid-animation buffer; retry.
+  if [ "$(stat -c%s "$SHOTS/$1.png" 2>/dev/null || echo 0)" -lt 40000 ]; then
+    sleep 2
+    adb exec-out screencap -p > "$SHOTS/$1.png" 2>/dev/null
+  fi
   local size
   size=$(stat -c%s "$SHOTS/$1.png" 2>/dev/null || echo 0)
   log "shot $1: ${size} bytes"
@@ -76,8 +81,8 @@ shot 07-home-bottom 2
 adb shell input swipe $((W/2)) $((H*80/100)) $((W/2)) $((H*15/100)) 220
 sleep 2
 shot 08-home-cta 2
-# CTA is the last element; tap just above the gesture bar.
-tap $((W/2)) $((H*88/100)) 3
+# The result bar is pinned to the bottom of the screen.
+tap $((W/2)) $((H*92/100)) 3
 shot 09-explore 4
 
 swipe $((W/2)) $((H*70/100)) $((W/2)) $((H*30/100)) 400
@@ -130,7 +135,7 @@ for _ in 1 2 3 4 5 6 7; do
 done
 sleep 2
 shot 24-home-light-bottom 2
-tap $((W/2)) $((H*88/100)) 3
+tap $((W/2)) $((H*92/100)) 3
 shot 25-explore-light 4
 swipe $((W/2)) $((H*70/100)) $((W/2)) $((H*30/100)) 400
 shot 26-explore-light-list 2
