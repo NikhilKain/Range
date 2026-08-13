@@ -1,6 +1,6 @@
-commit:  9aac6630ebbd37f8a9b701f677fb1fe4a4398b91
-run:     31713546441 (attempt 1)
-when:    2026-08-13T15:07:13Z
+commit:  ea2f0992f8c8f7c8f62e0dfe7a3c796886cf3065
+run:     31713838838 (attempt 1)
+when:    2026-08-13T15:10:30Z
 assemble exit: 0
 tests exit:    0
 
@@ -73,10 +73,10 @@ Daemon will be stopped at the end of the build
 > Task :app:desugarDebugFileDependencies FROM-CACHE
 > Task :app:mergeExtDexDebug FROM-CACHE
 > Task :app:mergeLibDexDebug FROM-CACHE
-> Task :app:mergeDebugJavaResource
-> Task :app:mapDebugSourceSetPaths
 > Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
 > Task :app:compileDebugNavigationResources FROM-CACHE
+> Task :app:mergeDebugJavaResource
 > Task :app:mergeDebugResources FROM-CACHE
 > Task :app:createDebugCompatibleScreenManifests
 > Task :app:extractDeepLinksDebug FROM-CACHE
@@ -95,11 +95,11 @@ Daemon will be stopped at the end of the build
 > Task :app:packageDebug
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786633595276.json
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786633789407.json
 
-BUILD SUCCESSFUL in 25s
+BUILD SUCCESSFUL in 29s
 36 actionable tasks: 15 executed, 21 from cache
 
 ===== test failures =====
--rw-r--r-- 1 runner runner 21418434 Aug 13 15:07 dist/range-debug.apk
+-rw-r--r-- 1 runner runner 21418434 Aug 13 15:10 dist/range-debug.apk
 apk: app/build/outputs/apk/debug/app-debug.apk
