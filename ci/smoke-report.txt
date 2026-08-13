@@ -8,18 +8,57 @@ Success
 == launch ==
 Starting: Intent { cmp=com.vythera.range/.MainActivity }
 Status: ok
-LaunchState: UNKNOWN (0)
+LaunchState: COLD
 Activity: com.vythera.range/.MainActivity
-WaitTime: 9552
+TotalTime: 7656
+WaitTime: 7713
 Complete
-shot 01-onboarding: 15580 bytes
-shot 02-onboarding-2: 840700 bytes
-shot 03-onboarding-3: 784603 bytes
-shot 04-home: 800489 bytes
-shot 05-home-mid: 865576 bytes
-shot 06-home-lower: 816087 bytes
-shot 07-home-bottom: 804983 bytes
-shot 08-home-cta: 871267 bytes
-shot 09-explore: 811975 bytes
-shot 10-explore-list: 778383 bytes
-shot 11-explore-list2: 815223 bytes
+shot 01-onboarding: 833861 bytes
+shot 02-onboarding-2: 796382 bytes
+shot 03-onboarding-3: 800524 bytes
+shot 04-home: 15580 bytes
+shot 05-home-mid: 15580 bytes
+shot 06-home-lower: 810994 bytes
+shot 07-home-bottom: 781301 bytes
+shot 08-home-cta: 867219 bytes
+shot 09-explore: 823609 bytes
+shot 10-explore-list: 898879 bytes
+shot 11-explore-list2: 345452 bytes
+shot 12-detail: 907019 bytes
+shot 13-detail-costs: 845782 bytes
+shot 14-detail-transport: 692146 bytes
+shot 15-detail-more: 747453 bytes
+shot 16-explore-back: 733175 bytes
+shot 17-home-again: 1367856 bytes
+shot 18-saved: 1369983 bytes
+shot 19-settings: 1369983 bytes
+shot 20-settings-lower: 1369983 bytes
+shot 21-settings-theme: 1369845 bytes
+shot 22-settings-light: 1369148 bytes
+shot 23-home-light: 1369148 bytes
+shot 24-home-light-bottom: 314759 bytes
+shot 25-explore-light: 314759 bytes
+shot 26-explore-light-list: 314759 bytes
+shot 27-detail-light: 314759 bytes
+== crash check ==
+== app errors ==
+08-13 09:15:35.476   528  2483 E ActivityManager:   7.8% 390/android.hardware.graphics.composer3-service.ranchu: 0.3% user + 7.5% kernel / faults: 1 minor
+08-13 09:16:05.225   528  2647 E ActivityManager:   21% 2203/com.vythera.range: 6.5% user + 14% kernel / faults: 6960 minor 8 major
+08-13 09:16:05.225   528  2647 E ActivityManager:   9.4% 390/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 9.2% kernel / faults: 3 minor
+08-13 09:16:05.225   528  2647 E ActivityManager:   17% 2203/com.vythera.range: 4.5% user + 13% kernel / faults: 634 minor
+08-13 09:16:05.225   528  2647 E ActivityManager:   9.1% 390/android.hardware.graphics.composer3-service.ranchu: 0.3% user + 8.8% kernel
+08-13 09:16:07.610   528  2647 E ActivityManager:   21% 2203/com.vythera.range: 6.5% user + 14% kernel / faults: 6960 minor 8 major
+08-13 09:16:07.610   528  2647 E ActivityManager:   9.4% 390/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 9.2% kernel / faults: 3 minor
+08-13 09:16:07.901   528  2647 E ActivityManager:   21% 2203/com.vythera.range: 6.5% user + 14% kernel / faults: 6960 minor 8 major
+08-13 09:16:07.901   528  2647 E ActivityManager:   9.4% 390/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 9.2% kernel / faults: 3 minor
+08-13 09:16:21.375   402  1161 E HwcComposer: getDisplayDecorationSupport failed Status(-8, EX_SERVICE_SPECIFIC): '8: '
+08-13 09:16:21.375   402  1161 E HWComposer: getDisplayDecorationSupport: getDisplayDecorationSupport failed for display 4619827259835644672: Unsupported (8)
+08-13 09:16:26.339   528  1818 E ActivityTaskManager: setVisibility=true while transition is not collecting or finishing ActivityRecord{f7db0fe u0 com.vythera.range/.MainActivity t7} caller=com.android.server.wm.ActivityRecord.setVisibility:5287 com.android.server.wm.TaskFragment.resumeTopActivity:1393 com.android.server.wm.Task.resumeTopActivityInnerLocked:5044 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:4974 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:5025 com.android.server.wm.RootWindowContainer.lambda$applySleepTokens$20:2428 com.android.server.wm.RootWindowContainer.$r8$lambda$9xL80GDJRExKql35hTmQVg_ieD8:0 com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda10.accept:0 
+08-13 09:16:40.107   528  4389 E ActivityManager:   23% 2203/com.vythera.range: 5.6% user + 17% kernel / faults: 1593 minor
+08-13 09:16:40.107   528  4389 E ActivityManager:   14% 390/android.hardware.graphics.composer3-service.ranchu: 0% user + 14% kernel
+08-13 09:17:36.968   528  4994 E ActivityManager:   24% 2203/com.vythera.range: 9.8% user + 14% kernel / faults: 3745 minor
+08-13 09:17:36.968   528  4994 E ActivityManager:   9.9% 390/android.hardware.graphics.composer3-service.ranchu: 0% user + 9.9% kernel
+08-13 09:18:09.748   528  5256 E ActivityManager:   21% 2203/com.vythera.range: 4.5% user + 16% kernel / faults: 2585 minor
+08-13 09:18:09.748   528  5256 E ActivityManager:   14% 390/android.hardware.graphics.composer3-service.ranchu: 0.2% user + 14% kernel
+== still running? ==
+2203
