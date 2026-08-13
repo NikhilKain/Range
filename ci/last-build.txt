@@ -1,6 +1,6 @@
-commit:  b4d5eda423dc0ae2d86f39e8284b9d24aa878dd0
-run:     31677976955 (attempt 1)
-when:    2026-08-13T07:35:49Z
+commit:  24aea3f809547b2fbb5e90b374f6cfb24c29fe06
+run:     31678932651 (attempt 1)
+when:    2026-08-13T07:49:10Z
 assemble exit: 0
 tests exit:    0
 
@@ -67,7 +67,7 @@ w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/s
 w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:134:48 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
 w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:149:48 'val Icons.Rounded.Sort: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.Sort.
 w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:207:46 'val Icons.Rounded.Sort: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.Sort.
-w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/HomeScreen.kt:748:31 'val Icons.Rounded.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowForward.
+w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/HomeScreen.kt:756:31 'val Icons.Rounded.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowForward.
 w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/MoreScreens.kt:102:39 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
 
 > Task :app:compileDebugJavaWithJavac NO-SOURCE
@@ -95,12 +95,12 @@ w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/s
 > Task :app:packageDebug
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786606277608.json
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786607093195.json
 
 [Incubating] Problems report is available at: file:///home/runner/work/Range/Range/build/reports/problems/problems-report.html
 
-BUILD SUCCESSFUL in 4m 1s
+BUILD SUCCESSFUL in 3m 47s
 36 actionable tasks: 36 executed
 
 ===== test failures =====
--rw-r--r-- 1 runner runner 21336458 Aug 13 07:35 dist/range-debug.apk
+-rw-r--r-- 1 runner runner 21336458 Aug 13 07:49 dist/range-debug.apk
