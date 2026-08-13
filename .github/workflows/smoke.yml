@@ -9,6 +9,7 @@ on:
     paths:
       - 'app/src/main/**'
       - '.github/workflows/smoke.yml'
+      - '.github/scripts/**'
 
 permissions:
   contents: write

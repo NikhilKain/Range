@@ -25,6 +25,13 @@ object SurfaceReach {
         // Greater China.
         listOf("China", "Hong Kong").forEach { put(it, "CN") }
 
+        // Pakistan shares a land border with India, but it is closed to
+        // through travel — a bloc of its own is the honest model.
+        put("Pakistan", "PK")
+        put("Indonesia", "ID")
+        put("Philippines", "PH")
+        put("Israel", "ME")
+
         // Effectively sealed by sea or by a closed border.
         put("Japan", "JP")
         put("South Korea", "KR")
@@ -50,6 +57,7 @@ object SurfaceReach {
         listOf("Kenya", "Tanzania", "Uganda", "Rwanda", "Ethiopia").forEach { put(it, "AF_E") }
         listOf("South Africa", "Zimbabwe", "Botswana", "Namibia", "Zambia")
             .forEach { put(it, "AF_S") }
+        listOf("Nigeria", "Ghana", "Senegal").forEach { put(it, "AF_W") }
 
         // The Americas.
         listOf("USA", "Canada", "Mexico").forEach { put(it, "NAM") }

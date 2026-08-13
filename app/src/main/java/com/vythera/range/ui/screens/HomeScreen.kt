@@ -262,14 +262,24 @@ fun HomeScreen(
                         modifier = Modifier.weight(1f),
                     )
                 }
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    "${query.nights + 1} days on the ground · " +
-                        roomsFor(query).let { "$it room${if (it == 1) "" else "s"}" } +
-                        " · from ${origin.city}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Spacer(Modifier.height(10.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "${query.nights + 1} days on the ground · " +
+                            roomsFor(query).let { "$it room${if (it == 1) "" else "s"}" } + " · ",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        "from ${origin.city}",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .clip(PillShape)
+                            .clickable(onClick = onOpenOrigin)
+                            .padding(horizontal = 6.dp, vertical = 2.dp),
+                    )
+                }
 
                 Spacer(Modifier.height(30.dp))
 

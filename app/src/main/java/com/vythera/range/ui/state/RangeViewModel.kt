@@ -268,6 +268,13 @@ class RangeViewModel(private val store: RangeStore) : ViewModel() {
         viewModelScope.launch { store.setOrigin(id) }
     }
 
+    /** Onboarding only: match the currency to where the traveller lives. */
+    fun setOriginWithCurrency(id: String) {
+        setOrigin(id)
+        val place = OriginCatalog.find(id)
+        Currency.entries.firstOrNull { it.code == place.currency }?.let { setCurrency(it) }
+    }
+
     fun setCurrency(c: Currency) = viewModelScope.launch { store.setCurrency(c.code) }
     fun setThemeMode(mode: ThemeMode) = viewModelScope.launch { store.setThemeMode(mode.name) }
     fun setDynamicColor(on: Boolean) = viewModelScope.launch { store.setDynamicColor(on) }

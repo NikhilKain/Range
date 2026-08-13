@@ -114,7 +114,7 @@ fun RangeApp(
             OnboardingScreen(
                 originId = query.originId,
                 currency = currency,
-                onOrigin = viewModel::setOrigin,
+                onOrigin = viewModel::setOriginWithCurrency,
                 onCurrency = viewModel::setCurrency,
                 onDone = {
                     viewModel.setOnboarded(true)

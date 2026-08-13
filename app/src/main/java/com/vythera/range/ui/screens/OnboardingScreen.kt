@@ -124,7 +124,7 @@ fun OnboardingScreen(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
-                                OriginCatalog.all.take(10).forEach { place ->
+                                OriginCatalog.popular.forEach { place ->
                                     RangeChip(
                                         label = place.city,
                                         selected = place.id == originId,
@@ -132,7 +132,15 @@ fun OnboardingScreen(
                                     )
                                 }
                             }
-                            Spacer(Modifier.height(18.dp))
+                            Spacer(Modifier.height(10.dp))
+                            Text(
+                                "Somewhere else? You can search every city from Settings once " +
+                                    "you're in.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                            )
+                            Spacer(Modifier.height(16.dp))
                             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 listOf(Currency.INR, Currency.USD, Currency.EUR, Currency.GBP)
                                     .forEach { c ->

@@ -290,7 +290,7 @@ fun OriginScreen(
     }
     ScreenScaffold(
         title = "Where from?",
-        subtitle = "Every price is calculated from here",
+        subtitle = "${OriginCatalog.all.size} cities · every price is calculated from here",
         onBack = onBack,
     ) {
         OutlinedTextField(
@@ -304,8 +304,19 @@ fun OriginScreen(
         )
         Spacer(Modifier.height(14.dp))
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(places, key = { it.id }) { place ->
-                OriginRow(place, place.id == currentId) { onPick(place.id) }
+            OriginCatalog.byRegion.forEach { (region, cities) ->
+                val visible = cities.filter { it in places }
+                if (visible.isNotEmpty()) {
+                    item(region.name) {
+                        SectionHeader(
+                            region.label.uppercase(),
+                            Modifier.padding(top = 10.dp, bottom = 2.dp),
+                        )
+                    }
+                    items(visible, key = { it.id }) { place ->
+                        OriginRow(place, place.id == currentId) { onPick(place.id) }
+                    }
+                }
             }
             item { Spacer(Modifier.height(40.dp)) }
         }

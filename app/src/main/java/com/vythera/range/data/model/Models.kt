@@ -119,6 +119,8 @@ data class Place(
     val lon: Double,
     val region: Region,
     val landmass: Landmass,
+    /** What someone here most likely thinks in — used to preset the currency. */
+    val currency: String = "USD",
 )
 
 /**
