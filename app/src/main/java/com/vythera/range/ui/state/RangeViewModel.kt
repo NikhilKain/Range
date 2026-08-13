@@ -81,7 +81,16 @@ data class ExploreState(
     val computing: Boolean = true,
     val all: List<TripEstimate> = emptyList(),
     val visible: List<TripEstimate> = emptyList(),
-    val summary: ReachSummary = ReachSummary(0, 0, 0, 0.0, null, 0, null, null),
+    val summary: ReachSummary = ReachSummary(
+        total = 0,
+        inRange = 0,
+        countries = 0,
+        farthestKm = 0.0,
+        farthestCity = null,
+        regions = 0,
+        cheapest = null,
+        bestValue = null,
+    ),
 )
 
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
