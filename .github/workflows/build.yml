@@ -42,7 +42,7 @@ jobs:
         run: |
           set +e
           chmod +x ./gradlew
-          ./gradlew --no-daemon --stacktrace assembleDebug 2>&1 | tee /tmp/build.log
+          ./gradlew --no-daemon assembleDebug 2>&1 | tee /tmp/build.log
           code=${PIPESTATUS[0]}
           echo "code=$code" >> "$GITHUB_OUTPUT"
           exit 0
@@ -73,7 +73,7 @@ jobs:
             grep -E "^(e:|w: .*error)|error:|^\s+> " /tmp/build.log | grep -v "^w: " | head -150
             echo
             echo "===== gradle failure block ====="
-            awk '/FAILURE: Build|What went wrong|Caused by:/{p=40} p&&p--' /tmp/build.log | head -120
+            awk '/What went wrong/{p=14} p&&p--' /tmp/build.log | head -60
             echo
             echo "===== tail ====="
             tail -50 /tmp/build.log
