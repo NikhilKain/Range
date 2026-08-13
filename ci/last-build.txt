@@ -1,6 +1,6 @@
-commit:  09c220cd3c3eeaa7b6e2772ba34d05888ce357a4
-run:     31685208071 (attempt 1)
-when:    2026-08-13T09:14:02Z
+commit:  ae0c443e48554525780cd611c9efb36c002302e6
+run:     31686252901 (attempt 1)
+when:    2026-08-13T09:24:25Z
 assemble exit: 0
 tests exit:    0
 
@@ -51,17 +51,34 @@ androidx.compose.foundation:foundationlayoutandroid:1.12.0
 ===== gradle failure block =====
 
 ===== tail =====
+> Task :app:processDebugNavigationResources FROM-CACHE
+> Task :app:parseDebugLocalResources FROM-CACHE
+> Task :app:generateDebugRFile FROM-CACHE
+> Task :app:javaPreCompileDebug FROM-CACHE
 > Task :app:generateDebugAssets UP-TO-DATE
-> Task :app:parseDebugLocalResources
 > Task :app:mergeDebugAssets
-> Task :app:compressDebugAssets
-> Task :app:generateDebugRFile
-> Task :app:generateDebugGlobalSynthetics
+> Task :app:compressDebugAssets FROM-CACHE
+> Task :app:generateDebugGlobalSynthetics FROM-CACHE
 > Task :app:checkDebugDuplicateClasses
-> Task :app:desugarDebugFileDependencies
-> Task :app:compileDebugKotlin
-> Task :app:mergeExtDexDebug
-
+> Task :app:desugarDebugFileDependencies FROM-CACHE
+> Task :app:mergeExtDexDebug FROM-CACHE
+> Task :app:mergeLibDexDebug FROM-CACHE
+> Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
+> Task :app:compileDebugNavigationResources FROM-CACHE
+> Task :app:mergeDebugResources FROM-CACHE
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug FROM-CACHE
+> Task :app:processDebugMainManifest FROM-CACHE
+> Task :app:processDebugManifest FROM-CACHE
+> Task :app:processDebugManifestForPackage FROM-CACHE
+> Task :app:processDebugResources FROM-CACHE
+> Task :app:mergeDebugJniLibFolders
+> Task :app:mergeDebugNativeLibs
+> Task :app:stripDebugDebugSymbols
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
 > Task :app:compileDebugKotlin
 w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/DetailScreen.kt:471:32 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
 w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:136:48 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
@@ -73,34 +90,17 @@ w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/s
 > Task :app:compileDebugJavaWithJavac NO-SOURCE
 > Task :app:processDebugJavaRes
 > Task :app:mergeDebugJavaResource
-> Task :app:mergeLibDexDebug
-> Task :app:checkDebugAarMetadata
-> Task :app:mapDebugSourceSetPaths
-> Task :app:compileDebugNavigationResources
-> Task :app:mergeDebugResources
-> Task :app:createDebugCompatibleScreenManifests
-> Task :app:extractDeepLinksDebug
-> Task :app:processDebugMainManifest
-> Task :app:processDebugManifest
-> Task :app:processDebugManifestForPackage
-> Task :app:processDebugResources
 > Task :app:dexBuilderDebug
 > Task :app:mergeProjectDexDebug
-> Task :app:mergeDebugJniLibFolders
-> Task :app:mergeDebugNativeLibs
-> Task :app:stripDebugDebugSymbols
-> Task :app:validateSigningDebug
-> Task :app:writeDebugAppMetadata
-> Task :app:writeDebugSigningConfigVersions
 > Task :app:packageDebug
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786612189456.json
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786612972807.json
 
 [Incubating] Problems report is available at: file:///home/runner/work/Range/Range/build/reports/problems/problems-report.html
 
-BUILD SUCCESSFUL in 3m 43s
-36 actionable tasks: 36 executed
+BUILD SUCCESSFUL in 1m 8s
+36 actionable tasks: 18 executed, 18 from cache
 
 ===== test failures =====
--rw-r--r-- 1 runner runner 21402050 Aug 13 09:14 dist/range-debug.apk
+-rw-r--r-- 1 runner runner 21418434 Aug 13 09:24 dist/range-debug.apk
