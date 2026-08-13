@@ -15,6 +15,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.vythera.range.data.DestinationCatalog
 import com.vythera.range.data.OriginCatalog
 import com.vythera.range.data.RangeSettings
+import com.vythera.range.data.LiveRates
 import com.vythera.range.data.RangeStore
 import com.vythera.range.data.model.Region
 import com.vythera.range.data.model.SavedTrip
@@ -24,6 +25,7 @@ import com.vythera.range.data.model.Vibe
 import com.vythera.range.di.ServiceLocator
 import com.vythera.range.domain.BudgetEngine
 import com.vythera.range.domain.Currency
+import com.vythera.range.domain.Rates
 import com.vythera.range.domain.ReachSummary
 import com.vythera.range.domain.TripEstimate
 import com.vythera.range.domain.TripQuery
@@ -37,6 +39,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -129,7 +132,40 @@ class RangeViewModel(private val store: RangeStore) : ViewModel() {
         state.copy(visible = applyFilters(state.all, f))
     }.stateIn(viewModelScope, SharingStarted.Eagerly, ExploreState())
 
+    private val _ratesUpdatedAt = MutableStateFlow(0L)
+    val ratesUpdatedAt: StateFlow<Long> = _ratesUpdatedAt.asStateFlow()
+
+    private val _refreshing = MutableStateFlow(false)
+    val refreshing: StateFlow<Boolean> = _refreshing.asStateFlow()
+
+    /**
+     * Exchange rates are the one figure in Range that genuinely moves day to
+     * day, so they come off the network when there is one, from cache when
+     * there isn't, and from the shipped table on a fresh install offline.
+     */
+    fun refreshRates(force: Boolean = false) = viewModelScope.launch {
+        if (_refreshing.value) return@launch
+        val age = System.currentTimeMillis() - Rates.updatedAtMs
+        if (!force && Rates.isLive && age < 6 * 60 * 60 * 1000L) return@launch
+        _refreshing.value = true
+        LiveRates.fetch()?.let { result ->
+            Rates.apply(result.rates, result.fetchedAtMs)
+            _ratesUpdatedAt.value = result.fetchedAtMs
+            store.setRates(LiveRates.encode(result))
+            // Re-price everything against the new rates.
+            _query.value = _query.value.copy()
+        }
+        _refreshing.value = false
+    }
+
     init {
+        viewModelScope.launch {
+            LiveRates.decode(store.cachedRates.first())?.let {
+                Rates.apply(it.rates, it.fetchedAtMs)
+                _ratesUpdatedAt.value = it.fetchedAtMs
+            }
+            refreshRates()
+        }
         viewModelScope.launch {
             val first = store.settings
             first.collect { s ->

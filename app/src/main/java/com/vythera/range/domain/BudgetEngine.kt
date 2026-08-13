@@ -3,6 +3,7 @@ package com.vythera.range.domain
 import com.vythera.range.data.model.CostKey
 import com.vythera.range.data.model.Destination
 import com.vythera.range.data.model.Place
+import com.vythera.range.data.model.Terrain
 import com.vythera.range.data.model.Tier
 import com.vythera.range.data.model.TransportMode
 import com.vythera.range.data.model.Verdict
@@ -183,7 +184,8 @@ object BudgetEngine {
         return base * dest.fareFactor * domesticMult * season * lead * cabin * 1.9
     }
 
-    private fun sameLandmass(origin: Place, dest: Destination) = origin.landmass == dest.landmass
+    private fun sameLandmass(origin: Place, dest: Destination) =
+        SurfaceReach.connected(origin, dest)
 
     fun transportOptions(origin: Place, dest: Destination, query: TripQuery): List<TransportOption> {
         val gcKm = haversineKm(origin.lat, origin.lon, dest.lat, dest.lon)
@@ -209,9 +211,10 @@ object BudgetEngine {
             mode = TransportMode.TRAIN,
             costUsd = (3.0 + roadKm * trainPerKm) * 2 * people,
             hoursOneWay = roadKm / 62.0 + 1.0,
-            available = land && roadKm in 60.0..3200.0,
+            available = land && dest.hasRail && roadKm in 60.0..3200.0,
             note = when {
-                !land -> "No rail link — there's water in the way"
+                !land -> SurfaceReach.reasonNotConnected(origin, dest)
+                !dest.hasRail -> "No railway to ${dest.city}"
                 roadKm > 3200 -> "Too far for a sane rail trip"
                 else -> "Return tickets, ${people}×"
             },
@@ -225,10 +228,10 @@ object BudgetEngine {
         val bus = TransportOption(
             mode = TransportMode.BUS,
             costUsd = (2.0 + roadKm * busPerKm) * 2 * people,
-            hoursOneWay = roadKm / 46.0 + 1.0,
+            hoursOneWay = roadKm / (46.0 * dest.terrain.speedFactor) + 1.0,
             available = land && roadKm in 40.0..1900.0,
             note = when {
-                !land -> "No road link from here"
+                !land -> SurfaceReach.reasonNotConnected(origin, dest)
                 roadKm > 1900 -> "That's two days on a bus each way"
                 else -> "Return seats, ${people}×"
             },
@@ -238,10 +241,10 @@ object BudgetEngine {
         val taxi = TransportOption(
             mode = TransportMode.TAXI,
             costUsd = (roadKm * 2 * 0.22 * cars) + (12.0 * cars * query.days) * cls,
-            hoursOneWay = roadKm / 54.0 + 0.5,
+            hoursOneWay = roadKm / (54.0 * dest.terrain.speedFactor) + 0.5,
             available = land && roadKm in 20.0..1100.0,
             note = when {
-                !land -> "No road link from here"
+                !land -> SurfaceReach.reasonNotConnected(origin, dest)
                 roadKm > 1100 -> "A cab this far costs more than flying"
                 else -> "${cars.toInt()} cab(s), return + driver"
             },
@@ -251,11 +254,13 @@ object BudgetEngine {
         val ownCar = TransportOption(
             mode = TransportMode.OWN_CAR,
             costUsd = (roadKm * 2 * 0.090 * ownCars) + (4.0 * query.days * ownCars),
-            hoursOneWay = roadKm / 58.0 + 0.5,
+            hoursOneWay = roadKm / (58.0 * dest.terrain.speedFactor) + 0.5,
             available = land && roadKm in 20.0..2600.0,
             note = when {
-                !land -> "You can't drive there"
+                !land -> SurfaceReach.reasonNotConnected(origin, dest)
                 roadKm > 2600 -> "That's a very long drive"
+                dest.terrain == Terrain.HIGH_MOUNTAIN ->
+                    "Fuel + tolls, ${ownCars.toInt()} car(s) — high passes"
                 else -> "Fuel + tolls + parking, ${ownCars.toInt()} car(s)"
             },
         )

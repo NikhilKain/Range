@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.animateDecay
 import com.vythera.range.domain.Currency
+import com.vythera.range.domain.rate
 import com.vythera.range.ui.theme.PillShape
 import com.vythera.range.ui.theme.RangePalette
 import kotlinx.coroutines.launch
@@ -96,7 +97,7 @@ fun BudgetTape(
     val decay = rememberSplineBasedDecay<Float>()
 
     val stepLocal = currency.step.toDouble()
-    val stepUsd = stepLocal / currency.perUsd
+    val stepUsd = stepLocal / currency.rate
     val pxPerStep = with(density) { 26.dp.toPx() }
 
     var dragging by remember { mutableStateOf(false) }
@@ -130,8 +131,8 @@ fun BudgetTape(
     }
 
     fun settle() {
-        val steps = (local * currency.perUsd / stepLocal).roundToInt().coerceAtLeast(1)
-        local = (steps * stepLocal / currency.perUsd).coerceIn(minUsd, maxUsd)
+        val steps = (local * currency.rate / stepLocal).roundToInt().coerceAtLeast(1)
+        local = (steps * stepLocal / currency.rate).coerceIn(minUsd, maxUsd)
         push(local, force = true)
     }
 
@@ -166,7 +167,7 @@ fun BudgetTape(
                 ),
         ) {
             val cx = size.width / 2f
-            val localAmount = local * currency.perUsd
+            val localAmount = local * currency.rate
             val stepsFromZero = localAmount / stepLocal
 
             val firstStep = (stepsFromZero - (cx / pxPerStep) - 1).toInt()

@@ -75,6 +75,7 @@ import com.vythera.range.data.OriginCatalog
 import com.vythera.range.data.model.Tier
 import com.vythera.range.data.model.TransportMode
 import com.vythera.range.domain.Currency
+import com.vythera.range.domain.rate
 import com.vythera.range.domain.TripQuery
 import com.vythera.range.domain.formatMoney
 import com.vythera.range.ui.components.AnimatedNumber
@@ -806,7 +807,7 @@ private fun quickBudgets(currency: Currency): List<Pair<String, Double>> {
             local >= 1000 -> "${currency.symbol}${(local / 1000).toInt()}k"
             else -> "${currency.symbol}${local.toInt()}"
         }
-        label to local / currency.perUsd
+        label to local / currency.rate
     }
 }
 

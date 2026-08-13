@@ -54,6 +54,8 @@ fun RangeApp(
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val wishlist by viewModel.wishlist.collectAsStateWithLifecycle()
     val savedTrips by viewModel.savedTrips.collectAsStateWithLifecycle()
+    val ratesUpdatedAt by viewModel.ratesUpdatedAt.collectAsStateWithLifecycle()
+    val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
 
     val start = if (settings.onboarded) Routes.HOME else Routes.ONBOARDING
 
@@ -176,6 +178,9 @@ fun RangeApp(
             SettingsScreen(
                 settings = settings,
                 currency = currency,
+                ratesUpdatedAt = ratesUpdatedAt,
+                refreshing = refreshing,
+                onRefreshRates = { viewModel.refreshRates(force = true) },
                 onCurrency = { viewModel.setCurrency(it) },
                 onThemeMode = viewModel::setThemeMode,
                 onDynamicColor = viewModel::setDynamicColor,

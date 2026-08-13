@@ -35,6 +35,7 @@ import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.PhoneAndroid
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.LocationCity
 import androidx.compose.material.icons.rounded.Search
@@ -64,6 +65,7 @@ import com.vythera.range.domain.Currency
 import com.vythera.range.domain.formatMoney
 import com.vythera.range.ui.components.AuroraBackground
 import com.vythera.range.ui.components.ButtonGroup
+import com.vythera.range.ui.components.ExpressiveLoader
 import com.vythera.range.ui.components.DestinationArt
 import com.vythera.range.ui.components.GlassCard
 import com.vythera.range.ui.components.RangeChip
@@ -77,6 +79,16 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 private val savedFormat = DateTimeFormatter.ofPattern("d MMM yyyy")
+
+private fun relativeTime(epochMs: Long): String {
+    val minutes = (System.currentTimeMillis() - epochMs) / 60_000
+    return when {
+        minutes < 1 -> "just now"
+        minutes < 60 -> "$minutes min ago"
+        minutes < 60 * 24 -> "${minutes / 60}h ago"
+        else -> "${minutes / (60 * 24)}d ago"
+    }
+}
 
 @Composable
 private fun ScreenScaffold(
@@ -360,6 +372,9 @@ private fun OriginRow(place: Place, selected: Boolean, onClick: () -> Unit) {
 fun SettingsScreen(
     settings: RangeSettings,
     currency: Currency,
+    ratesUpdatedAt: Long,
+    refreshing: Boolean,
+    onRefreshRates: () -> Unit,
     onCurrency: (Currency) -> Unit,
     onThemeMode: (ThemeMode) -> Unit,
     onDynamicColor: (Boolean) -> Unit,
@@ -413,10 +428,41 @@ fun SettingsScreen(
                             )
                         }
                     }
+                    Spacer(Modifier.height(14.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                if (ratesUpdatedAt > 0) "Live exchange rates" else "Offline rates",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Text(
+                                if (ratesUpdatedAt > 0) {
+                                    "Updated ${relativeTime(ratesUpdatedAt)}"
+                                } else {
+                                    "Using the rates shipped with the app"
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        if (refreshing) {
+                            ExpressiveLoader(Modifier.size(26.dp))
+                        } else {
+                            RangeChip(
+                                label = "Refresh",
+                                selected = false,
+                                onClick = onRefreshRates,
+                                icon = Icons.Rounded.Refresh,
+                            )
+                        }
+                    }
                     Spacer(Modifier.height(10.dp))
                     Text(
-                        "Conversion uses fixed offline rates so Range works with no connection. " +
-                            "Treat totals as planning estimates, not quotes.",
+                        "Range fetches exchange rates over the internet and falls back to the " +
+                            "rates it ships with when you're offline. Trip totals themselves are " +
+                            "modelled on device from distance, season, booking lead time and " +
+                            "local cost of living — a planning estimate, not a live fare quote.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

@@ -76,6 +76,13 @@ enum class TransportMode(val label: String, val verb: String) {
     NONE("Already there", "Skip travel"),
 }
 
+/** How hard the last mile is — mountain roads are far slower than plains. */
+enum class Terrain(val speedFactor: Double, val label: String) {
+    FLAT(1.0, "easy roads"),
+    HILL(0.70, "hill roads"),
+    HIGH_MOUNTAIN(0.52, "high mountain passes"),
+}
+
 enum class VisaKind(val label: String) {
     NONE("No visa needed"),
     VISA_FREE("Visa free"),
@@ -144,6 +151,9 @@ data class Destination(
     val blurb: String,
     val highlights: List<String>,
     val gradient: List<Color>,
+    /** Is there a usable railway station at or near the destination? */
+    val hasRail: Boolean,
+    val terrain: Terrain,
     /** Rough "wow per rupee" rating used by the value sort. 0..1. */
     val experienceScore: Double,
 ) {

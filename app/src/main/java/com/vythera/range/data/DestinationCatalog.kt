@@ -9,6 +9,7 @@ import com.vythera.range.data.model.Landmass.ISLAND
 import com.vythera.range.data.model.Landmass.NORTH_AM
 import com.vythera.range.data.model.Landmass.SOUTH_AM
 import com.vythera.range.data.model.Region
+import com.vythera.range.data.model.Terrain
 import com.vythera.range.data.model.Region.AFRICA as R_AFRICA
 import com.vythera.range.data.model.Region.CENTRAL_ASIA
 import com.vythera.range.data.model.Region.EAST_ASIA
@@ -42,6 +43,23 @@ object DestinationCatalog {
             Vibe.entries.firstOrNull { it.name == name }
         }
         .toSet()
+
+    /**
+     * Places with no usable railway station. Some are famously unreachable by
+     * train (Leh, Kaza, Gangtok); others are simply far enough from the nearest
+     * railhead that offering a train price would be a lie.
+     */
+    private val noRailhead = setOf(
+        "leh", "manali", "kasol", "spiti", "gangtok", "shillong", "munnar", "coorg",
+        "kathmandu", "pokhara", "thimphu", "andaman", "kutch",
+    )
+
+    private val highMountain = setOf("leh", "spiti", "manali", "kasol", "thimphu", "interlaken")
+
+    private val hillRoads = setOf(
+        "darjeeling", "gangtok", "shillong", "munnar", "coorg", "ooty", "shimla",
+        "pokhara", "queenstown", "cappadocia", "kandy",
+    )
 
     private fun months(spec: String): Set<Int> =
         spec.split(',').mapNotNull { it.trim().toIntOrNull() }.toSet()
@@ -93,6 +111,12 @@ object DestinationCatalog {
             blurb = blurb,
             highlights = highlights.split('|').map { it.trim() },
             gradient = paletteFor(id, v),
+            hasRail = id !in noRailhead,
+            terrain = when (id) {
+                in highMountain -> Terrain.HIGH_MOUNTAIN
+                in hillRoads -> Terrain.HILL
+                else -> Terrain.FLAT
+            },
             experienceScore = exp,
         )
     }

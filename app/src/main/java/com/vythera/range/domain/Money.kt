@@ -8,6 +8,31 @@ import kotlin.math.roundToLong
  * Rates are static, shipped-with-the-app approximations — enough for planning,
  * and it keeps the whole app usable with no network at all.
  */
+/**
+ * Live rates, when we have them. [Currency.perUsd] stays as the shipped
+ * fallback so the app is fully functional offline and on first launch.
+ */
+object Rates {
+    @Volatile
+    private var overrides: Map<String, Double> = emptyMap()
+
+    @Volatile
+    var updatedAtMs: Long = 0L
+        private set
+
+    val isLive: Boolean get() = overrides.isNotEmpty()
+
+    fun apply(rates: Map<String, Double>, fetchedAtMs: Long) {
+        overrides = rates
+        updatedAtMs = fetchedAtMs
+    }
+
+    fun perUsd(currency: Currency): Double = overrides[currency.code] ?: currency.perUsd
+}
+
+/** The rate actually in force: live if we have it, shipped otherwise. */
+val Currency.rate: Double get() = Rates.perUsd(this)
+
 enum class Currency(
     val code: String,
     val symbol: String,
@@ -24,8 +49,8 @@ enum class Currency(
     CAD("CAD", "C$", 1.37, 100),
     ;
 
-    fun fromUsd(usd: Double): Double = usd * perUsd
-    fun toUsd(local: Double): Double = local / perUsd
+    fun fromUsd(usd: Double): Double = usd * rate
+    fun toUsd(local: Double): Double = local / rate
 }
 
 private fun groupIndian(value: Long): String {

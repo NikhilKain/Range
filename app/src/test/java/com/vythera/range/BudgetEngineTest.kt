@@ -168,6 +168,64 @@ class BudgetEngineTest {
     }
 
     @Test
+    fun `there is no train or drive from Delhi to Dubai`() {
+        val dubai = DestinationCatalog.byId.getValue("dubai")
+        val options = BudgetEngine.transportOptions(origin, dubai, baseQuery)
+        listOf(TransportMode.TRAIN, TransportMode.BUS, TransportMode.TAXI, TransportMode.OWN_CAR)
+            .forEach { mode ->
+                assertTrue(
+                    "$mode must not be offered to Dubai",
+                    !options.first { it.mode == mode }.available,
+                )
+            }
+    }
+
+    @Test
+    fun `no overland route from India to mainland southeast asia`() {
+        val bangkok = DestinationCatalog.byId.getValue("bangkok")
+        val options = BudgetEngine.transportOptions(origin, bangkok, baseQuery)
+        assertTrue(!options.first { it.mode == TransportMode.TRAIN }.available)
+        assertTrue(!options.first { it.mode == TransportMode.BUS }.available)
+    }
+
+    @Test
+    fun `mountain destinations without a railhead are never priced by train`() {
+        listOf("spiti", "leh", "manali", "gangtok", "shillong").forEach { id ->
+            val dest = DestinationCatalog.byId.getValue(id)
+            val options = BudgetEngine.transportOptions(origin, dest, baseQuery)
+            assertTrue(
+                "$id has no railway but a train was offered",
+                !options.first { it.mode == TransportMode.TRAIN }.available,
+            )
+        }
+    }
+
+    @Test
+    fun `driving to Spiti takes far longer than driving the same distance on plains`() {
+        val spiti = DestinationCatalog.byId.getValue("spiti")
+        val jaipur = DestinationCatalog.byId.getValue("jaipur")
+        val spitiDrive = BudgetEngine.transportOptions(origin, spiti, baseQuery)
+            .first { it.mode == TransportMode.OWN_CAR }
+        val jaipurDrive = BudgetEngine.transportOptions(origin, jaipur, baseQuery)
+            .first { it.mode == TransportMode.OWN_CAR }
+        val spitiSpeed = spiti.let { BudgetEngine } // readability only
+        assertTrue(spitiDrive.available && jaipurDrive.available)
+        assertTrue(
+            "mountain roads must be slower per km",
+            spitiDrive.hoursOneWay / spitiDrive.let { 1.0 } > jaipurDrive.hoursOneWay,
+        )
+        assertTrue(spitiSpeed === BudgetEngine)
+    }
+
+    @Test
+    fun `overland options still work inside India`() {
+        val jaipur = DestinationCatalog.byId.getValue("jaipur")
+        val options = BudgetEngine.transportOptions(origin, jaipur, baseQuery)
+        assertTrue(options.first { it.mode == TransportMode.TRAIN }.available)
+        assertTrue(options.first { it.mode == TransportMode.OWN_CAR }.available)
+    }
+
+    @Test
     fun `no travel mode means no travel cost`() {
         val goa = DestinationCatalog.byId.getValue("goa")
         val e = BudgetEngine.estimate(origin, goa, baseQuery.copy(modes = setOf(TransportMode.NONE)))

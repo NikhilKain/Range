@@ -37,6 +37,7 @@ class RangeStore(private val context: Context) {
         val HAPTICS = booleanPreferencesKey("haptics")
         val ONBOARDED = booleanPreferencesKey("onboarded")
         val THEME = stringPreferencesKey("theme_mode")
+        val RATES = stringPreferencesKey("fx_rates")
         val TRIPS = stringPreferencesKey("saved_trips")
         val WISHLIST = stringPreferencesKey("wishlist")
     }
@@ -53,6 +54,8 @@ class RangeStore(private val context: Context) {
         )
     }
 
+    val cachedRates: Flow<String?> = context.dataStore.data.map { it[Keys.RATES] }
+
     val savedTrips: Flow<List<SavedTrip>> = context.dataStore.data.map { p ->
         decodeTrips(p[Keys.TRIPS])
     }
@@ -68,6 +71,7 @@ class RangeStore(private val context: Context) {
     suspend fun setOrigin(id: String) = context.dataStore.edit { it[Keys.ORIGIN] = id }
     suspend fun setCurrency(code: String) = context.dataStore.edit { it[Keys.CURRENCY] = code }
     suspend fun setThemeMode(mode: String) = context.dataStore.edit { it[Keys.THEME] = mode }
+    suspend fun setRates(encoded: String) = context.dataStore.edit { it[Keys.RATES] = encoded }
     suspend fun setDynamicColor(on: Boolean) = context.dataStore.edit { it[Keys.DYNAMIC] = on }
     suspend fun setReduceMotion(on: Boolean) = context.dataStore.edit { it[Keys.REDUCE_MOTION] = on }
     suspend fun setHaptics(on: Boolean) = context.dataStore.edit { it[Keys.HAPTICS] = on }
