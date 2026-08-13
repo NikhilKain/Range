@@ -1,8 +1,8 @@
-commit:  69feaf105de7b3be98ef62f214c2933f6592b36b
-run:     31676952879 (attempt 1)
-when:    2026-08-13T07:19:59Z
-assemble exit: 1
-tests exit:    
+commit:  1d0d6618550d96d51742012a8968f162e5a07fc2
+run:     31677440376 (attempt 1)
+when:    2026-08-13T07:26:51Z
+assemble exit: 0
+tests exit:    0
 
 ===== resolved versions =====
 androidx.activity:activity:1.13.0
@@ -47,99 +47,60 @@ androidx.compose.foundation:foundationlayout:1.8.1 > 1.12.0 (*)
 androidx.compose.foundation:foundationlayoutandroid:1.12.0
 
 ===== kotlin/java errors =====
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/AuroraBackground.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Controls.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Controls.kt:300:65 Argument type mismatch: actual type is 'SpringSpec<Float>', but 'AnimationSpec<Dp>' was expected.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/DestinationArt.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/DestinationCard.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Foundation.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Foundation.kt:43:33 Unresolved reference 'graphicsLayer'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Foundation.kt:80:17 Unresolved reference 'graphicsLayer'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Foundation.kt:81:9 Unresolved reference 'scaleX'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Foundation.kt:82:9 Unresolved reference 'scaleY'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/RangeMark.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/RangeMark.kt:43:15 Type 'State<Float>' has no method 'getValue(Nothing?, KProperty0<*>)', so it cannot serve as a delegate.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/RangeRadar.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/DetailScreen.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:556:30 Unresolved reference 'alpha'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/HomeScreen.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/HomeScreen.kt:757:77 Unresolved reference 'scale'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/state/RangeViewModel.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Color.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Shape.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Theme.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Theme.kt:14:35 Cannot access 'fun MaterialExpressiveTheme(colorScheme: ColorScheme? = ..., motionScheme: MotionScheme? = ..., shapes: Shapes? = ..., typography: Typography? = ..., content: ComposableFunction0<Unit>): Unit': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Theme.kt:16:35 Cannot access 'interface MotionScheme : Any': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Theme.kt:120:5 Cannot access 'fun MaterialExpressiveTheme(colorScheme: ColorScheme? = ..., motionScheme: MotionScheme? = ..., shapes: Shapes? = ..., typography: Typography? = ..., content: ComposableFunction0<Unit>): Unit': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Theme.kt:122:24 Cannot access 'interface MotionScheme : Any': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Theme.kt:122:37 Cannot access 'fun expressive(): MotionScheme': it is internal in 'androidx.compose.material3.MotionScheme.Companion'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Type.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-   > Compilation error. See log for more details
 
 ===== gradle failure block =====
-* What went wrong:
-Execution failed for task ':app:compileDebugKotlin' (registered by plugin 'com.android.internal.application').
-> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
-   > Compilation error. See log for more details
-
-* Try:
-> Run with --stacktrace option to get the stack trace.
-> Run with --info or --debug option to get more log output.
-> Run with --scan to get full insights from a Build Scan (powered by Develocity).
-> Get more help at https://help.gradle.org.
-
-BUILD FAILED in 3m 30s
-13 actionable tasks: 13 executed
 
 ===== tail =====
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:parseDebugLocalResources
+> Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets
+> Task :app:generateDebugRFile
+> Task :app:generateDebugGlobalSynthetics
+> Task :app:checkDebugDuplicateClasses
+> Task :app:desugarDebugFileDependencies
+> Task :app:compileDebugKotlin
 > Task :app:mergeExtDexDebug
 
-> Task :app:compileDebugKotlin FAILED
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/AuroraBackground.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Controls.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Controls.kt:300:65 Argument type mismatch: actual type is 'SpringSpec<Float>', but 'AnimationSpec<Dp>' was expected.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/DestinationArt.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/DestinationCard.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Foundation.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Foundation.kt:43:33 Unresolved reference 'graphicsLayer'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Foundation.kt:80:17 Unresolved reference 'graphicsLayer'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Foundation.kt:81:9 Unresolved reference 'scaleX'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Foundation.kt:82:9 Unresolved reference 'scaleY'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/RangeMark.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/RangeMark.kt:43:15 Type 'State<Float>' has no method 'getValue(Nothing?, KProperty0<*>)', so it cannot serve as a delegate.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/RangeRadar.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/DetailScreen.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:556:30 Unresolved reference 'alpha'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/HomeScreen.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/HomeScreen.kt:757:77 Unresolved reference 'scale'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/state/RangeViewModel.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Color.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Shape.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Theme.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Theme.kt:14:35 Cannot access 'fun MaterialExpressiveTheme(colorScheme: ColorScheme? = ..., motionScheme: MotionScheme? = ..., shapes: Shapes? = ..., typography: Typography? = ..., content: ComposableFunction0<Unit>): Unit': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Theme.kt:16:35 Cannot access 'interface MotionScheme : Any': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Theme.kt:120:5 Cannot access 'fun MaterialExpressiveTheme(colorScheme: ColorScheme? = ..., motionScheme: MotionScheme? = ..., shapes: Shapes? = ..., typography: Typography? = ..., content: ComposableFunction0<Unit>): Unit': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Theme.kt:122:24 Cannot access 'interface MotionScheme : Any': it is internal in file.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Theme.kt:122:37 Cannot access 'fun expressive(): MotionScheme': it is internal in 'androidx.compose.material3.MotionScheme.Companion'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/theme/Type.kt:3:32 Cannot access 'annotation class ExperimentalMaterial3ExpressiveApi : Annotation': it is internal in file.
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786605392745.json
+> Task :app:compileDebugKotlin
+w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/DetailScreen.kt:471:32 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
+w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:134:48 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
+w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:149:48 'val Icons.Rounded.Sort: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.Sort.
+w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:207:46 'val Icons.Rounded.Sort: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.Sort.
+w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/HomeScreen.kt:748:31 'val Icons.Rounded.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowForward.
+w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/MoreScreens.kt:102:39 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
+
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:processDebugJavaRes
+> Task :app:mergeDebugJavaResource
+> Task :app:mergeLibDexDebug
+> Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
+> Task :app:compileDebugNavigationResources
+> Task :app:mergeDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+> Task :app:dexBuilderDebug
+> Task :app:mergeProjectDexDebug
+> Task :app:mergeDebugJniLibFolders
+> Task :app:mergeDebugNativeLibs
+> Task :app:stripDebugDebugSymbols
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786605803233.json
 
 [Incubating] Problems report is available at: file:///home/runner/work/Range/Range/build/reports/problems/problems-report.html
 
-FAILURE: Build failed with an exception.
+BUILD SUCCESSFUL in 3m 5s
+36 actionable tasks: 36 executed
 
-* What went wrong:
-Execution failed for task ':app:compileDebugKotlin' (registered by plugin 'com.android.internal.application').
-> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
-   > Compilation error. See log for more details
-
-* Try:
-> Run with --stacktrace option to get the stack trace.
-> Run with --info or --debug option to get more log output.
-> Run with --scan to get full insights from a Build Scan (powered by Develocity).
-> Get more help at https://help.gradle.org.
-
-BUILD FAILED in 3m 30s
-13 actionable tasks: 13 executed
+===== test failures =====
+-rw-r--r-- 1 runner runner 21336458 Aug 13 07:26 dist/range-debug.apk
