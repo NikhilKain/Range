@@ -5,59 +5,59 @@ Performing Streamed Install
 Success
 == launch ==
 Activity: com.vythera.range/.MainActivity
-TotalTime: 7893
-WaitTime: 8232
+TotalTime: 8750
+WaitTime: 8945
 Complete
-shot 01-onboarding: 177308 bytes
+shot 01-onboarding: 832581 bytes
 == onboarding ==
-  tap 'Next' -> 540 2102
-shot 02-onboarding-2: 15580 bytes
-  tap 'Next' -> 540 2102
-shot 03-onboarding-3: 905999 bytes
+  tap 'Next': not found
+shot 02-onboarding-2: 781287 bytes
+  tap 'Next': not found
+shot 03-onboarding-3: 15580 bytes
   tap 'Find my range': not found
-shot 04-home: 822708 bytes
+shot 04-home: 898760 bytes
   home: NO
   tap 'Skip' -> 540 2249
 == home ==
-shot 05-home-when: 893312 bytes
-shot 06-home-travel: 739372 bytes
-shot 07-home-comfort: 15580 bytes
+shot 05-home-when: 890514 bytes
+shot 06-home-travel: 745109 bytes
+shot 07-home-comfort: 807155 bytes
 == explore ==
   tap 'places in reach': not found
-shot 08-explore: 790621 bytes
+shot 08-explore: 765626 bytes
   explore: NO
-shot 09-explore-list: 738602 bytes
-shot 10-explore-list2: 773162 bytes
+shot 09-explore-list: 780504 bytes
+shot 10-explore-list2: 766281 bytes
 == detail ==
-shot 11-detail: 739271 bytes
+shot 11-detail: 757366 bytes
   detail: NO
-shot 12-detail-breakdown: 708637 bytes
-shot 13-detail-nights: 690798 bytes
-shot 14-detail-transport: 749967 bytes
-shot 15-home-again: 1366188 bytes
+shot 12-detail-breakdown: 763593 bytes
+shot 13-detail-nights: 810625 bytes
+shot 14-detail-transport: 729709 bytes
+shot 15-home-again: 1387449 bytes
 == settings and light theme ==
   tap 'Settings': not found
-shot 16-settings: 1369472 bytes
+shot 16-settings: 1387449 bytes
   tap 'Light': not found
-shot 17-settings-light: 1365216 bytes
-shot 18-home-light: 1365216 bytes
+shot 17-settings-light: 1387449 bytes
+shot 18-home-light: 1387449 bytes
   tap 'places in reach': not found
-shot 19-explore-light: 1365216 bytes
-shot 20-detail-light: 1365216 bytes
+shot 19-explore-light: 1388000 bytes
+shot 20-detail-light: 1388133 bytes
 == crash check ==
 == app errors ==
-08-13 14:49:56.521   526  2540 E ActivityManager:   28% 2345/com.vythera.range: 17% user + 10% kernel / faults: 23422 minor 3484 major
-08-13 14:50:17.054   526   562 E ActivityManager: Timeout waiting for provider com.google.android.gms/10130 for provider com.google.android.gms.fonts caller=ProcessRecord{d135360 2345:com.vythera.range/u0a192}
-08-13 14:50:21.261   526  2723 E ActivityManager:   18% 2345/com.vythera.range: 6.1% user + 12% kernel / faults: 9241 minor 15 major
-08-13 14:50:21.261   526  2723 E ActivityManager:   11% 2345/com.vythera.range: 4% user + 7.7% kernel / faults: 370 minor
-08-13 14:50:21.735   526  2723 E ActivityManager:   18% 2345/com.vythera.range: 6.1% user + 12% kernel / faults: 9241 minor 15 major
-08-13 14:50:21.929   526  2723 E ActivityManager:   18% 2345/com.vythera.range: 6.1% user + 12% kernel / faults: 9241 minor 15 major
-08-13 14:50:36.466   526  2038 E ActivityTaskManager: setVisibility=true while transition is not collecting or finishing ActivityRecord{ce1f37e u0 com.vythera.range/.MainActivity t7} caller=com.android.server.wm.ActivityRecord.setVisibility:5287 com.android.server.wm.TaskFragment.resumeTopActivity:1393 com.android.server.wm.Task.resumeTopActivityInnerLocked:5044 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:4974 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:5025 com.android.server.wm.RootWindowContainer.lambda$applySleepTokens$20:2428 com.android.server.wm.RootWindowContainer.$r8$lambda$9xL80GDJRExKql35hTmQVg_ieD8:0 com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda10.accept:0 
-08-13 14:50:51.151   526  4271 E ActivityManager:   12% 2345/com.vythera.range: 4.4% user + 8.3% kernel / faults: 5869 minor
-08-13 14:51:13.771   526  4768 E ActivityManager:   19% 2345/com.vythera.range: 4.7% user + 15% kernel / faults: 5951 minor
-08-13 14:51:44.587   526  5018 E ActivityManager:   25% 2345/com.vythera.range: 6.2% user + 19% kernel / faults: 5135 minor
-08-13 14:51:44.587   526  5018 E ActivityManager:   31% 2345/com.vythera.range: 20% user + 10% kernel / faults: 269 minor
-08-13 14:51:53.022   526   909 E ActivityTaskManager: setVisibility=true while transition is not collecting or finishing ActivityRecord{ce1f37e u0 com.vythera.range/.MainActivity t7} caller=com.android.server.wm.ActivityRecord.setVisibility:5287 com.android.server.wm.TaskFragment.resumeTopActivity:1393 com.android.server.wm.Task.resumeTopActivityInnerLocked:5044 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:4974 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:5025 com.android.server.wm.RootWindowContainer.lambda$applySleepTokens$20:2428 com.android.server.wm.RootWindowContainer.$r8$lambda$9xL80GDJRExKql35hTmQVg_ieD8:0 com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda10.accept:0 
-08-13 14:52:41.242   526  5887 E ActivityManager:   22% 2345/com.vythera.range: 5.5% user + 16% kernel / faults: 14959 minor
+08-13 15:33:36.187   528   565 E ActivityManager: Timeout waiting for provider com.google.android.gms/10128 for provider com.google.android.gms.fonts caller=ProcessRecord{ef62711 2679:com.vythera.range/u0a192}
+08-13 15:33:38.705   528  2689 E ActivityManager:   22% 2679/com.vythera.range: 9.3% user + 13% kernel / faults: 94222 minor 1727 major
+08-13 15:33:38.705   528  2689 E ActivityManager:   39% 2679/com.vythera.range: 2.1% user + 37% kernel / faults: 15 minor
+08-13 15:33:46.495   528  2689 E ActivityManager:   16% 2679/com.vythera.range: 4.2% user + 11% kernel / faults: 3122 minor
+08-13 15:33:47.049   528  2689 E ActivityManager:   16% 2679/com.vythera.range: 4.2% user + 11% kernel / faults: 3122 minor
+08-13 15:33:47.432   528  2689 E ActivityManager:   16% 2679/com.vythera.range: 4.2% user + 11% kernel / faults: 3122 minor
+08-13 15:33:55.756   528  2537 E ActivityTaskManager: setVisibility=true while transition is not collecting or finishing ActivityRecord{6ce902e u0 com.vythera.range/.MainActivity t8} caller=com.android.server.wm.ActivityRecord.setVisibility:5287 com.android.server.wm.TaskFragment.resumeTopActivity:1393 com.android.server.wm.Task.resumeTopActivityInnerLocked:5044 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:4974 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:5025 com.android.server.wm.RootWindowContainer.lambda$applySleepTokens$20:2428 com.android.server.wm.RootWindowContainer.$r8$lambda$9xL80GDJRExKql35hTmQVg_ieD8:0 com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda10.accept:0 
+08-13 15:34:09.018   528  4504 E ActivityManager:   12% 2679/com.vythera.range: 3.3% user + 9% kernel / faults: 2922 minor
+08-13 15:34:56.675   528  5207 E ActivityManager:   19% 2679/com.vythera.range: 5.3% user + 14% kernel / faults: 70073 minor
+08-13 15:34:56.675   528  5207 E ActivityManager:   20% 2679/com.vythera.range: 7% user + 13% kernel / faults: 1198 minor
+08-13 15:34:56.785   528  5207 E ActivityManager:   19% 2679/com.vythera.range: 5.3% user + 14% kernel / faults: 70073 minor
+08-13 15:35:05.641   528  2110 E ActivityTaskManager: setVisibility=true while transition is not collecting or finishing ActivityRecord{6ce902e u0 com.vythera.range/.MainActivity t8} caller=com.android.server.wm.ActivityRecord.setVisibility:5287 com.android.server.wm.TaskFragment.resumeTopActivity:1393 com.android.server.wm.Task.resumeTopActivityInnerLocked:5044 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:4974 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:5025 com.android.server.wm.RootWindowContainer.lambda$applySleepTokens$20:2428 com.android.server.wm.RootWindowContainer.$r8$lambda$9xL80GDJRExKql35hTmQVg_ieD8:0 com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda10.accept:0 
+08-13 15:35:36.504   528  6022 E ActivityManager:   27% 2679/com.vythera.range: 5.8% user + 21% kernel / faults: 3556 minor
 == still running? ==
-2345
+2679
