@@ -1,6 +1,6 @@
-commit:  f232a8eee7f64f0f25237afbe9011098718b1f09
-run:     31682303492 (attempt 1)
-when:    2026-08-13T08:35:16Z
+commit:  a7b6485d649e786bd982e6812df9d5da212d6bb5
+run:     31682779168 (attempt 1)
+when:    2026-08-13T08:42:15Z
 assemble exit: 0
 tests exit:    0
 
@@ -95,12 +95,12 @@ w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/s
 > Task :app:packageDebug
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786609878280.json
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786610273308.json
 
 [Incubating] Problems report is available at: file:///home/runner/work/Range/Range/build/reports/problems/problems-report.html
 
-BUILD SUCCESSFUL in 3m 30s
+BUILD SUCCESSFUL in 3m 53s
 36 actionable tasks: 36 executed
 
 ===== test failures =====
--rw-r--r-- 1 runner runner 21385610 Aug 13 08:35 dist/range-debug.apk
+-rw-r--r-- 1 runner runner 21385610 Aug 13 08:42 dist/range-debug.apk
