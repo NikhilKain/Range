@@ -6,7 +6,7 @@ coreKtx = "1.17.0"
 lifecycle = "2.9.4"
 activityCompose = "1.11.0"
 navigationCompose = "2.9.5"
-composeBom = "2025.09.01"
+composeBom = "2026.08.00"
 material3 = "1.4.0"
 graphicsShapes = "1.1.0"
 datastore = "1.1.7"
@@ -30,7 +30,7 @@ androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text
 androidx-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidx-animation = { group = "androidx.compose.animation", name = "animation" }
 androidx-animation-graphics = { group = "androidx.compose.animation", name = "animation-graphics" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version = "1.7.8" }
 androidx-graphics-shapes = { group = "androidx.graphics", name = "graphics-shapes", version.ref = "graphicsShapes" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }

@@ -28,6 +28,15 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      - name: Resolved versions
+        run: |
+          set +e
+          ./gradlew --no-daemon :app:dependencies --configuration debugRuntimeClasspath 2>/dev/null \
+            | grep -E "androidx.compose|material3|kotlin-stdlib|androidx.activity|androidx.navigation|androidx.lifecycle" \
+            | sed 's/[+\\|-]//g' | sed 's/^ *//' | sort -u | head -40 > /tmp/versions.txt
+          cat /tmp/versions.txt
+          exit 0
+
       - name: Assemble debug
         id: assemble
         run: |
@@ -56,6 +65,9 @@ jobs:
             echo "when:    $(date -u +%FT%TZ)"
             echo "assemble exit: ${{ steps.assemble.outputs.code }}"
             echo "tests exit:    ${{ steps.tests.outputs.code }}"
+            echo
+            echo "===== resolved versions ====="
+            cat /tmp/versions.txt 2>/dev/null | head -40
             echo
             echo "===== kotlin/java errors ====="
             grep -E "^(e:|w: .*error)|error:|^\s+> " /tmp/build.log | grep -v "^w: " | head -150
