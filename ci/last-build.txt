@@ -1,8 +1,8 @@
-commit:  24aea3f809547b2fbb5e90b374f6cfb24c29fe06
-run:     31678932651 (attempt 1)
-when:    2026-08-13T07:49:10Z
-assemble exit: 0
-tests exit:    0
+commit:  4aa356d575ff0483817257de8c942c9b582ce6ff
+run:     31679928604 (attempt 1)
+when:    2026-08-13T08:02:07Z
+assemble exit: 1
+tests exit:    
 
 ===== resolved versions =====
 androidx.activity:activity:1.13.0
@@ -47,10 +47,34 @@ androidx.compose.foundation:foundationlayout:1.8.1 > 1.12.0 (*)
 androidx.compose.foundation:foundationlayoutandroid:1.12.0
 
 ===== kotlin/java errors =====
+e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Expressive.kt:85:9 Unresolved reference. None of the following candidates is applicable because of a receiver type mismatch:
+   > Compilation error. See log for more details
 
 ===== gradle failure block =====
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin' (registered by plugin 'com.android.internal.application').
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 3m 21s
+13 actionable tasks: 13 executed
 
 ===== tail =====
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:processDebugNavigationResources
+> Task :app:javaPreCompileDebug
 > Task :app:generateDebugAssets UP-TO-DATE
 > Task :app:parseDebugLocalResources
 > Task :app:mergeDebugAssets
@@ -62,45 +86,25 @@ androidx.compose.foundation:foundationlayoutandroid:1.12.0
 > Task :app:compileDebugKotlin
 > Task :app:mergeExtDexDebug
 
-> Task :app:compileDebugKotlin
-w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/DetailScreen.kt:471:32 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
-w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:134:48 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
-w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:149:48 'val Icons.Rounded.Sort: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.Sort.
-w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:207:46 'val Icons.Rounded.Sort: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.Sort.
-w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/HomeScreen.kt:756:31 'val Icons.Rounded.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowForward.
-w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/MoreScreens.kt:102:39 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
-
-> Task :app:compileDebugJavaWithJavac NO-SOURCE
-> Task :app:processDebugJavaRes
-> Task :app:mergeDebugJavaResource
-> Task :app:mergeLibDexDebug
-> Task :app:checkDebugAarMetadata
-> Task :app:mapDebugSourceSetPaths
-> Task :app:compileDebugNavigationResources
-> Task :app:mergeDebugResources
-> Task :app:createDebugCompatibleScreenManifests
-> Task :app:extractDeepLinksDebug
-> Task :app:processDebugMainManifest
-> Task :app:processDebugManifest
-> Task :app:processDebugManifestForPackage
-> Task :app:processDebugResources
-> Task :app:dexBuilderDebug
-> Task :app:mergeProjectDexDebug
-> Task :app:mergeDebugJniLibFolders
-> Task :app:mergeDebugNativeLibs
-> Task :app:stripDebugDebugSymbols
-> Task :app:validateSigningDebug
-> Task :app:writeDebugAppMetadata
-> Task :app:writeDebugSigningConfigVersions
-> Task :app:packageDebug
-> Task :app:createDebugApkListingFileRedirect
-> Task :app:assembleDebug
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786607093195.json
+> Task :app:compileDebugKotlin FAILED
+e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/components/Expressive.kt:85:9 Unresolved reference. None of the following candidates is applicable because of a receiver type mismatch:
+fun Modifier.rotate(degrees: Float): Modifier
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786607930521.json
 
 [Incubating] Problems report is available at: file:///home/runner/work/Range/Range/build/reports/problems/problems-report.html
 
-BUILD SUCCESSFUL in 3m 47s
-36 actionable tasks: 36 executed
+FAILURE: Build failed with an exception.
 
-===== test failures =====
--rw-r--r-- 1 runner runner 21336458 Aug 13 07:49 dist/range-debug.apk
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin' (registered by plugin 'com.android.internal.application').
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 3m 21s
+13 actionable tasks: 13 executed
