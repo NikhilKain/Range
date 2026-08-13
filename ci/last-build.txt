@@ -1,6 +1,6 @@
-commit:  ae0c443e48554525780cd611c9efb36c002302e6
-run:     31686252901 (attempt 1)
-when:    2026-08-13T09:24:25Z
+commit:  a7e1f4f41009370eb47ece1202d1c4ab9d227fd0
+run:     31687398849 (attempt 1)
+when:    2026-08-13T09:38:12Z
 assemble exit: 0
 tests exit:    0
 
@@ -51,14 +51,24 @@ androidx.compose.foundation:foundationlayoutandroid:1.12.0
 ===== gradle failure block =====
 
 ===== tail =====
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugResources FROM-CACHE
+> Task :app:packageDebugResources FROM-CACHE
 > Task :app:processDebugNavigationResources FROM-CACHE
 > Task :app:parseDebugLocalResources FROM-CACHE
 > Task :app:generateDebugRFile FROM-CACHE
+> Task :app:compileDebugKotlin FROM-CACHE
 > Task :app:javaPreCompileDebug FROM-CACHE
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
 > Task :app:generateDebugAssets UP-TO-DATE
 > Task :app:mergeDebugAssets
 > Task :app:compressDebugAssets FROM-CACHE
 > Task :app:generateDebugGlobalSynthetics FROM-CACHE
+> Task :app:processDebugJavaRes
 > Task :app:checkDebugDuplicateClasses
 > Task :app:desugarDebugFileDependencies FROM-CACHE
 > Task :app:mergeExtDexDebug FROM-CACHE
@@ -66,6 +76,7 @@ androidx.compose.foundation:foundationlayoutandroid:1.12.0
 > Task :app:checkDebugAarMetadata
 > Task :app:mapDebugSourceSetPaths
 > Task :app:compileDebugNavigationResources FROM-CACHE
+> Task :app:mergeDebugJavaResource
 > Task :app:mergeDebugResources FROM-CACHE
 > Task :app:createDebugCompatibleScreenManifests
 > Task :app:extractDeepLinksDebug FROM-CACHE
@@ -73,34 +84,21 @@ androidx.compose.foundation:foundationlayoutandroid:1.12.0
 > Task :app:processDebugManifest FROM-CACHE
 > Task :app:processDebugManifestForPackage FROM-CACHE
 > Task :app:processDebugResources FROM-CACHE
+> Task :app:dexBuilderDebug FROM-CACHE
+> Task :app:mergeProjectDexDebug FROM-CACHE
 > Task :app:mergeDebugJniLibFolders
 > Task :app:mergeDebugNativeLibs
-> Task :app:stripDebugDebugSymbols
 > Task :app:validateSigningDebug
 > Task :app:writeDebugAppMetadata
 > Task :app:writeDebugSigningConfigVersions
-> Task :app:compileDebugKotlin
-w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/DetailScreen.kt:471:32 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
-w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:136:48 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
-w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:151:48 'val Icons.Rounded.Sort: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.Sort.
-w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:209:46 'val Icons.Rounded.Sort: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.Sort.
-w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/HomeScreen.kt:788:35 'val Icons.Rounded.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowForward.
-w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/MoreScreens.kt:119:39 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
-
-> Task :app:compileDebugJavaWithJavac NO-SOURCE
-> Task :app:processDebugJavaRes
-> Task :app:mergeDebugJavaResource
-> Task :app:dexBuilderDebug
-> Task :app:mergeProjectDexDebug
+> Task :app:stripDebugDebugSymbols
 > Task :app:packageDebug
 > Task :app:createDebugApkListingFileRedirect
 > Task :app:assembleDebug
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786612972807.json
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786613858824.json
 
-[Incubating] Problems report is available at: file:///home/runner/work/Range/Range/build/reports/problems/problems-report.html
-
-BUILD SUCCESSFUL in 1m 8s
-36 actionable tasks: 18 executed, 18 from cache
+BUILD SUCCESSFUL in 22s
+36 actionable tasks: 15 executed, 21 from cache
 
 ===== test failures =====
--rw-r--r-- 1 runner runner 21418434 Aug 13 09:24 dist/range-debug.apk
+-rw-r--r-- 1 runner runner 21418434 Aug 13 09:38 dist/range-debug.apk
