@@ -162,13 +162,18 @@ fun HomeScreen(
                 // ---------- 1. the money ----------
                 StepLabel(1, "How much can you spend?")
                 Spacer(Modifier.height(6.dp))
-                Box(contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
                     ShapeBlob(
                         Modifier
-                            .size(230.dp)
-                            .scale(1f, 0.58f),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                        lobes = 7,
+                            .size(300.dp)
+                            .scale(1f, 0.42f),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.07f),
+                        lobes = 8,
                     )
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         AnimatedNumber(
