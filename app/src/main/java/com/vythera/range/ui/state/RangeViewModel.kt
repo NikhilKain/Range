@@ -56,18 +56,25 @@ enum class SortMode(val label: String) {
     LONGEST("Longest stay"),
 }
 
+enum class Scope(val label: String) {
+    ALL("Everywhere"),
+    DOMESTIC("In my country"),
+    INTERNATIONAL("Abroad"),
+}
+
 data class Filters(
     val regions: Set<Region> = emptySet(),
     val vibes: Set<Vibe> = emptySet(),
     val onlyInRange: Boolean = true,
     val visaEasyOnly: Boolean = false,
     val sort: SortMode = SortMode.BEST_VALUE,
+    val scope: Scope = Scope.ALL,
     val search: String = "",
     val maxTravelHours: Float = 0f,
 ) {
     val activeCount: Int
         get() = regions.size + vibes.size + (if (visaEasyOnly) 1 else 0) +
-            (if (maxTravelHours > 0f) 1 else 0)
+            (if (maxTravelHours > 0f) 1 else 0) + (if (scope != Scope.ALL) 1 else 0)
 }
 
 data class ExploreState(
@@ -188,6 +195,11 @@ class RangeViewModel(private val store: RangeStore) : ViewModel() {
         val filtered = all.filter { e ->
             val d = e.destination
             (!f.onlyInRange || e.fits) &&
+                when (f.scope) {
+                    Scope.ALL -> true
+                    Scope.DOMESTIC -> e.domestic
+                    Scope.INTERNATIONAL -> !e.domestic
+                } &&
                 (f.regions.isEmpty() || d.region in f.regions) &&
                 (f.vibes.isEmpty() || d.vibes.any { it in f.vibes }) &&
                 (!f.visaEasyOnly || d.visaKind.ordinal <= 2) &&
@@ -259,7 +271,9 @@ class RangeViewModel(private val store: RangeStore) : ViewModel() {
         f.copy(vibes = f.vibes.toMutableSet().also { if (!it.add(v)) it.remove(v) })
     }
 
-    fun clearFilters() = setFilters { Filters(sort = it.sort, onlyInRange = it.onlyInRange) }
+    fun clearFilters() = setFilters {
+        Filters(sort = it.sort, onlyInRange = it.onlyInRange, scope = it.scope)
+    }
 
     // ---- persistence ------------------------------------------------------
 

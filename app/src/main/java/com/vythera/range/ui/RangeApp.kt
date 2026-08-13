@@ -152,6 +152,7 @@ fun RangeApp(
                 currency = currency,
                 wishlist = wishlist,
                 originCity = OriginCatalog.find(query.originId).city,
+                originCountry = OriginCatalog.find(query.originId).country,
                 budgetUsd = query.totalBudgetUsd,
                 onFilters = viewModel::setFilters,
                 onToggleRegion = viewModel::toggleRegion,
@@ -209,6 +210,9 @@ fun RangeApp(
             SettingsScreen(
                 settings = settings,
                 currency = currency,
+                originCity = OriginCatalog.find(query.originId).city,
+                originCountry = OriginCatalog.find(query.originId).country,
+                onOpenOrigin = { navController.navigate(Routes.ORIGIN) },
                 ratesUpdatedAt = ratesUpdatedAt,
                 refreshing = refreshing,
                 onRefreshRates = { viewModel.refreshRates(force = true) },

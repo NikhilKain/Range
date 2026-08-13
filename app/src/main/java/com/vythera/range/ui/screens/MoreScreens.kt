@@ -383,6 +383,9 @@ private fun OriginRow(place: Place, selected: Boolean, onClick: () -> Unit) {
 fun SettingsScreen(
     settings: RangeSettings,
     currency: Currency,
+    originCity: String,
+    originCountry: String,
+    onOpenOrigin: () -> Unit,
     ratesUpdatedAt: Long,
     refreshing: Boolean,
     onRefreshRates: () -> Unit,
@@ -395,6 +398,41 @@ fun SettingsScreen(
 ) {
     ScreenScaffold(title = "Settings", subtitle = "Range v1.0", onBack = onBack) {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            item {
+                GlassCard {
+                    SectionHeader("STARTING CITY")
+                    Spacer(Modifier.height(12.dp))
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable(onClick = onOpenOrigin)
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            Icons.Rounded.LocationCity,
+                            null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp),
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                originCity,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Text(
+                                "$originCountry · every price is worked out from here",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        RangeChip(label = "Change", selected = false, onClick = onOpenOrigin)
+                    }
+                }
+            }
             item {
                 GlassCard {
                     SectionHeader("THEME")

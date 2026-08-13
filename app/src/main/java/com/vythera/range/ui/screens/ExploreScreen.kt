@@ -87,6 +87,7 @@ import com.vythera.range.ui.components.pressScale
 import com.vythera.range.ui.components.rememberInteraction
 import com.vythera.range.ui.state.ExploreState
 import com.vythera.range.ui.state.Filters
+import com.vythera.range.ui.state.Scope
 import com.vythera.range.ui.state.SortMode
 import com.vythera.range.ui.theme.CardShape
 import com.vythera.range.ui.theme.PillShape
@@ -100,6 +101,7 @@ fun ExploreScreen(
     currency: Currency,
     wishlist: Set<String>,
     originCity: String,
+    originCountry: String,
     budgetUsd: Double,
     onFilters: ((Filters) -> Filters) -> Unit,
     onToggleRegion: (Region) -> Unit,
@@ -197,6 +199,17 @@ fun ExploreScreen(
                         .horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    Scope.entries.forEach { option ->
+                        RangeChip(
+                            label = when (option) {
+                                Scope.DOMESTIC -> "In $originCountry"
+                                else -> option.label
+                            },
+                            selected = filters.scope == option,
+                            onClick = { onFilters { it.copy(scope = option) } },
+                            accent = RangePalette.Aurora,
+                        )
+                    }
                     RangeChip(
                         label = if (filters.onlyInRange) "In range only" else "Showing everything",
                         selected = filters.onlyInRange,
@@ -437,7 +450,8 @@ private fun ReachCard(
                     )
                 }
                 Text(
-                    "${s.countries} countries · ${s.regions} regions" +
+                    "${s.domesticInRange} at home · ${s.internationalInRange} abroad · " +
+                        "${s.countries} countries" +
                         (s.farthestCity?.let { " · as far as $it" } ?: ""),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -79,6 +79,9 @@ data class TripEstimate(
         BudgetEngine.leanTotal(origin, destination, query)
     }
 
+    /** Same country as the traveller's starting city. */
+    val domestic: Boolean get() = VisaPolicy.isDomestic(origin.country, destination.country)
+
     val perPersonUsd: Double get() = totalUsd / query.travelers.coerceAtLeast(1)
     val perDayUsd: Double get() = totalUsd / query.days.coerceAtLeast(1)
     val ratio: Double get() = if (budgetUsd <= 0) 99.0 else totalUsd / budgetUsd
@@ -348,11 +351,13 @@ object BudgetEngine {
         val local = dest.costIndex * 5.5 * localMult(query.food) * people * days
         val experiences = dest.costIndex * experienceDaily(query.experience) * people * days
 
-        val visa = if (query.includeVisa && international && dest.visaKind != VisaKind.NONE) {
-            dest.visaCostUsd.toDouble() * people
-        } else {
-            0.0
+        val visaPerHead = when {
+            !query.includeVisa || !international -> 0
+            dest.visaKind == VisaKind.NONE -> 0
+            else -> VisaPolicy.overrideCostUsd(origin.country, dest.country)
+                ?: dest.visaCostUsd
         }
+        val visa = visaPerHead.toDouble() * people
         val insurance = if (query.includeInsurance) {
             (if (international) 1.9 else 0.5) * people * days
         } else {
@@ -440,6 +445,8 @@ object BudgetEngine {
         return ReachSummary(
             total = estimates.size,
             inRange = inRange.size,
+            domesticInRange = inRange.count { it.domestic },
+            internationalInRange = inRange.count { !it.domestic },
             countries = countries,
             farthestKm = farthest?.distanceKm ?: 0.0,
             farthestCity = farthest?.destination?.city,
@@ -462,6 +469,8 @@ object BudgetEngine {
 data class ReachSummary(
     val total: Int,
     val inRange: Int,
+    val domesticInRange: Int = 0,
+    val internationalInRange: Int = 0,
     val countries: Int,
     val farthestKm: Double,
     val farthestCity: String?,

@@ -257,6 +257,50 @@ class BudgetEngineTest {
     }
 
     @Test
+    fun `every major origin has domestic options to offer`() {
+        // Someone in London should not be told their only choice is to leave.
+        listOf("lhr", "jfk", "syd", "cdg", "hnd", "dxb", "del", "yyz", "cpt", "gru").forEach { id ->
+            val home = OriginCatalog.find(id)
+            val domestic = DestinationCatalog.all.count {
+                it.country.equals(home.country, ignoreCase = true) && it.id != home.id
+            }
+            assertTrue("${home.city} has only $domestic domestic destinations", domestic >= 2)
+        }
+    }
+
+    @Test
+    fun `no visa is charged inside a free movement area`() {
+        val london = OriginCatalog.find("lhr")
+        val paris = DestinationCatalog.byId.getValue("paris")
+        val e = BudgetEngine.estimate(london, paris, baseQuery)
+        assertEquals(0.0, e.line(CostKey.VISA), 0.001)
+
+        // But an Indian traveller to Paris still pays for the Schengen visa.
+        val fromDelhi = BudgetEngine.estimate(origin, paris, baseQuery)
+        assertTrue(fromDelhi.line(CostKey.VISA) > 0)
+    }
+
+    @Test
+    fun `domestic trips are flagged as domestic`() {
+        val london = OriginCatalog.find("lhr")
+        val bath = DestinationCatalog.byId.getValue("bath")
+        val paris = DestinationCatalog.byId.getValue("paris")
+        assertTrue(BudgetEngine.estimate(london, bath, baseQuery).domestic)
+        assertTrue(!BudgetEngine.estimate(london, paris, baseQuery).domestic)
+        assertEquals(0.0, BudgetEngine.estimate(london, bath, baseQuery).line(CostKey.VISA), 0.001)
+    }
+
+    @Test
+    fun `a londoner sees home and abroad options in range`() {
+        val london = OriginCatalog.find("lhr")
+        val q = baseQuery.copy(originId = "lhr", budgetUsd = 2500.0)
+        val results = BudgetEngine.explore(london, DestinationCatalog.all, q)
+        val summary = BudgetEngine.reachSummary(results)
+        assertTrue("expected UK options in range", summary.domesticInRange >= 1)
+        assertTrue("expected trips abroad in range", summary.internationalInRange >= 3)
+    }
+
+    @Test
     fun `explore returns something affordable at a sensible budget`() {
         val q = baseQuery.copy(budgetUsd = 1200.0)
         val results = BudgetEngine.explore(origin, DestinationCatalog.all, q)

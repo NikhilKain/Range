@@ -781,8 +781,8 @@ private fun ResultBar(
                 }
                 Text(
                     if (s.inRange > 0) {
-                        "${s.countries} countries · best value: " +
-                            (s.bestValue?.destination?.city ?: "—")
+                        "${s.domesticInRange} at home · ${s.internationalInRange} abroad · " +
+                            "best value: ${s.bestValue?.destination?.city ?: "—"}"
                     } else {
                         "Nothing fits yet — try more budget or fewer nights"
                     },
