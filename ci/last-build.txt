@@ -1,118 +1,60 @@
-commit:  a5086f6ffc00d8e3e965be2ff5ebc2e991d926e2
-run:     31675777056 (attempt 1)
-when:    2026-08-13T06:59:19Z
+commit:  cc0f5edd3e691aac8950d77a12e5ddc60a26b31a
+run:     31676282188 (attempt 1)
+when:    2026-08-13T07:06:33Z
 assemble exit: 1
 tests exit:    
 
 ===== resolved versions =====
-androidx.activity:activity:1.11.0
-androidx.activity:activity:1.11.0 (*)
-androidx.activity:activity:1.11.0 (c)
-androidx.activity:activity:1.8.0 > 1.11.0 (*)
-androidx.activity:activitycompose:1.11.0 (*)
-androidx.activity:activitycompose:1.11.0 (c)
-androidx.activity:activitycompose:1.7.0 > 1.11.0
-androidx.activity:activitycompose:1.8.0 > 1.11.0 (*)
-androidx.activity:activitycompose:1.8.2 > 1.11.0 (*)
-androidx.activity:activityktx:1.11.0 (c)
-androidx.activity:activityktx:1.7.0 > 1.11.0
-androidx.activity:activityktx:1.7.1 > 1.11.0 (*)
-androidx.compose.animation:animation > 1.12.0 (*)
-androidx.compose.animation:animation:1.10.0 > 1.12.0
-androidx.compose.animation:animation:1.12.0 (*)
-androidx.compose.animation:animation:1.12.0 (c)
-androidx.compose.animation:animation:1.7.1 > 1.12.0 (*)
-androidx.compose.animation:animation:1.7.2 > 1.12.0 (*)
-androidx.compose.animation:animationandroid:1.12.0
-androidx.compose.animation:animationandroid:1.12.0 (c)
-androidx.compose.animation:animationcore:1.12.0
-androidx.compose.animation:animationcore:1.12.0 (c)
-androidx.compose.animation:animationcore:1.2.1 > 1.12.0 (*)
-androidx.compose.animation:animationcore:1.7.2 > 1.12.0 (*)
-androidx.compose.animation:animationcore:1.8.1 > 1.12.0 (*)
-androidx.compose.animation:animationcoreandroid:1.12.0
-androidx.compose.animation:animationcoreandroid:1.12.0 (c)
-androidx.compose.animation:animationgraphics > 1.12.0
-androidx.compose.animation:animationgraphics:1.12.0 (c)
-androidx.compose.animation:animationgraphicsandroid:1.12.0
-androidx.compose.animation:animationgraphicsandroid:1.12.0 (c)
-androidx.compose.foundation:foundation > 1.12.0 (*)
-androidx.compose.foundation:foundation:1.12.0 (c)
-androidx.compose.foundation:foundation:1.7.0 > 1.12.0 (c)
-androidx.compose.foundation:foundation:1.7.1 > 1.12.0 (*)
-androidx.compose.foundation:foundation:1.8.1 > 1.12.0
-androidx.compose.foundation:foundationandroid:1.12.0
-androidx.compose.foundation:foundationandroid:1.12.0 (c)
-androidx.compose.foundation:foundationlayout:1.10.0 > 1.12.0
-androidx.compose.foundation:foundationlayout:1.10.0 > 1.12.0 (*)
 
 ===== kotlin/java errors =====
-   > 24 issues were found when checking AAR metadata:
+   > ⛔ Failed to apply plugin 'org.jetbrains.kotlin.android'
+      > java.lang.Throwable (no error message)
 
 ===== gradle failure block =====
 * What went wrong:
-Execution failed for task ':app:checkDebugAarMetadata'.
-> A failure occurred while executing com.android.build.gradle.internal.tasks.CheckAarMetadataWorkAction
-   > 24 issues were found when checking AAR metadata:
-     
-       1.  Dependency 'androidx.compose.foundation:foundation-layout-android:1.12.0' requires libraries and applications that
-           depend on it to compile against version 37 or later of the
-           Android APIs.
-     
-           :app is currently compiled against android-36.
-     
-           Also, the maximum recommended compile SDK version for Android Gradle
-           plugin 8.13.0 is 36.
-     
-
-===== tail =====
-           :app is currently compiled against android-36.
-     
-           Also, the maximum recommended compile SDK version for Android Gradle
-           plugin 8.13.0 is 36.
-     
-           Recommended action: Update this project's version of the Android Gradle
-           plugin to one that supports 37, then update this project to use
-           compileSdk of at least 37.
-     
-           Note that updating a library or application's compileSdk (which
-           allows newer APIs to be used) can be done separately from updating
-           targetSdk (which opts the app in to new runtime behavior) and
-           minSdk (which determines which devices the app can be installed
-           on).
-     
-      22.  Dependency 'androidx.compose.runtime:runtime-saveable-android:1.12.0' requires Android Gradle plugin 9.1.0 or higher.
-     
-           This build currently uses Android Gradle plugin 8.13.0.
-     
-      23.  Dependency 'androidx.compose.ui:ui-android:1.12.0' requires libraries and applications that
-           depend on it to compile against version 37 or later of the
-           Android APIs.
-     
-           :app is currently compiled against android-36.
-     
-           Also, the maximum recommended compile SDK version for Android Gradle
-           plugin 8.13.0 is 36.
-     
-           Recommended action: Update this project's version of the Android Gradle
-           plugin to one that supports 37, then update this project to use
-           compileSdk of at least 37.
-     
-           Note that updating a library or application's compileSdk (which
-           allows newer APIs to be used) can be done separately from updating
-           targetSdk (which opts the app in to new runtime behavior) and
-           minSdk (which determines which devices the app can be installed
-           on).
-     
-      24.  Dependency 'androidx.compose.ui:ui-android:1.12.0' requires Android Gradle plugin 9.1.0 or higher.
-     
-           This build currently uses Android Gradle plugin 8.13.0.
+An exception occurred applying plugin request [id: 'org.jetbrains.kotlin.android', version: '2.4.10']
+> Failed to apply plugin 'org.jetbrains.kotlin.android'.
+   > ⛔ Failed to apply plugin 'org.jetbrains.kotlin.android'
+     The 'org.jetbrains.kotlin.android' plugin is no longer required for Kotlin support since AGP 9.0.
+     Solution: Remove the 'org.jetbrains.kotlin.android' plugin from this project's build file: app/build.gradle.kts.
+     See https://kotl.in/gradle/agp-built-in-kotlin for more details.
+      > java.lang.Throwable (no error message)
 
 * Try:
 > Run with --stacktrace option to get the stack trace.
 > Run with --info or --debug option to get more log output.
-> Run with --scan to get full insights.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
 > Get more help at https://help.gradle.org.
 
-BUILD FAILED in 22s
-2 actionable tasks: 2 executed
+===== tail =====
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.7.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :app
+WARNING: The option 'android.defaults.buildfeatures.buildconfig' is deprecated.
+The current default is 'false'.
+It was removed in version 9.0 of the Android Gradle plugin.
+Add android.sync.suppressAgpWarnings=UNSUPPORTED_PROJECT_OPTION_USE to the gradle.properties file to suppress this warning.
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786604787107.json
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file '/home/runner/work/Range/Range/app/build.gradle.kts' line: 3
+
+* What went wrong:
+An exception occurred applying plugin request [id: 'org.jetbrains.kotlin.android', version: '2.4.10']
+> Failed to apply plugin 'org.jetbrains.kotlin.android'.
+   > ⛔ Failed to apply plugin 'org.jetbrains.kotlin.android'
+     The 'org.jetbrains.kotlin.android' plugin is no longer required for Kotlin support since AGP 9.0.
+     Solution: Remove the 'org.jetbrains.kotlin.android' plugin from this project's build file: app/build.gradle.kts.
+     See https://kotl.in/gradle/agp-built-in-kotlin for more details.
+      > java.lang.Throwable (no error message)
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 10s
