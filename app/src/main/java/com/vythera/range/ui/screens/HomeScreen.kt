@@ -1,6 +1,5 @@
 @file:OptIn(
     androidx.compose.material3.ExperimentalMaterial3Api::class,
-    androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
     androidx.compose.foundation.layout.ExperimentalLayoutApi::class,
     androidx.compose.animation.ExperimentalSharedTransitionApi::class,
     androidx.compose.ui.ExperimentalComposeUiApi::class,
@@ -67,6 +66,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -754,7 +754,7 @@ private fun SearchButton(enabled: Boolean, count: Int, onClick: () -> Unit) {
     }
 }
 
-private fun Modifier.scaleBy(v: Float) = this.then(androidx.compose.ui.draw.scale(v))
+private fun Modifier.scaleBy(v: Float) = this.scale(v)
 
 private fun quickBudgets(currency: Currency): List<Pair<String, Double>> {
     val locals = when (currency) {

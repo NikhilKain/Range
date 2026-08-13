@@ -1,6 +1,5 @@
 @file:OptIn(
     androidx.compose.material3.ExperimentalMaterial3Api::class,
-    androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
     androidx.compose.foundation.layout.ExperimentalLayoutApi::class,
     androidx.compose.animation.ExperimentalSharedTransitionApi::class,
     androidx.compose.ui.ExperimentalComposeUiApi::class,
@@ -297,7 +296,11 @@ private fun StepButton(
     enabled: Boolean,
     onClick: () -> Unit,
 ) {
-    val size by animateDpAsState(if (enabled) 36.dp else 34.dp, Motion.snappy, label = "stepSize")
+    val size by animateDpAsState(
+        if (enabled) 36.dp else 34.dp,
+        Motion.springOf(),
+        label = "stepSize",
+    )
     val tint by animateColorAsState(
         if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
         label = "stepTint",
