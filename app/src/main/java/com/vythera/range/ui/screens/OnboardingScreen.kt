@@ -88,12 +88,7 @@ fun OnboardingScreen(
                 )
             }
             Spacer(Modifier.height(8.dp))
-            RangeWordmark(
-                Modifier
-                    .fillMaxWidth(0.6f)
-                    .height(26.dp)
-                    .align(Alignment.CenterHorizontally),
-            )
+            RangeWordmark(Modifier.align(Alignment.CenterHorizontally))
 
             HorizontalPager(
                 state = pager,

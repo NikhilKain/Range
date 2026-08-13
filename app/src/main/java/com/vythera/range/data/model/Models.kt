@@ -43,6 +43,28 @@ enum class Tier(val label: String, val blurb: String) {
     BUDGET("Budget", "Hostels, street food, local buses"),
     MID("Comfort", "3-star stays, sit-down meals, the odd cab"),
     LUXURY("Luxury", "4/5-star, fine dining, private transfers"),
+    ;
+
+    val stayBlurb: String
+        get() = when (this) {
+            BUDGET -> "Hostels, guesthouses, dorms"
+            MID -> "3-star hotels and good apartments"
+            LUXURY -> "4–5 star, resorts, suites"
+        }
+
+    val foodBlurb: String
+        get() = when (this) {
+            BUDGET -> "Street food and local joints"
+            MID -> "Cafes and sit-down restaurants"
+            LUXURY -> "Tasting menus and rooftop bars"
+        }
+
+    val experienceBlurb: String
+        get() = when (this) {
+            BUDGET -> "Free walks, a few entry tickets"
+            MID -> "Tours, museums, a day trip or two"
+            LUXURY -> "Private guides, boats, the big-ticket stuff"
+        }
 }
 
 enum class TransportMode(val label: String, val verb: String) {

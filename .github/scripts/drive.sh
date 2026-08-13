@@ -58,14 +58,18 @@ swipe $((W/2)) $((H*70/100)) $((W/2)) $((H*30/100)) 400
 shot 05-home-mid 2
 swipe $((W/2)) $((H*70/100)) $((W/2)) $((H*30/100)) 400
 shot 06-home-lower 2
-swipe $((W/2)) $((H*70/100)) $((W/2)) $((H*30/100)) 400
-shot 07-home-bottom 2
 
-# The CTA sits at the very bottom of the scroll.
-swipe $((W/2)) $((H*70/100)) $((W/2)) $((H*20/100)) 400
-sleep 1
+# Drive to the very bottom, where the CTA lives.
+for _ in 1 2 3 4 5 6; do
+  adb shell input swipe $((W/2)) $((H*80/100)) $((W/2)) $((H*15/100)) 220
+done
+sleep 2
+shot 07-home-bottom 2
+adb shell input swipe $((W/2)) $((H*80/100)) $((W/2)) $((H*15/100)) 220
+sleep 2
 shot 08-home-cta 2
-tap $((W/2)) $((H*80/100)) 3
+# CTA is the last element; tap just above the gesture bar.
+tap $((W/2)) $((H*88/100)) 3
 shot 09-explore 4
 
 swipe $((W/2)) $((H*70/100)) $((W/2)) $((H*30/100)) 400
@@ -84,10 +88,23 @@ swipe $((W/2)) $((H*70/100)) $((W/2)) $((H*25/100)) 400
 shot 15-detail-more 2
 
 adb shell input keyevent KEYCODE_BACK
-sleep 2
+sleep 3
+shot 16-explore-back 2
+adb shell input keyevent KEYCODE_BACK
+sleep 3
+shot 17-home-again 2
+
+# Saved and settings live behind the header bubbles.
+tap $((W*79/100)) $((H*7/100)) 2
+shot 18-saved 2
 adb shell input keyevent KEYCODE_BACK
 sleep 2
-shot 16-back-home 2
+tap $((W*90/100)) $((H*7/100)) 2
+shot 19-settings 2
+swipe $((W/2)) $((H*70/100)) $((W/2)) $((H*30/100)) 400
+shot 20-settings-lower 2
+adb shell input keyevent KEYCODE_BACK
+sleep 2
 
 log "== crash check =="
 adb logcat -d -b crash | tail -60 | tee -a "$REPORT"

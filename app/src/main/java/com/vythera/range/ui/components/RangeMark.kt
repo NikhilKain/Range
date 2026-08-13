@@ -14,6 +14,14 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -106,12 +114,29 @@ fun RangeMark(
             val py = c.y + r * sin(angle).toFloat()
             val heading = Math.toDegrees(angle).toFloat() + 90f
             rotate(heading, pivot = Offset(px, py)) {
-                val s = r * 0.26f
+                val s = r * 0.22f
                 val plane = Path().apply {
-                    moveTo(px, py - s)
-                    lineTo(px + s * 0.62f, py + s * 0.45f)
-                    lineTo(px, py + s * 0.18f)
-                    lineTo(px - s * 0.62f, py + s * 0.45f)
+                    // nose
+                    moveTo(px, py - s * 1.25f)
+                    // right side of the fuselage down to the wing root
+                    lineTo(px + s * 0.16f, py - s * 0.35f)
+                    // swept right wing
+                    lineTo(px + s * 1.05f, py + s * 0.25f)
+                    lineTo(px + s * 1.05f, py + s * 0.5f)
+                    lineTo(px + s * 0.16f, py + s * 0.28f)
+                    // right tailplane
+                    lineTo(px + s * 0.14f, py + s * 0.85f)
+                    lineTo(px + s * 0.42f, py + s * 1.15f)
+                    lineTo(px + s * 0.42f, py + s * 1.3f)
+                    lineTo(px, py + s * 1.05f)
+                    // mirrored left side
+                    lineTo(px - s * 0.42f, py + s * 1.3f)
+                    lineTo(px - s * 0.42f, py + s * 1.15f)
+                    lineTo(px - s * 0.14f, py + s * 0.85f)
+                    lineTo(px - s * 0.16f, py + s * 0.28f)
+                    lineTo(px - s * 1.05f, py + s * 0.5f)
+                    lineTo(px - s * 1.05f, py + s * 0.25f)
+                    lineTo(px - s * 0.16f, py - s * 0.35f)
                     close()
                 }
                 drawPath(plane, Color.White.copy(alpha = progress))
@@ -153,65 +178,22 @@ fun RangeMark(
     }
 }
 
-/** Wordmark: RANGE with the A drawn as the brand chevron. */
+/** Wordmark: RANGE set wide, with the A carrying the brand gradient. */
 @Composable
 fun RangeWordmark(modifier: Modifier = Modifier, tint: Color = RangePalette.Mist) {
-    Canvas(modifier) {
-        val h = size.height
-        val strokeW = h * 0.11f
-        val gap = h * 0.30f
-        var x = 0f
-        val letters = 5
-        val letterW = (size.width - gap * (letters - 1)) / letters
-
-        fun line(x1: Float, y1: Float, x2: Float, y2: Float, color: Color = tint) {
-            drawLine(color, Offset(x1, y1), Offset(x2, y2), strokeW, StrokeCap.Round)
+    val gradient = Brush.linearGradient(listOf(RangePalette.Aurora, RangePalette.Sky))
+    Row(modifier, horizontalArrangement = Arrangement.Center) {
+        "RANGE".forEach { ch ->
+            Text(
+                ch.toString(),
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.W300,
+                    letterSpacing = 0.sp,
+                    brush = if (ch == 'A') gradient else null,
+                ),
+                color = if (ch == 'A') Color.Unspecified else tint,
+                modifier = Modifier.padding(horizontal = 5.dp),
+            )
         }
-
-        // R
-        line(x, h, x, 0f)
-        drawArc(
-            color = tint,
-            startAngle = -90f,
-            sweepAngle = 180f,
-            useCenter = false,
-            topLeft = Offset(x, 0f),
-            size = Size(letterW, h * 0.52f),
-            style = Stroke(strokeW, cap = StrokeCap.Round),
-        )
-        line(x + letterW * 0.35f, h * 0.52f, x + letterW, h)
-        x += letterW + gap
-
-        // A — brand chevron in gradient.
-        val chevron = Brush.verticalGradient(listOf(RangePalette.Aurora, RangePalette.Sky))
-        drawLine(chevron, Offset(x, h), Offset(x + letterW / 2f, 0f), strokeW, StrokeCap.Round)
-        drawLine(chevron, Offset(x + letterW / 2f, 0f), Offset(x + letterW, h), strokeW, StrokeCap.Round)
-        x += letterW + gap
-
-        // N
-        line(x, h, x, 0f)
-        line(x, 0f, x + letterW, h)
-        line(x + letterW, h, x + letterW, 0f)
-        x += letterW + gap
-
-        // G
-        drawArc(
-            color = tint,
-            startAngle = -35f,
-            sweepAngle = 290f,
-            useCenter = false,
-            topLeft = Offset(x, 0f),
-            size = Size(letterW, h),
-            style = Stroke(strokeW, cap = StrokeCap.Round),
-        )
-        line(x + letterW * 0.55f, h * 0.55f, x + letterW, h * 0.55f)
-        line(x + letterW, h * 0.55f, x + letterW, h * 0.82f)
-        x += letterW + gap
-
-        // E
-        line(x, 0f, x, h)
-        line(x, 0f, x + letterW, 0f)
-        line(x, h * 0.5f, x + letterW * 0.82f, h * 0.5f)
-        line(x, h, x + letterW, h)
     }
 }

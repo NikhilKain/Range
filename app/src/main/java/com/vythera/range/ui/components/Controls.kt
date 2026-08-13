@@ -103,6 +103,12 @@ fun BudgetTape(
         onValueChange(next)
     }
 
+    /** Land on a round number so the headline figure is never ₹60,030. */
+    fun snap(from: Double) {
+        val steps = (from * currency.perUsd / stepLocal).roundToInt().coerceAtLeast(1)
+        onValueChange((steps * stepLocal / currency.perUsd).coerceIn(minUsd, maxUsd))
+    }
+
     val dragState = rememberDraggableState { delta -> applyDelta(delta) }
 
     Column(modifier) {
@@ -115,13 +121,25 @@ fun BudgetTape(
                     orientation = Orientation.Horizontal,
                     onDragStopped = { velocity ->
                         scope.launch {
+                            // The fling runs off a local accumulator: recomposition
+                            // can't feed the loop a fresh value mid-animation.
                             var last = 0f
+                            var current = valueUsd
                             AnimationState(initialValue = 0f, initialVelocity = velocity / 2.2f)
                                 .animateDecay(decay) {
                                     val d = value - last
                                     last = value
-                                    applyDelta(d)
+                                    current = (current - (d / pxPerStep) * stepUsd)
+                                        .coerceIn(minUsd, maxUsd)
+                                    if (abs(current - lastTick) >= stepUsd * 0.98) {
+                                        lastTick = current.toFloat()
+                                        haptics.performHapticFeedback(
+                                            HapticFeedbackType.TextHandleMove,
+                                        )
+                                    }
+                                    onValueChange(current)
                                 }
+                            snap(current)
                         }
                     },
                 ),
@@ -142,16 +160,16 @@ fun BudgetTape(
                 val h = if (major) 26f else 14f
                 drawLine(
                     color = if (major) {
-                        RangePalette.Mist.copy(alpha = 0.20f + 0.55f * fade)
+                        RangePalette.Mist.copy(alpha = 0.35f + 0.60f * fade)
                     } else {
-                        RangePalette.MistDim.copy(alpha = 0.10f + 0.30f * fade)
+                        RangePalette.MistDim.copy(alpha = 0.22f + 0.45f * fade)
                     },
                     start = Offset(x, size.height / 2f - h / 2f),
                     end = Offset(x, size.height / 2f + h / 2f),
                     strokeWidth = if (major) 2.2f else 1.2f,
                     cap = StrokeCap.Round,
                 )
-                if (major && fade > 0.25f) {
+                if (major && fade > 0.06f) {
                     val amount = (s * stepLocal)
                     val label = when {
                         currency == Currency.INR && amount >= 100_000 ->
@@ -163,7 +181,7 @@ fun BudgetTape(
                     val layout = measurer.measure(
                         label,
                         style = TextStyle(
-                            color = RangePalette.MistDim.copy(alpha = 0.25f + 0.6f * fade),
+                            color = RangePalette.MistDim.copy(alpha = 0.35f + 0.6f * fade),
                             fontSize = 10.sp,
                         ),
                     )

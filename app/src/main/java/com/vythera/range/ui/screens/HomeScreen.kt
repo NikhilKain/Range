@@ -319,7 +319,11 @@ fun HomeScreen(
                 StepperRow(
                     icon = Icons.Rounded.Groups,
                     title = "Travellers",
-                    subtitle = if (query.travelers == 1) "Solo trip" else "${roomsFor(query)} room(s)",
+                    subtitle = if (query.travelers == 1) {
+                        "Solo trip"
+                    } else {
+                        roomsFor(query).let { "$it room${if (it == 1) "" else "s"}" }
+                    },
                 ) {
                     CountStepper(
                         value = query.travelers,
@@ -377,6 +381,7 @@ fun HomeScreen(
                     icon = Icons.Rounded.Hotel,
                     label = "Stay",
                     tier = query.stay,
+                    blurb = query.stay.stayBlurb,
                     onSelect = { t -> onQueryChange { it.copy(stay = t) } },
                 )
                 Spacer(Modifier.height(14.dp))
@@ -384,6 +389,7 @@ fun HomeScreen(
                     icon = Icons.Rounded.Restaurant,
                     label = "Food",
                     tier = query.food,
+                    blurb = query.food.foodBlurb,
                     onSelect = { t -> onQueryChange { it.copy(food = t) } },
                 )
                 Spacer(Modifier.height(14.dp))
@@ -391,6 +397,7 @@ fun HomeScreen(
                     icon = Icons.Rounded.Tune,
                     label = "Things to do",
                     tier = query.experience,
+                    blurb = query.experience.experienceBlurb,
                     onSelect = { t -> onQueryChange { it.copy(experience = t) } },
                 )
 
@@ -593,6 +600,7 @@ private fun TierRow(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     tier: Tier,
+    blurb: String,
     onSelect: (Tier) -> Unit,
 ) {
     Column {
@@ -606,7 +614,7 @@ private fun TierRow(
             )
             Spacer(Modifier.width(8.dp))
             Text(
-                tier.blurb,
+                blurb,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
