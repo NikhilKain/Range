@@ -10,42 +10,54 @@ Starting: Intent { cmp=com.vythera.range/.MainActivity }
 Status: ok
 LaunchState: COLD
 Activity: com.vythera.range/.MainActivity
-TotalTime: 9470
-WaitTime: 9655
+TotalTime: 9284
+WaitTime: 9379
 Complete
-shot 01-onboarding: 834692 bytes
-shot 02-onboarding-2: 823740 bytes
-shot 03-onboarding-3: 809815 bytes
-shot 04-home: 855246 bytes
-shot 05-home-mid: 907506 bytes
-shot 06-home-lower: 762846 bytes
-shot 07-home-bottom: 717288 bytes
-shot 08-home-cta: 782572 bytes
-shot 09-explore: 511191 bytes
-shot 10-explore-list: 426755 bytes
-shot 11-explore-list2: 282317 bytes
-shot 12-detail: 282791 bytes
-shot 13-detail-costs: 267720 bytes
-shot 14-detail-transport: 266261 bytes
-shot 15-detail-more: 263782 bytes
-shot 16-explore-back: 512223 bytes
-shot 17-home-again: 736838 bytes
-shot 18-saved: 729498 bytes
-shot 19-settings: 625647 bytes
-shot 20-settings-lower: 1388066 bytes
+shot 01-onboarding: 825590 bytes
+shot 02-onboarding-2: 836805 bytes
+shot 03-onboarding-3: 416335 bytes
+shot 04-home: 379079 bytes
+shot 05-home-mid: 394079 bytes
+shot 06-home-lower: 397240 bytes
+shot 07-home-bottom: 377969 bytes
+shot 08-home-cta: 389233 bytes
+shot 09-explore: 402932 bytes
+shot 10-explore-list: 387634 bytes
+shot 11-explore-list2: 385802 bytes
+shot 12-detail: 394513 bytes
+shot 13-detail-costs: 404206 bytes
+shot 14-detail-transport: 379591 bytes
+shot 15-detail-more: 384538 bytes
+shot 16-explore-back: 389930 bytes
+shot 17-home-again: 402301 bytes
+shot 18-saved: 385786 bytes
+shot 19-settings: 380149 bytes
+shot 20-settings-lower: 391918 bytes
+shot 21-settings-theme: 379564 bytes
+shot 22-settings-light: 379743 bytes
+shot 23-home-light: 391035 bytes
+shot 24-home-light-bottom: 384058 bytes
+shot 25-explore-light: 384948 bytes
+shot 26-explore-light-list: 383446 bytes
+shot 27-detail-light: 404629 bytes
 == crash check ==
 == app errors ==
-08-13 08:10:05.355   528  2761 E ActivityManager:   25% 2558/com.vythera.range: 20% user + 4.6% kernel / faults: 24032 minor 3405 major
-08-13 08:10:05.355   528  2761 E ActivityManager:   6.8% 389/android.hardware.graphics.composer3-service.ranchu: 0% user + 6.8% kernel / faults: 11 minor
-08-13 08:10:13.668   528  2934 E ActivityManager:   21% 2558/com.vythera.range: 4.6% user + 16% kernel / faults: 6195 minor
-08-13 08:10:13.668   528  2934 E ActivityManager:   14% 389/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 14% kernel
-08-13 08:10:31.171   528  3084 E ActivityManager:   17% 2558/com.vythera.range: 7.1% user + 10% kernel / faults: 2099 minor
-08-13 08:10:31.171   528  3084 E ActivityManager:   12% 389/android.hardware.graphics.composer3-service.ranchu: 0.2% user + 12% kernel
-08-13 08:10:32.044   528  3084 E ActivityManager:   17% 2558/com.vythera.range: 7.1% user + 10% kernel / faults: 2099 minor
-08-13 08:10:32.044   528  3084 E ActivityManager:   12% 389/android.hardware.graphics.composer3-service.ranchu: 0.2% user + 12% kernel
-08-13 08:10:35.043   528  3288 E ActivityManager:   17% 2558/com.vythera.range: 7.1% user + 10% kernel / faults: 2099 minor
-08-13 08:10:35.043   528  3288 E ActivityManager:   12% 389/android.hardware.graphics.composer3-service.ranchu: 0.2% user + 12% kernel
-08-13 08:11:00.862   528  3878 E ActivityManager:   23% 2558/com.vythera.range: 8.6% user + 14% kernel / faults: 15108 minor
-08-13 08:11:00.862   528  3878 E ActivityManager:   8.2% 389/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 8.1% kernel
+08-13 08:43:56.386   524   559 E ActivityManager: Timeout waiting for provider com.google.android.gms/10129 for provider com.google.android.gms.fonts caller=ProcessRecord{bbd9795 2841:com.vythera.range/u0a192}
+08-13 08:44:02.013   524  2834 E ActivityManager:   11% 384/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 11% kernel
+08-13 08:44:02.013   524  2834 E ActivityManager:   31% 2841/com.vythera.range: 24% user + 7.4% kernel / faults: 4985 minor 9 major
+08-13 08:44:02.084   524  2834 E ActivityManager:   0.9% 384/android.hardware.graphics.composer3-service.ranchu: 0% user + 0.9% kernel
+08-13 08:44:04.260   524  2834 E ActivityManager:   11% 384/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 11% kernel
+08-13 08:44:41.386   524  3616 E ActivityManager:   15% 2841/com.vythera.range: 3.6% user + 11% kernel / faults: 71563 minor 51 major
+08-13 08:44:41.386   524  3616 E ActivityManager:   9.7% 384/android.hardware.graphics.composer3-service.ranchu: 0% user + 9.6% kernel
+08-13 08:44:41.386   524  3616 E ActivityManager:   19% 384/android.hardware.graphics.composer3-service.ranchu: 0% user + 19% kernel
+08-13 08:44:41.386   524  3616 E ActivityManager:   24% 2841/com.vythera.range: 3% user + 21% kernel / faults: 145 minor
+08-13 08:45:10.695   524  4316 E ActivityManager:   16% 2841/com.vythera.range: 3.5% user + 12% kernel / faults: 2111 minor
+08-13 08:45:10.695   524  4316 E ActivityManager:   12% 384/android.hardware.graphics.composer3-service.ranchu: 0.2% user + 12% kernel
+08-13 08:45:14.983   524  4316 E ActivityManager:   17% 2841/com.vythera.range: 3.1% user + 14% kernel / faults: 550 minor
+08-13 08:45:14.983   524  4316 E ActivityManager:   14% 384/android.hardware.graphics.composer3-service.ranchu: 0% user + 14% kernel
+08-13 08:45:32.570   524  4909 E ActivityManager:   17% 384/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 17% kernel
+08-13 08:45:32.570   524  4909 E ActivityManager:   15% 2841/com.vythera.range: 3.3% user + 12% kernel / faults: 1324 minor
+08-13 08:46:25.306   524  5421 E ActivityManager:   15% 2841/com.vythera.range: 2.9% user + 12% kernel / faults: 439 minor
+08-13 08:46:25.306   524  5421 E ActivityManager:   12% 384/android.hardware.graphics.composer3-service.ranchu: 0.2% user + 11% kernel
 == still running? ==
-2558
+2841
