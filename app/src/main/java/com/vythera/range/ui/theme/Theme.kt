@@ -1,3 +1,11 @@
+@file:OptIn(
+    androidx.compose.material3.ExperimentalMaterial3Api::class,
+    androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
+    androidx.compose.foundation.layout.ExperimentalLayoutApi::class,
+    androidx.compose.animation.ExperimentalSharedTransitionApi::class,
+    androidx.compose.ui.ExperimentalComposeUiApi::class,
+)
+
 package com.vythera.range.ui.theme
 
 import android.app.Activity
