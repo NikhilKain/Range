@@ -1,73 +1,63 @@
 == device ==
-34
-Physical size: 1080x2400
-w=1080 h=2400
+Physical size: 1080x2400 (w=1080 h=2400)
 == install ==
 Performing Streamed Install
 Success
 == launch ==
-Starting: Intent { cmp=com.vythera.range/.MainActivity }
-Status: ok
-LaunchState: COLD
 Activity: com.vythera.range/.MainActivity
-TotalTime: 10495
-WaitTime: 10536
+TotalTime: 7893
+WaitTime: 8232
 Complete
-shot 01-onboarding: 781481 bytes
-shot 02-onboarding-2: 796074 bytes
-shot 03-onboarding-3: 15580 bytes
-shot 04-home: 819234 bytes
-shot 05-home-mid: 782858 bytes
-shot 06-home-lower: 794398 bytes
-shot 07-home-bottom: 882855 bytes
-shot 08-home-cta: 818490 bytes
-shot 09-explore: 791449 bytes
-shot 10-explore-list: 15580 bytes
-shot 11-explore-list2: 813078 bytes
-shot 12-detail: 337290 bytes
-shot 13-detail-costs: 345331 bytes
-shot 14-detail-transport: 331199 bytes
-shot 15-detail-more: 327468 bytes
-shot 16-explore-back: 847451 bytes
-shot 17-home-again: 868716 bytes
-shot 18-saved: 15580 bytes
-shot 19-settings: 1381289 bytes
-shot 20-settings-lower: 1384477 bytes
-shot 21-settings-theme: 1387725 bytes
-shot 22-settings-light: 1387725 bytes
-shot 23-home-light: 1387725 bytes
-shot 24-home-light-bottom: 302976 bytes
-shot 25-explore-light: 302976 bytes
-shot 26-explore-light-list: 302976 bytes
-shot 27-detail-light: 302481 bytes
+shot 01-onboarding: 177308 bytes
+== onboarding ==
+  tap 'Next' -> 540 2102
+shot 02-onboarding-2: 15580 bytes
+  tap 'Next' -> 540 2102
+shot 03-onboarding-3: 905999 bytes
+  tap 'Find my range': not found
+shot 04-home: 822708 bytes
+  home: NO
+  tap 'Skip' -> 540 2249
+== home ==
+shot 05-home-when: 893312 bytes
+shot 06-home-travel: 739372 bytes
+shot 07-home-comfort: 15580 bytes
+== explore ==
+  tap 'places in reach': not found
+shot 08-explore: 790621 bytes
+  explore: NO
+shot 09-explore-list: 738602 bytes
+shot 10-explore-list2: 773162 bytes
+== detail ==
+shot 11-detail: 739271 bytes
+  detail: NO
+shot 12-detail-breakdown: 708637 bytes
+shot 13-detail-nights: 690798 bytes
+shot 14-detail-transport: 749967 bytes
+shot 15-home-again: 1366188 bytes
+== settings and light theme ==
+  tap 'Settings': not found
+shot 16-settings: 1369472 bytes
+  tap 'Light': not found
+shot 17-settings-light: 1365216 bytes
+shot 18-home-light: 1365216 bytes
+  tap 'places in reach': not found
+shot 19-explore-light: 1365216 bytes
+shot 20-detail-light: 1365216 bytes
 == crash check ==
 == app errors ==
-08-13 09:50:40.035   528  2479 E ActivityManager:   13% 388/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 13% kernel / faults: 6 minor
-08-13 09:51:04.625   528  2668 E ActivityManager:   29% 2439/com.vythera.range: 8.7% user + 20% kernel / faults: 12840 minor 14 major
-08-13 09:51:04.625   528  2668 E ActivityManager:   10% 388/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 9.9% kernel / faults: 4 minor
-08-13 09:51:04.625   528  2668 E ActivityManager:   42% 2439/com.vythera.range: 0% user + 42% kernel / faults: 5 minor
-08-13 09:51:04.625   528  2668 E ActivityManager:   8% 388/android.hardware.graphics.composer3-service.ranchu: 0.2% user + 7.7% kernel
-08-13 09:51:07.916   528  2668 E ActivityManager:   29% 2439/com.vythera.range: 8.7% user + 20% kernel / faults: 12840 minor 14 major
-08-13 09:51:07.916   528  2668 E ActivityManager:   10% 388/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 9.9% kernel / faults: 4 minor
-08-13 09:51:16.599   401   418 E HwcComposer: getDisplayDecorationSupport failed Status(-8, EX_SERVICE_SPECIFIC): '8: '
-08-13 09:51:16.599   401   418 E HWComposer: getDisplayDecorationSupport: getDisplayDecorationSupport failed for display 4619827259835644672: Unsupported (8)
-08-13 09:51:22.540   528  1734 E ActivityTaskManager: setVisibility=true while transition is not collecting or finishing ActivityRecord{fa67309 u0 com.vythera.range/.MainActivity t8} caller=com.android.server.wm.ActivityRecord.setVisibility:5287 com.android.server.wm.TaskFragment.resumeTopActivity:1393 com.android.server.wm.Task.resumeTopActivityInnerLocked:5044 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:4974 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:5025 com.android.server.wm.RootWindowContainer.lambda$applySleepTokens$20:2428 com.android.server.wm.RootWindowContainer.$r8$lambda$9xL80GDJRExKql35hTmQVg_ieD8:0 com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda10.accept:0 
-08-13 09:51:32.554   528  4072 E ActivityManager:   11% 2439/com.vythera.range: 4.2% user + 7.1% kernel / faults: 4757 minor
-08-13 09:51:32.554   528  4072 E ActivityManager:   10% 388/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 10% kernel
-08-13 09:52:27.723   528  4595 E ActivityManager:   19% 2439/com.vythera.range: 6% user + 13% kernel / faults: 5734 minor
-08-13 09:52:27.723   528  4595 E ActivityManager:   15% 388/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 15% kernel / faults: 1 minor
-08-13 09:52:27.723   528  4595 E ActivityManager:   34% 2439/com.vythera.range: 4.5% user + 29% kernel / faults: 109 minor
-08-13 09:52:27.723   528  4595 E ActivityManager:   15% 388/android.hardware.graphics.composer3-service.ranchu: 0% user + 15% kernel
-08-13 09:52:28.383   528  4595 E ActivityManager:   19% 2439/com.vythera.range: 6% user + 13% kernel / faults: 5734 minor
-08-13 09:52:28.383   528  4595 E ActivityManager:   15% 388/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 15% kernel / faults: 1 minor
-08-13 09:52:38.424   401   582 E HwcComposer: getDisplayDecorationSupport failed Status(-8, EX_SERVICE_SPECIFIC): '8: '
-08-13 09:52:38.424   401   582 E HWComposer: getDisplayDecorationSupport: getDisplayDecorationSupport failed for display 4619827259835644672: Unsupported (8)
-08-13 09:52:41.261   528  1777 E ActivityTaskManager: setVisibility=true while transition is not collecting or finishing ActivityRecord{fa67309 u0 com.vythera.range/.MainActivity t8} caller=com.android.server.wm.ActivityRecord.setVisibility:5287 com.android.server.wm.TaskFragment.resumeTopActivity:1393 com.android.server.wm.Task.resumeTopActivityInnerLocked:5044 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:4974 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:5025 com.android.server.wm.RootWindowContainer.lambda$applySleepTokens$20:2428 com.android.server.wm.RootWindowContainer.$r8$lambda$9xL80GDJRExKql35hTmQVg_ieD8:0 com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda10.accept:0 
-08-13 09:53:40.519   528  5509 E ActivityManager:   17% 2439/com.vythera.range: 4.5% user + 13% kernel / faults: 69387 minor 4 major
-08-13 09:53:40.519   528  5509 E ActivityManager:   13% 388/android.hardware.graphics.composer3-service.ranchu: 0.2% user + 13% kernel
-08-13 09:53:40.519   528  5509 E ActivityManager:   18% 388/android.hardware.graphics.composer3-service.ranchu: 0% user + 18% kernel
-08-13 09:53:40.519   528  5509 E ActivityManager:   22% 2439/com.vythera.range: 2.8% user + 19% kernel / faults: 110 minor
-08-13 09:53:47.120   401   418 E HwcComposer: getDisplayDecorationSupport failed Status(-8, EX_SERVICE_SPECIFIC): '8: '
-08-13 09:53:47.121   401   418 E HWComposer: getDisplayDecorationSupport: getDisplayDecorationSupport failed for display 4619827259835644672: Unsupported (8)
+08-13 14:49:56.521   526  2540 E ActivityManager:   28% 2345/com.vythera.range: 17% user + 10% kernel / faults: 23422 minor 3484 major
+08-13 14:50:17.054   526   562 E ActivityManager: Timeout waiting for provider com.google.android.gms/10130 for provider com.google.android.gms.fonts caller=ProcessRecord{d135360 2345:com.vythera.range/u0a192}
+08-13 14:50:21.261   526  2723 E ActivityManager:   18% 2345/com.vythera.range: 6.1% user + 12% kernel / faults: 9241 minor 15 major
+08-13 14:50:21.261   526  2723 E ActivityManager:   11% 2345/com.vythera.range: 4% user + 7.7% kernel / faults: 370 minor
+08-13 14:50:21.735   526  2723 E ActivityManager:   18% 2345/com.vythera.range: 6.1% user + 12% kernel / faults: 9241 minor 15 major
+08-13 14:50:21.929   526  2723 E ActivityManager:   18% 2345/com.vythera.range: 6.1% user + 12% kernel / faults: 9241 minor 15 major
+08-13 14:50:36.466   526  2038 E ActivityTaskManager: setVisibility=true while transition is not collecting or finishing ActivityRecord{ce1f37e u0 com.vythera.range/.MainActivity t7} caller=com.android.server.wm.ActivityRecord.setVisibility:5287 com.android.server.wm.TaskFragment.resumeTopActivity:1393 com.android.server.wm.Task.resumeTopActivityInnerLocked:5044 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:4974 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:5025 com.android.server.wm.RootWindowContainer.lambda$applySleepTokens$20:2428 com.android.server.wm.RootWindowContainer.$r8$lambda$9xL80GDJRExKql35hTmQVg_ieD8:0 com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda10.accept:0 
+08-13 14:50:51.151   526  4271 E ActivityManager:   12% 2345/com.vythera.range: 4.4% user + 8.3% kernel / faults: 5869 minor
+08-13 14:51:13.771   526  4768 E ActivityManager:   19% 2345/com.vythera.range: 4.7% user + 15% kernel / faults: 5951 minor
+08-13 14:51:44.587   526  5018 E ActivityManager:   25% 2345/com.vythera.range: 6.2% user + 19% kernel / faults: 5135 minor
+08-13 14:51:44.587   526  5018 E ActivityManager:   31% 2345/com.vythera.range: 20% user + 10% kernel / faults: 269 minor
+08-13 14:51:53.022   526   909 E ActivityTaskManager: setVisibility=true while transition is not collecting or finishing ActivityRecord{ce1f37e u0 com.vythera.range/.MainActivity t7} caller=com.android.server.wm.ActivityRecord.setVisibility:5287 com.android.server.wm.TaskFragment.resumeTopActivity:1393 com.android.server.wm.Task.resumeTopActivityInnerLocked:5044 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:4974 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:5025 com.android.server.wm.RootWindowContainer.lambda$applySleepTokens$20:2428 com.android.server.wm.RootWindowContainer.$r8$lambda$9xL80GDJRExKql35hTmQVg_ieD8:0 com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda10.accept:0 
+08-13 14:52:41.242   526  5887 E ActivityManager:   22% 2345/com.vythera.range: 5.5% user + 16% kernel / faults: 14959 minor
 == still running? ==
-2439
+2345
