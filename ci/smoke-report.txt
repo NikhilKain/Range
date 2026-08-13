@@ -1,0 +1,106 @@
+== device ==
+34
+Physical size: 1080x2400
+w=1080 h=2400
+== install ==
+Performing Streamed Install
+Success
+== launch ==
+Starting: Intent { cmp=com.vythera.range/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.vythera.range/.MainActivity
+TotalTime: 8098
+WaitTime: 8167
+Complete
+shot 01-onboarding: 824283 bytes
+shot 02-onboarding-2: 810352 bytes
+shot 03-onboarding-3: 799351 bytes
+shot 04-home: 833203 bytes
+shot 05-home-mid: 508443 bytes
+shot 06-home-lower: 321811 bytes
+shot 07-home-bottom: 325971 bytes
+shot 08-home-cta: 359004 bytes
+shot 09-explore: 376978 bytes
+shot 10-explore-list: 415472 bytes
+shot 11-explore-list2: 417951 bytes
+shot 12-detail: 411969 bytes
+shot 13-detail-costs: 423415 bytes
+shot 14-detail-transport: 431344 bytes
+shot 15-detail-more: 418465 bytes
+shot 16-back-home: 1389051 bytes
+== crash check ==
+--------- beginning of crash
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: FATAL EXCEPTION: Blocking Thread #5
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: Process: com.google.android.gm, PID: 2323
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: android.os.DeadObjectException
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at android.os.BinderProxy.transactNative(Native Method)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at android.os.BinderProxy.transact(BinderProxy.java:584)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at android.content.ContentProviderProxy.call(ContentProviderNative.java:762)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at android.content.ContentProviderClient.call(ContentProviderClient.java:601)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at android.content.ContentProviderClient.call(ContentProviderClient.java:589)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at qwz.k(PG:8)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at aaaa.a(PG:4)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at zxe.g(PG:9)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at zxa.invokeSuspend(PG:4)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at zxa.invoke(PG:2)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at zxc.invokeSuspend(PG:3)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at bbcd.resumeWith(PG:5)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at bbjb.run(PG:8)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at bbjo.k(PG:15)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at bbej.t(PG:10)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at bbej.w(PG:2)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at kle.apply(PG:29)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at aemz.a(PG:17)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at avfd.a(PG:3)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at avep.c(PG:2)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at aver.run(PG:9)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at yqa.run(PG:1)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at wvy.run(PG:9)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at java.lang.Thread.run(Thread.java:1012)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at yqd.run(PG:6)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	Suppressed: bbiz: [bbku{Cancelling}@f791925, ErrorLogging[avgy@3d72afa[ypr@911a8ab[Running, pool size = 15, active threads = 6, queued tasks = 0, completed tasks = 63]]]]
+== app errors ==
+08-13 07:36:50.332   530  2901 E ActivityManager:   25% 2446/com.vythera.range: 10% user + 14% kernel / faults: 8494 minor 10 major
+08-13 07:36:50.332   530  2901 E ActivityManager:   10% 384/android.hardware.graphics.composer3-service.ranchu: 0.3% user + 9.7% kernel
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: FATAL EXCEPTION: Blocking Thread #5
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: Process: com.google.android.gm, PID: 2323
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: android.os.DeadObjectException
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at android.os.BinderProxy.transactNative(Native Method)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at android.os.BinderProxy.transact(BinderProxy.java:584)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at android.content.ContentProviderProxy.call(ContentProviderNative.java:762)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at android.content.ContentProviderClient.call(ContentProviderClient.java:601)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at android.content.ContentProviderClient.call(ContentProviderClient.java:589)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at qwz.k(PG:8)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at aaaa.a(PG:4)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at zxe.g(PG:9)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at zxa.invokeSuspend(PG:4)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at zxa.invoke(PG:2)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at zxc.invokeSuspend(PG:3)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at bbcd.resumeWith(PG:5)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at bbjb.run(PG:8)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at bbjo.k(PG:15)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at bbej.t(PG:10)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at bbej.w(PG:2)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at kle.apply(PG:29)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at aemz.a(PG:17)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at avfd.a(PG:3)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at avep.c(PG:2)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at aver.run(PG:9)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at yqa.run(PG:1)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1145)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:644)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at wvy.run(PG:9)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at java.lang.Thread.run(Thread.java:1012)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	at yqd.run(PG:6)
+08-13 07:36:59.279  2323  2911 E AndroidRuntime: 	Suppressed: bbiz: [bbku{Cancelling}@f791925, ErrorLogging[avgy@3d72afa[ypr@911a8ab[Running, pool size = 15, active threads = 6, queued tasks = 0, completed tasks = 63]]]]
+08-13 07:37:43.631   530  3987 E ActivityManager:   20% 2446/com.vythera.range: 7.1% user + 13% kernel / faults: 22924 minor
+08-13 07:37:43.631   530  3987 E ActivityManager:   12% 384/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 12% kernel
+08-13 07:38:06.620   530  4562 E ActivityManager:   19% 2446/com.vythera.range: 3.8% user + 15% kernel / faults: 3933 minor
+08-13 07:38:06.620   530  4562 E ActivityManager:   11% 384/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 11% kernel
+08-13 07:38:59.719   530  5275 E ActivityManager:   18% 2446/com.vythera.range: 3.2% user + 15% kernel / faults: 1641 minor
+08-13 07:38:59.719   530  5275 E ActivityManager:   13% 384/android.hardware.graphics.composer3-service.ranchu: 0.1% user + 13% kernel
+== still running? ==
+2446
