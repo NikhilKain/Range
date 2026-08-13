@@ -68,14 +68,9 @@ jobs:
           mkdir -p ci/shots
           cp -f /tmp/shots/*.png ci/shots/ 2>/dev/null || true
           # Downscale: full-resolution frames bloat the repo fast.
-          python3 - <<'PY'
-          import glob
-          from PIL import Image
-          for f in glob.glob("ci/shots/*.png"):
-              im = Image.open(f)
-              im.thumbnail((480, 1066), Image.LANCZOS)
-              im.save(f, optimize=True)
-          PY
+          for f in ci/shots/*.png; do
+            python3 -c "from PIL import Image; import sys; im=Image.open(sys.argv[1]); im.thumbnail((480,1066), Image.LANCZOS); im.save(sys.argv[1], optimize=True)" "$f" || true
+          done
           cp -f /tmp/shots/report.txt ci/smoke-report.txt 2>/dev/null || true
           ls -l ci/shots || true
 
