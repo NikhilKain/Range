@@ -113,6 +113,28 @@ jobs:
             done
           fi
 
+      - name: Publish APK to the dist branch
+        if: steps.assemble.outputs.code == '0' && github.ref == 'refs/heads/main'
+        run: |
+          # A single-commit orphan branch, force-replaced each build: the APK is
+          # always fetchable but the repo never accumulates 20 MB binaries.
+          rm -rf /tmp/distrepo && mkdir -p /tmp/distrepo
+          cp dist/range-debug.apk /tmp/distrepo/
+          cd /tmp/distrepo
+          {
+            echo "# Range — latest debug build"
+            echo
+            echo "Built from \`${GITHUB_SHA:0:7}\` on $(date -u +%F\ %T) UTC."
+            echo "This branch is replaced on every build and holds no history."
+          } > README.md
+          git init -q
+          git checkout -q -b dist
+          git config user.name "range-ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add -A
+          git commit -q -m "range-debug.apk @ ${GITHUB_SHA:0:7}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" dist
+
       - name: Publish rolling debug release
         if: steps.assemble.outputs.code == '0' && github.ref == 'refs/heads/main'
         env:
