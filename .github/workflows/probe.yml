@@ -19,29 +19,17 @@ jobs:
       - name: Artifact versions
         run: |
           probe() {
-            echo "===== $1 ====="
+            echo "===== $1 (filter:${2:-.}) ====="
             curl -s "https://dl.google.com/dl/android/maven2/$1/maven-metadata.xml" \
-              | grep -o '<version>[^<]*</version>' | sed 's/<[^>]*>//g' | tail -n "${2:-14}"
+              | grep -o '<version>[^<]*</version>' | sed 's/<[^>]*>//g' | grep -E "${2:-.}" | tail -n "${3:-10}"
           }
-          probe com/android/tools/build/gradle 20
-          probe androidx/compose/compose-bom 25
-          probe androidx/compose/material3/material3 30
-          probe androidx/compose/ui/ui 10
-          probe androidx/activity/activity-compose 10
-          probe androidx/navigation/navigation-compose 12
-          probe androidx/lifecycle/lifecycle-runtime-compose 10
-          probe androidx/lifecycle/lifecycle-viewmodel-compose 8
-          probe androidx/core/core-ktx 8
-          probe androidx/graphics/graphics-shapes 12
-          probe androidx/datastore/datastore-preferences 8
-          probe androidx/compose/material/material-icons-extended 6
-          probe androidx/compose/animation/animation 8
-          probe androidx/window/window 8
-          probe androidx/compose/material3/material3-window-size-class 10
-          probe androidx/compose/material3/material3-adaptive-navigation-suite 12
-          echo "===== kotlin (central) ====="
-          curl -s "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml" \
-            | grep -o '<version>[^<]*</version>' | sed 's/<[^>]*>//g' | grep -v -- '-' | tail -n 12
-          echo "===== kotlinx-serialization (central) ====="
-          curl -s "https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-serialization-json/maven-metadata.xml" \
-            | grep -o '<version>[^<]*</version>' | sed 's/<[^>]*>//g' | tail -n 8
+          probe com/android/tools/build/gradle '^8\.' 8
+          probe androidx/compose/material3/material3 '^1\.4\.' 8
+          probe androidx/datastore/datastore-preferences '^1\.[0-9]+\.[0-9]+$' 6
+          probe androidx/core/core-splashscreen '.' 6
+          probe androidx/compose/material3/adaptive/adaptive '.' 6
+          probe androidx/compose/material3/material3-adaptive-navigation-suite '^1\.4' 6
+          probe androidx/compose/material3/material3-window-size-class '^1\.4' 6
+          probe androidx/hilt/hilt-navigation-compose '.' 4
+          echo "===== gradle-compat note ====="
+          curl -s "https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/maven-metadata.xml" | grep -o '<version>8\.[0-9]*\.[0-9]*</version>' | sed 's/<[^>]*>//g' | tail -3
