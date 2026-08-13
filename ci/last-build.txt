@@ -1,0 +1,12 @@
+commit:  75166630b18c4d3061de05b92e13ae59db49b308
+run:     31674866782 (attempt 1)
+when:    2026-08-13T06:43:00Z
+assemble exit: 127
+tests exit:    
+
+===== kotlin/java errors =====
+
+===== gradle failure block =====
+
+===== tail =====
+/home/runner/work/_temp/d9746440-da6c-47af-884b-bbef78abba2e.sh: line 3: ./gradlew: No such file or directory
