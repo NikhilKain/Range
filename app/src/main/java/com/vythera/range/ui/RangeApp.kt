@@ -9,7 +9,15 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
+import com.vythera.range.ui.components.RangeMark
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -29,6 +37,18 @@ import com.vythera.range.ui.screens.OriginScreen
 import com.vythera.range.ui.screens.SavedScreen
 import com.vythera.range.ui.screens.SettingsScreen
 import com.vythera.range.ui.state.RangeViewModel
+
+@Composable
+private fun BootPane() {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.Center,
+    ) {
+        RangeMark(Modifier.size(96.dp))
+    }
+}
 
 private object Routes {
     const val ONBOARDING = "onboarding"
@@ -52,12 +72,23 @@ fun RangeApp(
     val explore by viewModel.explore.collectAsStateWithLifecycle()
     val currency by viewModel.currency.collectAsStateWithLifecycle()
     val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val settingsLoaded by viewModel.settingsLoaded.collectAsStateWithLifecycle()
     val wishlist by viewModel.wishlist.collectAsStateWithLifecycle()
     val savedTrips by viewModel.savedTrips.collectAsStateWithLifecycle()
     val ratesUpdatedAt by viewModel.ratesUpdatedAt.collectAsStateWithLifecycle()
     val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
 
-    val start = if (settings.onboarded) Routes.HOME else Routes.ONBOARDING
+    val loaded = settingsLoaded
+    if (loaded == null) {
+        BootPane()
+        return
+    }
+
+    // Fixed for the lifetime of the graph: swapping startDestination on a live
+    // NavHost rebuilds it and can bounce the user back a screen.
+    val start = rememberSaveable {
+        if (loaded.onboarded) Routes.HOME else Routes.ONBOARDING
+    }
 
     NavHost(
         navController = navController,

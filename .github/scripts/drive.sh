@@ -53,6 +53,12 @@ shot 02-onboarding-2 2
 tap $((W/2)) $((H*88/100)) 1
 shot 03-onboarding-3 2
 tap $((W/2)) $((H*88/100)) 2
+# Onboarding can need an extra nudge if a page animation swallowed a tap.
+for _ in 1 2 3; do
+  if adb shell dumpsys activity top 2>/dev/null | grep -q "RANGE"; then break; fi
+  adb shell input tap $((W/2)) $((H*88/100))
+  sleep 2
+done
 shot 04-home 3
 
 # Scroll the composer.

@@ -102,6 +102,13 @@ class RangeViewModel(private val store: RangeStore) : ViewModel() {
     val settings: StateFlow<RangeSettings> = store.settings
         .stateIn(viewModelScope, SharingStarted.Eagerly, RangeSettings())
 
+    /**
+     * Null until DataStore has actually answered. The nav graph waits for this
+     * so a returning user never gets flashed the onboarding screen.
+     */
+    val settingsLoaded: StateFlow<RangeSettings?> = store.settings
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
     val savedTrips: StateFlow<List<SavedTrip>> = store.savedTrips
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
