@@ -47,13 +47,7 @@ fun RangeMark(
     progress: Float = 1f,
     orbiting: Boolean = true,
 ) {
-    val transition = rememberInfiniteTransition(label = "mark")
-    val orbit by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(7000, easing = LinearEasing), RepeatMode.Restart),
-        label = "orbit",
-    )
+    val orbit = ambientPhase(durationMs = 7_000, steps = 120, label = "orbit")
     val planeT = if (orbiting) orbit else 0.14f
 
     Canvas(modifier) {

@@ -23,6 +23,8 @@ tap() { adb shell input tap "$1" "$2"; sleep "${3:-1}"; }
 swipe() { adb shell input swipe "$1" "$2" "$3" "$4" "${5:-300}"; sleep 1; }
 
 adb wait-for-device
+adb shell settings put global hide_error_dialogs 1
+adb shell settings put secure anr_show_background 0
 adb shell settings put global window_animation_scale 1.0
 adb shell settings put global transition_animation_scale 1.0
 adb shell settings put global animator_duration_scale 1.0

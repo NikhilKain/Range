@@ -96,13 +96,8 @@ fun WavyProgress(
     amplitude: Dp = 4.dp,
     animated: Boolean = true,
 ) {
-    val t = rememberInfiniteTransition(label = "wave")
-    val phase by t.animateFloat(
-        0f,
-        (2 * Math.PI).toFloat(),
-        infiniteRepeatable(tween(1800, easing = LinearEasing), RepeatMode.Restart),
-        label = "phase",
-    )
+    val phase = ambientPhase(durationMs = 1_800, steps = 36, label = "wavePhase") *
+        (2 * Math.PI).toFloat()
     val p by animateFloatAsState(progress.coerceIn(0f, 1f), tween(700), label = "wavyProgress")
     Canvas(modifier.height(amplitude * 3 + 6.dp)) {
         val midY = size.height / 2f
@@ -282,13 +277,11 @@ fun ShapeBlob(
     amplitude: Float = 0.1f,
     spinSeconds: Int = 26,
 ) {
-    val t = rememberInfiniteTransition(label = "blob")
-    val spin by t.animateFloat(
-        0f,
-        360f,
-        infiniteRepeatable(tween(spinSeconds * 1000, easing = LinearEasing), RepeatMode.Restart),
+    val spin = ambientPhase(
+        durationMs = spinSeconds * 1000,
+        steps = 90,
         label = "blobSpin",
-    )
+    ) * 360f
     Canvas(modifier) {
         val r = minOf(size.width, size.height) / 2f / (1f + amplitude)
         val pts = lobedPoints(

@@ -45,21 +45,15 @@ fun AuroraBackground(
     animated: Boolean = true,
     content: @Composable BoxScope.() -> Unit = {},
 ) {
-    val transition = rememberInfiniteTransition(label = "aurora")
-    val t by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(38_000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "auroraPhase",
-    )
-    val phase = if (animated) t else 0.22f
+    val phase = if (animated) {
+        ambientPhase(durationMs = 38_000, steps = 190, label = "aurora")
+    } else {
+        0.22f
+    }
 
     val stars = remember {
         val rnd = Random(7)
-        List(70) {
+        List(44) {
             Triple(rnd.nextFloat(), rnd.nextFloat(), rnd.nextFloat() * 0.7f + 0.3f)
         }
     }

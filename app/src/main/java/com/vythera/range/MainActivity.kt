@@ -23,7 +23,11 @@ class MainActivity : ComponentActivity() {
             val settings by vm.settings.collectAsStateWithLifecycle()
             val mode = runCatching { ThemeMode.valueOf(settings.themeMode) }
                 .getOrDefault(ThemeMode.DARK)
-            RangeTheme(mode = mode, dynamicColor = settings.dynamicColor) {
+            RangeTheme(
+                mode = mode,
+                dynamicColor = settings.dynamicColor,
+                reduceMotion = settings.reduceMotion,
+            ) {
                 RangeApp(viewModel = vm)
             }
         }

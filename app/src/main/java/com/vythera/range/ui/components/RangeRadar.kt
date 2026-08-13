@@ -68,19 +68,8 @@ fun RangeRadar(
         animationSpec = tween(1100),
         label = "radarReveal",
     )
-    val sweepTransition = rememberInfiniteTransition(label = "sweep")
-    val sweep by sweepTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(9000, easing = LinearEasing), RepeatMode.Restart),
-        label = "sweepAngle",
-    )
-    val pulse by sweepTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(2600, easing = LinearEasing), RepeatMode.Restart),
-        label = "pulse",
-    )
+    val sweep = ambientPhase(durationMs = 9_000, steps = 150, label = "radarSweep") * 360f
+    val pulse = ambientPhase(durationMs = 2_600, steps = 52, label = "radarPulse")
 
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current

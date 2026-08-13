@@ -110,6 +110,7 @@ private val RangeLightScheme = lightColorScheme(
 fun RangeTheme(
     mode: ThemeMode = ThemeMode.DARK,
     dynamicColor: Boolean = false,
+    reduceMotion: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val systemDark = isSystemInDarkTheme()
@@ -136,7 +137,10 @@ fun RangeTheme(
         }
     }
 
-    CompositionLocalProvider(LocalIsDark provides dark) {
+    CompositionLocalProvider(
+        LocalIsDark provides dark,
+        com.vythera.range.ui.components.LocalReduceMotion provides reduceMotion,
+    ) {
         MaterialTheme(
             colorScheme = scheme,
             shapes = RangeShapes,
