@@ -21,7 +21,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import com.vythera.range.ui.theme.RangePalette as P
+
+enum class ThemeMode(val label: String) {
+    SYSTEM("System"),
+    LIGHT("Light"),
+    DARK("Dark"),
+}
+
+/** Screens read this to pick artwork and washes that suit the current scheme. */
+val LocalIsDark = staticCompositionLocalOf { true }
 
 private val RangeDarkScheme = darkColorScheme(
     primary = P.Aurora,
@@ -57,51 +68,61 @@ private val RangeDarkScheme = darkColorScheme(
     scrim = Color(0xFF000000),
 )
 
+/**
+ * The light scheme keeps the same aurora identity — teal primary, sky secondary
+ * — over warm paper rather than midnight, so the brand survives the switch.
+ */
 private val RangeLightScheme = lightColorScheme(
-    primary = Color(0xFF00785A),
+    primary = Color(0xFF00705A),
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFA9F5D4),
-    onPrimaryContainer = Color(0xFF00251A),
+    primaryContainer = Color(0xFF8FF3D2),
+    onPrimaryContainer = Color(0xFF00201A),
     secondary = Color(0xFF0F5FCB),
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFD5E4FF),
-    onSecondaryContainer = Color(0xFF001B3D),
+    secondaryContainer = Color(0xFFD3E3FF),
+    onSecondaryContainer = Color(0xFF001A3D),
     tertiary = Color(0xFF8A5100),
     onTertiary = Color.White,
-    tertiaryContainer = Color(0xFFFFDDB6),
-    onTertiaryContainer = Color(0xFF2C1600),
-    background = Color(0xFFF6F9FF),
-    onBackground = Color(0xFF0B1220),
-    surface = Color(0xFFF6F9FF),
-    onSurface = Color(0xFF0B1220),
-    surfaceVariant = Color(0xFFE1E8F5),
-    onSurfaceVariant = Color(0xFF44506A),
-    surfaceContainerLowest = Color.White,
-    surfaceContainerLow = Color(0xFFF1F5FE),
-    surfaceContainer = Color(0xFFEBF1FC),
-    surfaceContainerHigh = Color(0xFFE4ECF9),
-    surfaceContainerHighest = Color(0xFFDDE6F6),
+    tertiaryContainer = Color(0xFFFFDCB4),
+    onTertiaryContainer = Color(0xFF2B1600),
+    background = Color(0xFFF4F7FD),
+    onBackground = Color(0xFF0C1421),
+    surface = Color(0xFFF4F7FD),
+    onSurface = Color(0xFF0C1421),
+    surfaceVariant = Color(0xFFDFE7F3),
+    onSurfaceVariant = Color(0xFF4A5872),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFFFFFFF),
+    surfaceContainer = Color(0xFFFFFFFF),
+    surfaceContainerHigh = Color(0xFFEDF2FA),
+    surfaceContainerHighest = Color(0xFFE1EAF7),
     outline = Color(0xFF74809A),
-    outlineVariant = Color(0xFFC5CFE2),
+    outlineVariant = Color(0xFFD3DCEA),
     error = Color(0xFFB3261E),
     onError = Color.White,
+    inverseSurface = Color(0xFF16202F),
+    inverseOnSurface = Color(0xFFF0F4FB),
+    inversePrimary = P.Aurora,
+    scrim = Color(0xFF000000),
 )
 
-/**
- * Range always renders its own midnight identity unless the user opts into
- * dynamic colour, in which case we hand over to the wallpaper palette.
- */
 @Composable
 fun RangeTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    mode: ThemeMode = ThemeMode.DARK,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
+    val systemDark = isSystemInDarkTheme()
+    val dark = when (mode) {
+        ThemeMode.SYSTEM -> systemDark
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+    }
     val context = LocalContext.current
     val scheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        darkTheme -> RangeDarkScheme
+            if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        dark -> RangeDarkScheme
         else -> RangeLightScheme
     }
 
@@ -109,17 +130,20 @@ fun RangeTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
-            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
+            val controller = WindowCompat.getInsetsController(window, view)
+            controller.isAppearanceLightStatusBars = !dark
+            controller.isAppearanceLightNavigationBars = !dark
         }
     }
 
-    MaterialTheme(
-        colorScheme = scheme,
-        shapes = RangeShapes,
-        typography = RangeTypography,
-        content = content,
-    )
+    CompositionLocalProvider(LocalIsDark provides dark) {
+        MaterialTheme(
+            colorScheme = scheme,
+            shapes = RangeShapes,
+            typography = RangeTypography,
+            content = content,
+        )
+    }
 }
 
 /** Convenience alias so screens can read the scheme without importing MaterialTheme. */

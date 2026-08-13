@@ -26,6 +26,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.material3.MaterialTheme
+import com.vythera.range.ui.theme.LocalIsDark
 import com.vythera.range.ui.theme.RangePalette
 import kotlin.math.cos
 import kotlin.math.sin
@@ -62,16 +64,28 @@ fun AuroraBackground(
         }
     }
 
-    Box(modifier.background(RangePalette.Ink)) {
+    val dark = LocalIsDark.current
+    val base = MaterialTheme.colorScheme.background
+    val bloomA = if (dark) RangePalette.Sky else RangePalette.Lagoon
+    val bloomB = RangePalette.Aurora
+
+    Box(modifier.background(base)) {
         Canvas(Modifier.fillMaxSize()) {
-            drawAurora(phase, intensity)
-            drawStars(stars, phase)
+            drawAurora(phase, intensity * if (dark) 1f else 0.55f, bloomA, bloomB, base, dark)
+            if (dark) drawStars(stars, phase)
         }
         content()
     }
 }
 
-private fun DrawScope.drawAurora(phase: Float, intensity: Float) {
+private fun DrawScope.drawAurora(
+    phase: Float,
+    intensity: Float,
+    bloomA: Color,
+    bloomB: Color,
+    base: Color,
+    dark: Boolean,
+) {
     val w = size.width
     val h = size.height
     val a1 = phase * 2f * Math.PI.toFloat()
@@ -80,8 +94,8 @@ private fun DrawScope.drawAurora(phase: Float, intensity: Float) {
     drawCircle(
         brush = Brush.radialGradient(
             colors = listOf(
-                RangePalette.Sky.copy(alpha = 0.28f * intensity),
-                RangePalette.SkyDeep.copy(alpha = 0.10f * intensity),
+                bloomA.copy(alpha = 0.28f * intensity),
+                bloomA.copy(alpha = 0.10f * intensity),
                 Color.Transparent,
             ),
             center = Offset(w * (0.22f + 0.14f * cos(a1)), h * (0.14f + 0.06f * sin(a1))),
@@ -94,8 +108,8 @@ private fun DrawScope.drawAurora(phase: Float, intensity: Float) {
     drawCircle(
         brush = Brush.radialGradient(
             colors = listOf(
-                RangePalette.Aurora.copy(alpha = 0.20f * intensity),
-                RangePalette.AuroraDeep.copy(alpha = 0.08f * intensity),
+                bloomB.copy(alpha = 0.20f * intensity),
+                bloomB.copy(alpha = 0.08f * intensity),
                 Color.Transparent,
             ),
             center = Offset(w * (0.86f + 0.10f * sin(a2)), h * (0.30f + 0.10f * cos(a2))),
@@ -105,12 +119,12 @@ private fun DrawScope.drawAurora(phase: Float, intensity: Float) {
         center = Offset(w * (0.86f + 0.10f * sin(a2)), h * (0.30f + 0.10f * cos(a2))),
     )
 
-    // Deepen the bottom so content stays legible over the wash.
+    // Settle the bottom back to the page colour so content stays legible.
     drawRect(
         brush = Brush.verticalGradient(
             0f to Color.Transparent,
-            0.55f to RangePalette.Ink.copy(alpha = 0.55f),
-            1f to RangePalette.Ink,
+            0.55f to base.copy(alpha = if (dark) 0.55f else 0.75f),
+            1f to base,
         ),
     )
 }

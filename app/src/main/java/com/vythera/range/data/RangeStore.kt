@@ -19,6 +19,7 @@ private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 data class RangeSettings(
     val originId: String = "del",
     val currency: String = "INR",
+    val themeMode: String = "DARK",
     val dynamicColor: Boolean = false,
     val reduceMotion: Boolean = false,
     val hapticsEnabled: Boolean = true,
@@ -35,6 +36,7 @@ class RangeStore(private val context: Context) {
         val REDUCE_MOTION = booleanPreferencesKey("reduce_motion")
         val HAPTICS = booleanPreferencesKey("haptics")
         val ONBOARDED = booleanPreferencesKey("onboarded")
+        val THEME = stringPreferencesKey("theme_mode")
         val TRIPS = stringPreferencesKey("saved_trips")
         val WISHLIST = stringPreferencesKey("wishlist")
     }
@@ -43,6 +45,7 @@ class RangeStore(private val context: Context) {
         RangeSettings(
             originId = p[Keys.ORIGIN] ?: "del",
             currency = p[Keys.CURRENCY] ?: "INR",
+            themeMode = p[Keys.THEME] ?: "DARK",
             dynamicColor = p[Keys.DYNAMIC] ?: false,
             reduceMotion = p[Keys.REDUCE_MOTION] ?: false,
             hapticsEnabled = p[Keys.HAPTICS] ?: true,
@@ -64,6 +67,7 @@ class RangeStore(private val context: Context) {
 
     suspend fun setOrigin(id: String) = context.dataStore.edit { it[Keys.ORIGIN] = id }
     suspend fun setCurrency(code: String) = context.dataStore.edit { it[Keys.CURRENCY] = code }
+    suspend fun setThemeMode(mode: String) = context.dataStore.edit { it[Keys.THEME] = mode }
     suspend fun setDynamicColor(on: Boolean) = context.dataStore.edit { it[Keys.DYNAMIC] = on }
     suspend fun setReduceMotion(on: Boolean) = context.dataStore.edit { it[Keys.REDUCE_MOTION] = on }
     suspend fun setHaptics(on: Boolean) = context.dataStore.edit { it[Keys.HAPTICS] = on }

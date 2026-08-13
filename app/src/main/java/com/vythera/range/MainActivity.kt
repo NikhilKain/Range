@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vythera.range.ui.RangeApp
 import com.vythera.range.ui.state.RangeViewModel
 import com.vythera.range.ui.theme.RangeTheme
+import com.vythera.range.ui.theme.ThemeMode
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,8 +21,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             val vm: RangeViewModel = viewModel(factory = RangeViewModel.Factory)
             val settings by vm.settings.collectAsStateWithLifecycle()
-            // Range is a dark-first product; the midnight identity is the point.
-            RangeTheme(darkTheme = true, dynamicColor = settings.dynamicColor) {
+            val mode = runCatching { ThemeMode.valueOf(settings.themeMode) }
+                .getOrDefault(ThemeMode.DARK)
+            RangeTheme(mode = mode, dynamicColor = settings.dynamicColor) {
                 RangeApp(viewModel = vm)
             }
         }

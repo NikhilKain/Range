@@ -27,6 +27,7 @@ import com.vythera.range.domain.Currency
 import com.vythera.range.domain.ReachSummary
 import com.vythera.range.domain.TripEstimate
 import com.vythera.range.domain.TripQuery
+import com.vythera.range.ui.theme.ThemeMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -225,6 +226,7 @@ class RangeViewModel(private val store: RangeStore) : ViewModel() {
     }
 
     fun setCurrency(c: Currency) = viewModelScope.launch { store.setCurrency(c.code) }
+    fun setThemeMode(mode: ThemeMode) = viewModelScope.launch { store.setThemeMode(mode.name) }
     fun setDynamicColor(on: Boolean) = viewModelScope.launch { store.setDynamicColor(on) }
     fun setReduceMotion(on: Boolean) = viewModelScope.launch { store.setReduceMotion(on) }
     fun setHaptics(on: Boolean) = viewModelScope.launch { store.setHaptics(on) }

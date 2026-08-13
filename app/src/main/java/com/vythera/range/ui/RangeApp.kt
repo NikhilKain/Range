@@ -177,6 +177,7 @@ fun RangeApp(
                 settings = settings,
                 currency = currency,
                 onCurrency = { viewModel.setCurrency(it) },
+                onThemeMode = viewModel::setThemeMode,
                 onDynamicColor = viewModel::setDynamicColor,
                 onReduceMotion = viewModel::setReduceMotion,
                 onHaptics = viewModel::setHaptics,

@@ -31,7 +31,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.DeleteOutline
+import androidx.compose.material.icons.rounded.LightMode
+import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.LocationCity
 import androidx.compose.material.icons.rounded.Search
@@ -60,6 +63,7 @@ import com.vythera.range.data.model.SavedTrip
 import com.vythera.range.domain.Currency
 import com.vythera.range.domain.formatMoney
 import com.vythera.range.ui.components.AuroraBackground
+import com.vythera.range.ui.components.ButtonGroup
 import com.vythera.range.ui.components.DestinationArt
 import com.vythera.range.ui.components.GlassCard
 import com.vythera.range.ui.components.RangeChip
@@ -68,6 +72,7 @@ import com.vythera.range.ui.components.SectionHeader
 import com.vythera.range.ui.theme.CardShape
 import com.vythera.range.ui.theme.PillShape
 import com.vythera.range.ui.theme.RangePalette
+import com.vythera.range.ui.theme.ThemeMode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -356,6 +361,7 @@ fun SettingsScreen(
     settings: RangeSettings,
     currency: Currency,
     onCurrency: (Currency) -> Unit,
+    onThemeMode: (ThemeMode) -> Unit,
     onDynamicColor: (Boolean) -> Unit,
     onReduceMotion: (Boolean) -> Unit,
     onHaptics: (Boolean) -> Unit,
@@ -363,6 +369,34 @@ fun SettingsScreen(
 ) {
     ScreenScaffold(title = "Settings", subtitle = "Range v1.0", onBack = onBack) {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            item {
+                GlassCard {
+                    SectionHeader("THEME")
+                    Spacer(Modifier.height(12.dp))
+                    val current = runCatching { ThemeMode.valueOf(settings.themeMode) }
+                        .getOrDefault(ThemeMode.DARK)
+                    ButtonGroup(
+                        options = ThemeMode.entries,
+                        selected = current,
+                        onSelect = onThemeMode,
+                        label = { it.label },
+                        icon = {
+                            when (it) {
+                                ThemeMode.SYSTEM -> Icons.Rounded.PhoneAndroid
+                                ThemeMode.LIGHT -> Icons.Rounded.LightMode
+                                ThemeMode.DARK -> Icons.Rounded.DarkMode
+                            }
+                        },
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Text(
+                        "Range is designed midnight-first, but the light theme keeps the same " +
+                            "aurora palette over paper.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
             item {
                 GlassCard {
                     SectionHeader("CURRENCY")
