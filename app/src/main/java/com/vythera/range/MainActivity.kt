@@ -4,15 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.vythera.range.ui.RangeApp
+import com.vythera.range.ui.state.RangeViewModel
 import com.vythera.range.ui.theme.RangeTheme
-import com.vythera.range.ui.theme.colors
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,13 +18,11 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            RangeTheme {
-                Box(
-                    Modifier.fillMaxSize().background(colors.background),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text("Range", style = androidx.compose.material3.MaterialTheme.typography.displayLarge)
-                }
+            val vm: RangeViewModel = viewModel(factory = RangeViewModel.Factory)
+            val settings by vm.settings.collectAsStateWithLifecycle()
+            // Range is a dark-first product; the midnight identity is the point.
+            RangeTheme(darkTheme = true, dynamicColor = settings.dynamicColor) {
+                RangeApp(viewModel = vm)
             }
         }
     }
