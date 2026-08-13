@@ -1,8 +1,8 @@
-commit:  caab3dc036a683bdd4337984326e949b3b5271cb
-run:     31715469226 (attempt 1)
-when:    2026-08-13T15:28:47Z
-assemble exit: 1
-tests exit:    
+commit:  3572eb22bcb20d347f102e8c52b0cc8ecf6c5e48
+run:     31715660783 (attempt 1)
+when:    2026-08-13T15:31:46Z
+assemble exit: 0
+tests exit:    0
 
 ===== resolved versions =====
 androidx.activity:activity:1.13.0
@@ -47,30 +47,17 @@ androidx.compose.foundation:foundationlayout:1.8.1 > 1.12.0 (*)
 androidx.compose.foundation:foundationlayoutandroid:1.12.0
 
 ===== kotlin/java errors =====
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/state/RangeViewModel.kt:84:55 Argument type mismatch: actual type is 'Double', but 'Int' was expected.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/state/RangeViewModel.kt:84:60 Null cannot be a value of a non-null type 'Int'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/state/RangeViewModel.kt:84:66 Argument type mismatch: actual type is 'Int', but 'Double' was expected.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/state/RangeViewModel.kt:84:75 Null cannot be a value of a non-null type 'Int'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/state/RangeViewModel.kt:84:75 No value passed for parameter 'cheapest'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/state/RangeViewModel.kt:84:75 No value passed for parameter 'bestValue'.
-   > Compilation error. See log for more details
 
 ===== gradle failure block =====
-* What went wrong:
-Execution failed for task ':app:compileDebugKotlin' (registered by plugin 'com.android.internal.application').
-> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
-   > Compilation error. See log for more details
-
-* Try:
-> Run with --stacktrace option to get the stack trace.
-> Run with --info or --debug option to get more log output.
-> Run with --scan to get full insights from a Build Scan (powered by Develocity).
-> Get more help at https://help.gradle.org.
-
-BUILD FAILED in 47s
-30 actionable tasks: 12 executed, 18 from cache
 
 ===== tail =====
+> Task :app:processDebugNavigationResources FROM-CACHE
+> Task :app:parseDebugLocalResources FROM-CACHE
+> Task :app:generateDebugRFile FROM-CACHE
+> Task :app:javaPreCompileDebug FROM-CACHE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets FROM-CACHE
 > Task :app:generateDebugGlobalSynthetics FROM-CACHE
 > Task :app:checkDebugDuplicateClasses
 > Task :app:desugarDebugFileDependencies FROM-CACHE
@@ -92,33 +79,29 @@ BUILD FAILED in 47s
 > Task :app:validateSigningDebug
 > Task :app:writeDebugAppMetadata
 > Task :app:writeDebugSigningConfigVersions
-
 > Task :app:compileDebugKotlin
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/state/RangeViewModel.kt:84:55 Argument type mismatch: actual type is 'Double', but 'Int' was expected.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/state/RangeViewModel.kt:84:60 Null cannot be a value of a non-null type 'Int'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/state/RangeViewModel.kt:84:66 Argument type mismatch: actual type is 'Int', but 'Double' was expected.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/state/RangeViewModel.kt:84:75 Null cannot be a value of a non-null type 'Int'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/state/RangeViewModel.kt:84:75 No value passed for parameter 'cheapest'.
-e: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/state/RangeViewModel.kt:84:75 No value passed for parameter 'bestValue'.
+w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/DetailScreen.kt:471:32 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
+w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:138:48 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
+w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:153:48 'val Icons.Rounded.Sort: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.Sort.
+w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/ExploreScreen.kt:222:46 'val Icons.Rounded.Sort: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.Sort.
+w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/HomeScreen.kt:803:35 'val Icons.Rounded.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowForward.
+w: file:///home/runner/work/Range/Range/app/src/main/java/com/vythera/range/ui/screens/MoreScreens.kt:119:39 'val Icons.Rounded.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Rounded.ArrowBack.
 
-> Task :app:compileDebugKotlin FAILED
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786634884099.json
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:processDebugJavaRes
+> Task :app:mergeDebugJavaResource
+> Task :app:dexBuilderDebug
+> Task :app:mergeProjectDexDebug
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/assemble-1786635003879.json
 
 [Incubating] Problems report is available at: file:///home/runner/work/Range/Range/build/reports/problems/problems-report.html
 
-FAILURE: Build failed with an exception.
+BUILD SUCCESSFUL in 1m 15s
+36 actionable tasks: 18 executed, 18 from cache
 
-* What went wrong:
-Execution failed for task ':app:compileDebugKotlin' (registered by plugin 'com.android.internal.application').
-> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
-   > Compilation error. See log for more details
-
-* Try:
-> Run with --stacktrace option to get the stack trace.
-> Run with --info or --debug option to get more log output.
-> Run with --scan to get full insights from a Build Scan (powered by Develocity).
-> Get more help at https://help.gradle.org.
-
-BUILD FAILED in 47s
-30 actionable tasks: 12 executed, 18 from cache
-apk: none
+===== test failures =====
+-rw-r--r-- 1 runner runner 21434818 Aug 13 15:31 dist/range-debug.apk
+apk: app/build/outputs/apk/debug/app-debug.apk
