@@ -2,6 +2,7 @@ package com.vythera.range
 
 import com.vythera.range.data.DestinationCatalog
 import com.vythera.range.data.OriginCatalog
+import com.vythera.range.data.model.CostKey
 import com.vythera.range.data.model.Landmass
 import com.vythera.range.data.model.Tier
 import com.vythera.range.data.model.TransportMode
@@ -155,10 +156,22 @@ class BudgetEngineTest {
     }
 
     @Test
+    fun `a hop too short to fly still gets priced by road`() {
+        val rishikesh = DestinationCatalog.byId.getValue("rishikesh")
+        val flightOnly = baseQuery.copy(modes = setOf(TransportMode.FLIGHT))
+        val e = BudgetEngine.estimate(origin, rishikesh, flightOnly)
+        assertTrue(
+            "should substitute a surface mode, got ${e.mode}",
+            e.mode != TransportMode.FLIGHT && e.mode != TransportMode.NONE,
+        )
+        assertTrue("substituted travel must cost something", e.line(CostKey.TRANSPORT) > 0)
+    }
+
+    @Test
     fun `no travel mode means no travel cost`() {
         val goa = DestinationCatalog.byId.getValue("goa")
         val e = BudgetEngine.estimate(origin, goa, baseQuery.copy(modes = setOf(TransportMode.NONE)))
-        assertEquals(0.0, e.line(com.vythera.range.data.model.CostKey.TRANSPORT), 0.001)
+        assertEquals(0.0, e.line(CostKey.TRANSPORT), 0.001)
         val withFlight = BudgetEngine.estimate(origin, goa, baseQuery)
         assertTrue(e.totalUsd < withFlight.totalUsd)
     }

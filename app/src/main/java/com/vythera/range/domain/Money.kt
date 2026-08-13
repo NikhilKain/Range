@@ -83,6 +83,7 @@ fun formatKm(km: Double): String = when {
 }
 
 fun formatHours(hours: Double): String {
+    if (hours <= 0.01) return "—"
     val h = hours.toInt()
     val m = ((hours - h) * 60).roundToLong()
     return when {

@@ -49,13 +49,21 @@ fun DestinationArt(
 
 private enum class Scene { COAST, PEAKS, SKYLINE, DUNES, DOMES, HILLS }
 
-private fun sceneFor(vibes: Set<Vibe>): Scene = when {
-    Vibe.BEACH in vibes || Vibe.ISLAND in vibes -> Scene.COAST
-    Vibe.SNOW in vibes || Vibe.MOUNTAIN in vibes -> Scene.PEAKS
-    Vibe.DESERT in vibes -> Scene.DUNES
-    Vibe.HERITAGE in vibes || Vibe.SPIRITUAL in vibes -> Scene.DOMES
-    Vibe.NATURE in vibes || Vibe.WILDLIFE in vibes -> Scene.HILLS
-    else -> Scene.SKYLINE
+/**
+ * Scene and palette must agree, so both resolve the destination's dominant vibe
+ * the same way: by declaration order in [Vibe].
+ */
+private fun sceneFor(vibes: Set<Vibe>): Scene {
+    val dominant = Vibe.entries.firstOrNull { it in vibes } ?: Vibe.CITY
+    return when (dominant) {
+        Vibe.BEACH, Vibe.ISLAND -> Scene.COAST
+        Vibe.MOUNTAIN, Vibe.SNOW -> Scene.PEAKS
+        Vibe.DESERT -> Scene.DUNES
+        Vibe.HERITAGE, Vibe.SPIRITUAL -> Scene.DOMES
+        Vibe.NATURE, Vibe.WILDLIFE -> Scene.HILLS
+        Vibe.ROADTRIP, Vibe.ADVENTURE -> Scene.PEAKS
+        else -> Scene.SKYLINE
+    }
 }
 
 private fun DrawScope.drawScene(
@@ -65,10 +73,11 @@ private fun DrawScope.drawScene(
     parallax: Float,
     detail: Boolean,
 ) {
+    @Suppress("NAME_SHADOWING")
     val rnd = Random(seed)
     val w = size.width
     val h = size.height
-    val ink = Color(0xFF050B16)
+    val ink = androidx.compose.ui.graphics.lerp(gradient.last(), Color(0xFF04070F), 0.62f)
 
     // A sun / moon disc, always present, drifting with parallax.
     val sunX = w * (0.18f + 0.6f * rnd.nextFloat()) + parallax * 18f

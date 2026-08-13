@@ -197,7 +197,7 @@ object BudgetEngine {
             costUsd = flightRoundTripPerPerson(gcKm, dest, origin, query) * people,
             hoursOneWay = gcKm / 780.0 + 2.2,
             available = gcKm > 250,
-            note = if (gcKm > 250) "Return economy, ${people}×" else "Too close to fly",
+            note = if (gcKm > 250) "Return economy, ${people}×" else "Too close to bother flying",
         )
 
         val trainPerKm = when (query.stay) {
@@ -278,9 +278,18 @@ object BudgetEngine {
         val bearing = bearingDeg(origin.lat, origin.lon, dest.lat, dest.lon)
         val options = transportOptions(origin, dest, query)
 
+        val wantsNoTravel = query.modes == setOf(TransportMode.NONE)
         val allowed = options.filter { it.available && it.mode in query.modes }
-        val chosen = allowed.minByOrNull { it.costUsd }
-            ?: options.first { it.mode == TransportMode.NONE }
+        val chosen = when {
+            wantsNoTravel -> options.first { it.mode == TransportMode.NONE }
+            allowed.isNotEmpty() -> allowed.minByOrNull { it.costUsd }!!
+            // Nothing you picked can serve this route — usually a hop that is
+            // too short to fly. Price the cheapest thing that actually works.
+            else -> options
+                .filter { it.available && it.mode != TransportMode.NONE }
+                .minByOrNull { it.costUsd }
+                ?: options.first { it.mode == TransportMode.NONE }
+        }
 
         val lines = costLines(origin, dest, query, chosen)
         val total = lines.sumOf { it.amountUsd }
@@ -361,7 +370,14 @@ object BudgetEngine {
 
         return buildList {
             if (transport.costUsd > 0 || transport.mode != TransportMode.NONE) {
-                add(CostLine(CostKey.TRANSPORT, transport.costUsd, "${transport.mode.label} · ${transport.note}"))
+                val substituted = transport.mode !in query.modes &&
+                    query.modes != setOf(TransportMode.NONE)
+                val detail = if (substituted) {
+                    "${transport.mode.label} instead — ${transport.note.lowercase()}"
+                } else {
+                    "${transport.mode.label} · ${transport.note}"
+                }
+                add(CostLine(CostKey.TRANSPORT, transport.costUsd, detail))
             }
             if (nights > 0) {
                 add(CostLine(CostKey.STAY, stay, "$rooms × $stayLabel × $nights night${if (nights == 1) "" else "s"}"))
