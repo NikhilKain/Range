@@ -1,0 +1,7 @@
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.**
+-keepclassmembers class kotlinx.serialization.json.** { *** Companion; }
+-keepclasseswithmembers class kotlinx.serialization.json.** { kotlinx.serialization.KSerializer serializer(...); }
+-keep,includedescriptorclasses class com.vythera.range.**$$serializer { *; }
+-keepclassmembers class com.vythera.range.** { *** Companion; }
+-keepclasseswithmembers class com.vythera.range.** { kotlinx.serialization.KSerializer serializer(...); }

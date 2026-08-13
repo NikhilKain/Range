@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Range" parent="android:Theme.Material.NoActionBar" />
+
+    <style name="Theme.Range.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/range_splash</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/range_splash_icon</item>
+        <item name="postSplashScreenTheme">@style/Theme.Range</item>
+    </style>
+</resources>
