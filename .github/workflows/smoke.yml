@@ -58,11 +58,24 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: bash .github/scripts/drive.sh
 
+      - name: Pillow for screenshot downscaling
+        if: always()
+        run: pip install --quiet Pillow
+
       - name: Collect
         if: always()
         run: |
           mkdir -p ci/shots
           cp -f /tmp/shots/*.png ci/shots/ 2>/dev/null || true
+          # Downscale: full-resolution frames bloat the repo fast.
+          python3 - <<'PY'
+          import glob
+          from PIL import Image
+          for f in glob.glob("ci/shots/*.png"):
+              im = Image.open(f)
+              im.thumbnail((480, 1066), Image.LANCZOS)
+              im.save(f, optimize=True)
+          PY
           cp -f /tmp/shots/report.txt ci/smoke-report.txt 2>/dev/null || true
           ls -l ci/shots || true
 

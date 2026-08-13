@@ -8,7 +8,8 @@
 
 Range starts from your budget, not your destination. Tell it what you can spend,
 when you're going and who's coming — it prices the *whole* trip to 130+ places
-and shows you everywhere that actually fits.
+and shows you everywhere that actually fits. Start from any of 95 cities
+worldwide; the currency follows you.
 
 `com.vythera.range` · Android 8.0+ · Kotlin · Jetpack Compose · Material 3
 
@@ -91,17 +92,14 @@ Totals are planning estimates, not fare quotes.
 
 ## Getting it on your phone
 
-### Option 1 — grab the built APK
+### Option 1 — download the latest build
 
-Every push to `main` builds a debug APK on CI and commits it back to the repo:
+Every push to `main` builds a debug APK and publishes it to the
+**[latest release](../../releases/latest)**. Open that page on your phone, tap
+`range-debug.apk`, and allow "install unknown apps" for your browser when asked.
 
-```
-dist/range-debug.apk
-```
-
-Download it, copy it to your phone and install (you'll need "install unknown
-apps" enabled for your browser or file manager). It's also attached to each
-[Actions run](../../actions) as an artifact named `range-debug-apk`.
+It's also attached to each [Actions run](../../actions) as an artifact named
+`range-debug-apk`.
 
 ### Option 2 — build it yourself
 
@@ -132,7 +130,7 @@ app/src/main/java/com/vythera/range/
 ├── data/
 │   ├── DestinationCatalog.kt   130+ destinations: coords, cost index, fare factor,
 │   │                           hotel/food anchors, vibes, seasons, visas, terrain
-│   ├── OriginCatalog.kt        35 origin cities
+│   ├── OriginCatalog.kt        95 origin cities across every region
 │   ├── LiveRates.kt            keyless FX fetch, cached, offline fallback
 │   ├── RangeStore.kt           DataStore: settings, saved trips, wishlist
 │   └── Palettes.kt             per-destination gradients derived from vibe

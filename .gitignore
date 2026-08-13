@@ -9,3 +9,7 @@
 .cxx
 local.properties
 app/build/
+
+# Build outputs are published as CI artifacts and releases, not committed
+dist/
+ci/shots/

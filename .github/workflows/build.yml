@@ -90,6 +90,7 @@ jobs:
             cp "$APK" dist/range-debug.apk
             ls -l dist/range-debug.apk >> ci/last-build.txt
           fi
+          echo "apk: ${APK:-none}" >> ci/last-build.txt
 
       - name: Upload APK artifact
         if: hashFiles('dist/range-debug.apk') != ''
@@ -103,7 +104,6 @@ jobs:
         run: |
           git config user.name "range-ci"
           git config user.email "ci@users.noreply.github.com"
-          git add -f ci/last-build.txt dist/range-debug.apk 2>/dev/null || true
           git add -f ci/last-build.txt || true
           if ! git diff --cached --quiet; then
             git commit -m "ci: build report for ${GITHUB_SHA:0:7} [skip ci]"
@@ -112,6 +112,17 @@ jobs:
               sleep $((i*3))
             done
           fi
+
+      - name: Publish rolling debug release
+        if: steps.assemble.outputs.code == '0' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete debug --yes --cleanup-tag 2>/dev/null || true
+          gh release create debug dist/range-debug.apk \
+            --title "Range — latest debug build" \
+            --notes "Debug APK built from \`${GITHUB_SHA:0:7}\` on $(date -u +%F). Install on any Android 8.0+ device." \
+            --latest
 
       - name: Fail if build failed
         run: exit ${{ steps.assemble.outputs.code }}
