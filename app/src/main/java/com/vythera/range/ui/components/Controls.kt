@@ -401,14 +401,20 @@ fun RangeChip(
         tween(240),
         label = "chipFg",
     )
-    val scale by animateFloatAsState(if (selected) 1.02f else 1f, Motion.bouncy, label = "chipScale")
+    val scale by animateFloatAsState(if (selected) 1.03f else 1f, Motion.bouncy, label = "chipScale")
+    val corner by animateFloatAsState(
+        if (selected) 14f else 50f,
+        Motion.springOf(0.55f, 320f),
+        label = "chipCorner",
+    )
+    val shape = RoundedCornerShape(corner.dp)
 
     Row(
         modifier
             .scale(scale)
-            .clip(PillShape)
+            .clip(shape)
             .background(bg)
-            .border(1.dp, border, PillShape)
+            .border(1.dp, border, shape)
             .clickable(enabled = enabled) {
                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 onClick()

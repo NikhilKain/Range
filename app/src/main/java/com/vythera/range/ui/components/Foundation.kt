@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vythera.range.data.model.Verdict
 import com.vythera.range.ui.theme.CardShape
+import com.vythera.range.ui.theme.LocalIsDark
 import com.vythera.range.ui.theme.PillShape
 import com.vythera.range.ui.theme.RangePalette
 
@@ -82,28 +83,42 @@ fun Modifier.pressScale(
     }
 }
 
-/** Frosted card used everywhere: subtle top-light border and a raised surface. */
+/**
+ * The app's surface primitive. On dark it keeps a hairline top-light edge so
+ * cards separate from the midnight ground; on light it drops the outline and
+ * leans on the container tone instead, which is how M3 wants it.
+ */
 @Composable
 fun GlassCard(
     modifier: Modifier = Modifier,
     shape: Shape = CardShape,
-    tone: Color = MaterialTheme.colorScheme.surfaceContainer,
+    tone: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
     borderTint: Color = MaterialTheme.colorScheme.outlineVariant,
     contentPadding: Dp = 20.dp,
     content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
 ) {
+    val dark = LocalIsDark.current
     Column(
         modifier
             .clip(shape)
             .background(tone)
-            .border(
-                BorderStroke(
-                    1.dp,
-                    Brush.verticalGradient(
-                        listOf(borderTint.copy(alpha = 0.9f), borderTint.copy(alpha = 0.25f)),
-                    ),
-                ),
-                shape,
+            .then(
+                if (dark) {
+                    Modifier.border(
+                        BorderStroke(
+                            1.dp,
+                            Brush.verticalGradient(
+                                listOf(
+                                    borderTint.copy(alpha = 0.85f),
+                                    borderTint.copy(alpha = 0.20f),
+                                ),
+                            ),
+                        ),
+                        shape,
+                    )
+                } else {
+                    Modifier
+                },
             )
             .padding(contentPadding),
         content = content,
