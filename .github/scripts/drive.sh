@@ -106,6 +106,29 @@ shot 20-settings-lower 2
 adb shell input keyevent KEYCODE_BACK
 sleep 2
 
+# ---- light theme pass ----
+adb shell input keyevent KEYCODE_BACK
+sleep 2
+tap $((W*90/100)) $((H*7/100)) 2
+shot 21-settings-theme 2
+# Theme group is the first control in settings: Light is the middle cell.
+tap $((W*50/100)) $((H*28/100)) 2
+shot 22-settings-light 2
+adb shell input keyevent KEYCODE_BACK
+sleep 2
+shot 23-home-light 3
+for _ in 1 2 3 4 5 6 7; do
+  adb shell input swipe $((W/2)) $((H*80/100)) $((W/2)) $((H*15/100)) 220
+done
+sleep 2
+shot 24-home-light-bottom 2
+tap $((W/2)) $((H*88/100)) 3
+shot 25-explore-light 4
+swipe $((W/2)) $((H*70/100)) $((W/2)) $((H*30/100)) 400
+shot 26-explore-light-list 2
+tap $((W/2)) $((H*55/100)) 3
+shot 27-detail-light 3
+
 log "== crash check =="
 adb logcat -d -b crash | tail -60 | tee -a "$REPORT"
 log "== app errors =="
