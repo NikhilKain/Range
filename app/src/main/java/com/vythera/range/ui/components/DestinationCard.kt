@@ -1,21 +1,13 @@
-@file:OptIn(
-    androidx.compose.material3.ExperimentalMaterial3Api::class,
-    androidx.compose.foundation.layout.ExperimentalLayoutApi::class,
-    androidx.compose.animation.ExperimentalSharedTransitionApi::class,
-    androidx.compose.ui.ExperimentalComposeUiApi::class,
-)
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 
 package com.vythera.range.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,22 +36,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.vythera.range.data.model.TransportMode
+import com.vythera.range.data.model.Verdict
 import com.vythera.range.domain.Currency
 import com.vythera.range.domain.TripEstimate
 import com.vythera.range.domain.formatHours
 import com.vythera.range.domain.formatKm
 import com.vythera.range.domain.formatMoney
-import com.vythera.range.ui.theme.CardShape
+import com.vythera.range.ui.theme.ExpressiveShapes
 import com.vythera.range.ui.theme.PillShape
 import com.vythera.range.ui.theme.RangePalette
 
@@ -72,6 +63,11 @@ fun transportIcon(mode: TransportMode): ImageVector = when (mode) {
     TransportMode.NONE -> Icons.Rounded.Place
 }
 
+/**
+ * Expressive result card: inset media with its own generous radius, the price
+ * carried in a tonal container rather than plain text, and a wavy meter showing
+ * how much of the budget this trip eats.
+ */
 @Composable
 fun DestinationCard(
     estimate: TripEstimate,
@@ -80,53 +76,95 @@ fun DestinationCard(
     onClick: () -> Unit,
     onWishlist: () -> Unit,
     modifier: Modifier = Modifier,
-    compact: Boolean = false,
+    hero: Boolean = false,
+    rankLabel: String? = null,
 ) {
     val interaction = rememberInteraction()
     val d = estimate.destination
-    val alpha by animateFloatAsState(
-        if (estimate.withinBudget) 1f else 0.72f,
-        tween(400),
-        label = "cardAlpha",
-    )
+    val affordable = estimate.withinBudget
+
+    val priceContainer = when (estimate.verdict) {
+        Verdict.EASY, Verdict.FITS -> MaterialTheme.colorScheme.primaryContainer
+        Verdict.STRETCH -> MaterialTheme.colorScheme.tertiaryContainer
+        Verdict.OUT -> MaterialTheme.colorScheme.surfaceContainerHighest
+    }
+    val onPriceContainer = when (estimate.verdict) {
+        Verdict.EASY, Verdict.FITS -> MaterialTheme.colorScheme.onPrimaryContainer
+        Verdict.STRETCH -> MaterialTheme.colorScheme.onTertiaryContainer
+        Verdict.OUT -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
 
     Column(
         modifier
             .fillMaxWidth()
             .pressScale(interaction)
-            .clip(CardShape)
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = alpha), CardShape)
-            .clickable(interactionSource = interaction, indication = null, onClick = onClick),
+            .clip(RoundedCornerShape(32.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .clickable(interactionSource = interaction, indication = null, onClick = onClick)
+            .padding(10.dp),
     ) {
         Box(
             Modifier
                 .fillMaxWidth()
-                .height(if (compact) 108.dp else 132.dp),
+                .height(if (hero) 196.dp else 142.dp)
+                .clip(RoundedCornerShape(24.dp)),
         ) {
             DestinationArt(d, Modifier.fillMaxSize())
 
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .padding(14.dp),
+                    .padding(12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top,
             ) {
-                VerdictPill(estimate.verdict)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    rankLabel?.let {
+                        Box(
+                            Modifier
+                                .clip(ExpressiveShapes.cookie)
+                                .background(RangePalette.AuroraBright)
+                                .padding(horizontal = 14.dp, vertical = 8.dp),
+                        ) {
+                            Text(
+                                it,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFF04121B),
+                                fontWeight = FontWeight.W800,
+                            )
+                        }
+                    }
+                    if (!affordable) {
+                        Box(
+                            Modifier
+                                .clip(PillShape)
+                                .background(Color.Black.copy(alpha = 0.42f))
+                                .padding(horizontal = 10.dp, vertical = 6.dp),
+                        ) {
+                            Text(
+                                "Just over",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = RangePalette.Sand,
+                            )
+                        }
+                    }
+                }
                 Box(
                     Modifier
-                        .size(34.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(Color.Black.copy(alpha = 0.32f))
+                        .size(38.dp)
+                        .clip(ExpressiveShapes.squircle)
+                        .background(Color.Black.copy(alpha = 0.34f))
                         .clickable(onClick = onWishlist),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         if (wishlisted) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                        contentDescription = "Save",
+                        contentDescription = "Save ${d.city}",
                         tint = if (wishlisted) RangePalette.Coral else Color.White,
-                        modifier = Modifier.size(17.dp),
+                        modifier = Modifier.size(18.dp),
                     )
                 }
             }
@@ -134,164 +172,152 @@ fun DestinationCard(
             Column(
                 Modifier
                     .align(Alignment.BottomStart)
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
             ) {
                 Text(
                     d.city,
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = if (hero) {
+                        MaterialTheme.typography.displaySmall
+                    } else {
+                        MaterialTheme.typography.headlineSmall
+                    },
                     color = Color.White,
                     fontWeight = FontWeight.W800,
                 )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        d.country,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.White.copy(alpha = 0.82f),
-                    )
-                    Text(
-                        "  •  ${formatKm(estimate.distanceKm)}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.White.copy(alpha = 0.6f),
-                    )
-                }
-            }
-        }
-
-        Column(Modifier.padding(16.dp)) {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                Column {
-                    Text(
-                        "TOTAL FOR ${estimate.query.travelers}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    AnimatedNumber(
-                        text = formatMoney(estimate.totalUsd, currency),
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        "PER PERSON",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        formatMoney(estimate.perPersonUsd, currency),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(12.dp))
-            BudgetMeter(estimate, currency)
-
-            Spacer(Modifier.height(12.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                MetaChip(transportIcon(estimate.mode), estimate.mode.label)
-                MetaChip(
-                    Icons.Rounded.Schedule,
-                    formatHours(
-                        estimate.transportOptions
-                            .firstOrNull { it.mode == estimate.mode }?.hoursOneWay ?: 0.0,
-                    ),
+                Text(
+                    "${d.country}  ·  ${formatKm(estimate.distanceKm)}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color.White.copy(alpha = 0.85f),
                 )
-                if (estimate.inSeason) MetaChip(Icons.Rounded.Bolt, "In season")
             }
+        }
 
-            AnimatedVisibility(
-                visible = estimate.leanRescue,
-                enter = fadeIn() + expandVertically(),
-                exit = fadeOut() + shrinkVertically(),
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp, start = 6.dp, end = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                Modifier
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(priceContainer)
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
             ) {
-                Row(
-                    Modifier
-                        .padding(top = 12.dp)
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(RangePalette.Sand.copy(alpha = 0.12f))
-                        .padding(10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        Icons.Rounded.Bolt,
-                        null,
-                        tint = RangePalette.Sand,
-                        modifier = Modifier.size(15.dp),
+                Text(
+                    formatMoney(estimate.totalUsd, currency),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = onPriceContainer,
+                    fontWeight = FontWeight.W800,
+                )
+                Text(
+                    "total · ${formatMoney(estimate.perPersonUsd, currency)} each",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = onPriceContainer.copy(alpha = 0.82f),
+                )
+            }
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    MetaChip(transportIcon(estimate.mode), estimate.mode.label)
+                    MetaChip(
+                        Icons.Rounded.Schedule,
+                        formatHours(
+                            estimate.transportOptions
+                                .firstOrNull { it.mode == estimate.mode }?.hoursOneWay ?: 0.0,
+                        ),
                     )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        "Fits at ${formatMoney(estimate.leanTotalUsd, currency)} if you go budget",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = RangePalette.Sand,
-                    )
+                }
+                if (estimate.inSeason) {
+                    Spacer(Modifier.height(6.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Rounded.Bolt,
+                            null,
+                            tint = RangePalette.Sand,
+                            modifier = Modifier.size(13.dp),
+                        )
+                        Text(
+                            " best season",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = RangePalette.Sand,
+                        )
+                    }
                 }
             }
         }
+
+        Spacer(Modifier.height(10.dp))
+        BudgetMeter(estimate, currency, Modifier.padding(horizontal = 6.dp))
+
+        AnimatedVisibility(
+            visible = !affordable && estimate.leanRescue,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically(),
+        ) {
+            Row(
+                Modifier
+                    .padding(top = 10.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(MaterialTheme.colorScheme.tertiaryContainer)
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    Icons.Rounded.Bolt,
+                    null,
+                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                    modifier = Modifier.size(15.dp),
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "Fits at ${formatMoney(estimate.leanTotalUsd, currency)} on budget tiers",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                )
+            }
+        }
+
+        Spacer(Modifier.height(4.dp))
     }
 }
 
-/** Thin bar showing how much of the budget this trip eats. */
+/** Wavy meter: how much of the budget this trip eats. */
 @Composable
 fun BudgetMeter(
     estimate: TripEstimate,
     currency: Currency,
     modifier: Modifier = Modifier,
 ) {
-    val fraction by animateFloatAsState(
-        estimate.ratio.coerceIn(0.0, 1.35).toFloat() / 1.35f,
-        tween(700),
-        label = "meter",
-    )
     val color = verdictColor(estimate.verdict)
+    val fraction = (estimate.ratio.coerceIn(0.0, 1.35) / 1.35).toFloat()
     Column(modifier.fillMaxWidth()) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(7.dp)
-                .clip(PillShape)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
-        ) {
-            Box(
-                Modifier
-                    .fillMaxWidth(fraction)
-                    .height(7.dp)
-                    .clip(PillShape)
-                    .background(
-                        Brush.horizontalGradient(listOf(color.copy(alpha = 0.65f), color)),
-                    ),
-            )
-            // Budget line at 1.0 of the budget (0.74 of the 1.35 scale).
-            Box(
-                Modifier
-                    .fillMaxWidth(1f / 1.35f)
-                    .height(7.dp),
-                contentAlignment = Alignment.CenterEnd,
-            ) {
-                Box(
-                    Modifier
-                        .width(2.dp)
-                        .height(11.dp)
-                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)),
-                )
-            }
-        }
-        Spacer(Modifier.height(6.dp))
-        Text(
-            if (estimate.withinBudget) {
-                "${formatMoney(estimate.headroomUsd, currency)} left over"
-            } else {
-                "${formatMoney(-estimate.headroomUsd, currency)} over budget"
-            },
-            style = MaterialTheme.typography.bodySmall,
+        WavyProgress(
+            progress = fraction,
             color = color,
+            trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            modifier = Modifier.fillMaxWidth(),
         )
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                if (estimate.withinBudget) {
+                    "${formatMoney(estimate.headroomUsd, currency)} left over"
+                } else {
+                    "${formatMoney(-estimate.headroomUsd, currency)} over budget"
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = color,
+            )
+            Text(
+                "${(estimate.ratio * 100).toInt()}% of budget",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 
@@ -301,7 +327,7 @@ fun MetaChip(icon: ImageVector, label: String, modifier: Modifier = Modifier) {
         modifier
             .clip(PillShape)
             .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-            .padding(horizontal = 9.dp, vertical = 5.dp),
+            .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp),
     ) {

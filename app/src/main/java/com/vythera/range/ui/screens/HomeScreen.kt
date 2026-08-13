@@ -124,6 +124,9 @@ fun HomeScreen(
     var showDatePicker by remember { mutableStateOf(false) }
     var splitTiers by remember { mutableStateOf(false) }
     var showMore by remember { mutableStateOf(false) }
+    var scrubbing by remember { mutableStateOf(false) }
+    var budgetDraft by remember { mutableStateOf(query.budgetUsd) }
+    if (!scrubbing && budgetDraft != query.budgetUsd) budgetDraft = query.budgetUsd
     val origin = OriginCatalog.find(query.originId)
     val topInset = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -168,13 +171,14 @@ fun HomeScreen(
                     )
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         AnimatedNumber(
-                            text = formatMoney(query.budgetUsd, currency),
+                            text = formatMoney(budgetDraft, currency),
                             style = MaterialTheme.typography.displayMedium,
                             color = MaterialTheme.colorScheme.onSurface,
+                            animate = !scrubbing,
                         )
                         Text(
                             if (query.budgetIsPerPerson) {
-                                "each · ${formatMoney(query.totalBudgetUsd, currency)} in total"
+                                "each · ${formatMoney(budgetDraft * query.travelers, currency)} in total"
                             } else {
                                 "total, everything included"
                             },
@@ -186,7 +190,9 @@ fun HomeScreen(
                 BudgetTape(
                     valueUsd = query.budgetUsd,
                     currency = currency,
-                    onValueChange = { v -> onQueryChange { it.copy(budgetUsd = v) } },
+                    onPreview = { v -> budgetDraft = v },
+                    onCommit = { v -> onQueryChange { it.copy(budgetUsd = v) } },
+                    onDragging = { scrubbing = it },
                 )
                 Spacer(Modifier.height(10.dp))
                 Row(
@@ -199,7 +205,10 @@ fun HomeScreen(
                         RangeChip(
                             label = label,
                             selected = kotlin.math.abs(query.budgetUsd - usd) < 1.0,
-                            onClick = { onQueryChange { it.copy(budgetUsd = usd) } },
+                            onClick = {
+                                budgetDraft = usd
+                                onQueryChange { it.copy(budgetUsd = usd) }
+                            },
                         )
                     }
                     RangeChip(

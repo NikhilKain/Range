@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -76,6 +77,7 @@ import com.vythera.range.domain.formatMoney
 import com.vythera.range.ui.components.AnimatedNumber
 import com.vythera.range.ui.components.AuroraBackground
 import com.vythera.range.ui.components.DestinationCard
+import com.vythera.range.ui.components.ExpressiveLoader
 import com.vythera.range.ui.components.GlassCard
 import com.vythera.range.ui.components.Motion
 import com.vythera.range.ui.components.RangeChip
@@ -223,11 +225,26 @@ fun ExploreScreen(
                 }
             }
 
-            if (state.visible.isEmpty()) {
+            if (state.computing) {
+                item("loading") {
+                    Column(
+                        Modifier.fillMaxWidth().padding(vertical = 60.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        ExpressiveLoader(Modifier.size(58.dp))
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            "Pricing the world…",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            } else if (state.visible.isEmpty()) {
                 item("empty") { EmptyState(state, currency, onClearFilters) }
             }
 
-            items(state.visible, key = { it.destination.id }) { estimate ->
+            itemsIndexed(state.visible, key = { _, e -> e.destination.id }) { index, estimate ->
                 var appeared by remember(estimate.destination.id) { mutableStateOf(false) }
                 LaunchedEffect(estimate.destination.id) { appeared = true }
                 val alpha by animateFloatAsState(
@@ -246,6 +263,14 @@ fun ExploreScreen(
                         wishlisted = estimate.destination.id in wishlist,
                         onClick = { onOpen(estimate) },
                         onWishlist = { onWishlist(estimate.destination.id) },
+                        hero = index == 0,
+                        rankLabel = when {
+                            index == 0 && filters.sort == SortMode.BEST_VALUE -> "BEST VALUE"
+                            index == 0 && filters.sort == SortMode.CHEAPEST -> "CHEAPEST"
+                            index == 0 && filters.sort == SortMode.FARTHEST -> "FARTHEST"
+                            index == 0 -> "TOP PICK"
+                            else -> null
+                        },
                     )
                 }
             }

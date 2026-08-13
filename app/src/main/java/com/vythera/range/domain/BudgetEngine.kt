@@ -49,6 +49,11 @@ data class TransportOption(
     val note: String,
 )
 
+/**
+ * One priced trip. [maxNights] and [leanTotalUsd] are deliberately lazy: pricing
+ * a whole catalogue happens on every keystroke of the budget ruler, and those
+ * two answers are only ever read for the handful of cards actually on screen.
+ */
 data class TripEstimate(
     val destination: Destination,
     val origin: Place,
@@ -60,13 +65,19 @@ data class TripEstimate(
     val totalUsd: Double,
     val budgetUsd: Double,
     val query: TripQuery,
-    /** Longest trip this budget supports at the chosen tiers, in nights. */
-    val maxNights: Int,
-    /** Total if every tier drops to Budget — powers the "it fits if…" nudge. */
-    val leanTotalUsd: Double,
     val seasonNote: String,
     val inSeason: Boolean,
 ) {
+    /** Longest trip this budget supports at the chosen tiers, in nights. */
+    val maxNights: Int by lazy(LazyThreadSafetyMode.NONE) {
+        BudgetEngine.longestStay(origin, destination, query, budgetUsd)
+    }
+
+    /** Total if every tier drops to Budget — powers the "it fits if…" nudge. */
+    val leanTotalUsd: Double by lazy(LazyThreadSafetyMode.NONE) {
+        BudgetEngine.leanTotal(origin, destination, query)
+    }
+
     val perPersonUsd: Double get() = totalUsd / query.travelers.coerceAtLeast(1)
     val perDayUsd: Double get() = totalUsd / query.days.coerceAtLeast(1)
     val ratio: Double get() = if (budgetUsd <= 0) 99.0 else totalUsd / budgetUsd
@@ -274,16 +285,7 @@ object BudgetEngine {
         val lines = costLines(origin, dest, query, chosen)
         val total = lines.sumOf { it.amountUsd }
 
-        val lean = query.copy(stay = Tier.BUDGET, food = Tier.BUDGET, experience = Tier.BUDGET)
-        val leanTransport = transportOptions(origin, dest, lean)
-            .filter { it.available && it.mode in lean.modes }
-            .minByOrNull { it.costUsd }
-            ?: options.first { it.mode == TransportMode.NONE }
-        val leanTotal = costLines(origin, dest, lean, leanTransport).sumOf { it.amountUsd }
-
         val budget = query.totalBudgetUsd
-        val maxNights = longestStay(origin, dest, query, budget)
-
         val month = query.departDate.monthValue
         val inSeason = month in dest.bestMonths
 
@@ -298,8 +300,6 @@ object BudgetEngine {
             totalUsd = total,
             budgetUsd = budget,
             query = query,
-            maxNights = maxNights,
-            leanTotalUsd = leanTotal,
             seasonNote = seasonNote(dest, query.departDate, inSeason),
             inSeason = inSeason,
         )
@@ -375,8 +375,17 @@ object BudgetEngine {
         }
     }
 
+    internal fun leanTotal(origin: Place, dest: Destination, query: TripQuery): Double {
+        val lean = query.copy(stay = Tier.BUDGET, food = Tier.BUDGET, experience = Tier.BUDGET)
+        val options = transportOptions(origin, dest, lean)
+        val transport = options.filter { it.available && it.mode in lean.modes }
+            .minByOrNull { it.costUsd }
+            ?: options.first { it.mode == TransportMode.NONE }
+        return costLines(origin, dest, lean, transport).sumOf { it.amountUsd }
+    }
+
     /** How many nights this budget stretches to, holding every other choice fixed. */
-    private fun longestStay(origin: Place, dest: Destination, query: TripQuery, budget: Double): Int {
+    internal fun longestStay(origin: Place, dest: Destination, query: TripQuery, budget: Double): Int {
         var best = 0
         for (n in 1..30) {
             val q = query.copy(nights = n)

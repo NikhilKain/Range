@@ -169,7 +169,13 @@ fun AnimatedNumber(
     style: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.displaySmall,
     color: Color = MaterialTheme.colorScheme.onSurface,
     upwards: Boolean = true,
+    animate: Boolean = true,
 ) {
+    if (!animate) {
+        // While a value is being scrubbed, a transition per frame is pure jank.
+        Text(text, style = style, color = color, textAlign = TextAlign.Center, maxLines = 1, modifier = modifier)
+        return
+    }
     AnimatedContent(
         targetState = text,
         transitionSpec = {

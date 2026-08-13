@@ -37,7 +37,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -52,6 +54,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
@@ -68,16 +71,21 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
- * A tape-measure budget input. Drag it and the ruler scrolls with a tick of
- * haptics at every notch — far more satisfying than a slider, and far more
- * precise than a stepper.
+ * A tape-measure budget input.
+ *
+ * The tape owns its own value while you drag it, so the ruler and the headline
+ * figure track your finger at frame rate; the priced result only gets asked for
+ * on a throttle and again when you let go. Tick labels are measured once and
+ * cached, because measuring text inside a draw loop is what makes rulers stutter.
  */
 @Composable
 fun BudgetTape(
     valueUsd: Double,
     currency: Currency,
-    onValueChange: (Double) -> Unit,
+    onPreview: (Double) -> Unit,
+    onCommit: (Double) -> Unit,
     modifier: Modifier = Modifier,
+    onDragging: (Boolean) -> Unit = {},
     minUsd: Double = 40.0,
     maxUsd: Double = 24_000.0,
 ) {
@@ -91,22 +99,40 @@ fun BudgetTape(
     val stepUsd = stepLocal / currency.perUsd
     val pxPerStep = with(density) { 26.dp.toPx() }
 
-    var lastTick by remember { mutableFloatStateOf(valueUsd.toFloat()) }
+    var dragging by remember { mutableStateOf(false) }
+    var local by remember { mutableDoubleStateOf(valueUsd) }
+    var lastTick by remember { mutableDoubleStateOf(valueUsd) }
+    var lastCommit by remember { mutableLongStateOf(0L) }
 
-    fun applyDelta(dxPx: Float) {
-        val deltaUsd = -(dxPx / pxPerStep) * stepUsd
-        val next = (valueUsd + deltaUsd).coerceIn(minUsd, maxUsd)
-        if (abs(next - lastTick) >= stepUsd * 0.98) {
-            lastTick = next.toFloat()
-            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    // Follow the outside world whenever the user isn't the one moving it.
+    if (!dragging && local != valueUsd) local = valueUsd
+
+    val labelCache = remember(currency) { mutableMapOf<Int, TextLayoutResult>() }
+    val labelColor = RangePalette.MistDim
+
+    fun push(value: Double, force: Boolean) {
+        onPreview(value)
+        val now = System.currentTimeMillis()
+        if (force || now - lastCommit > 180) {
+            lastCommit = now
+            onCommit(value)
         }
-        onValueChange(next)
     }
 
-    /** Land on a round number so the headline figure is never ₹60,030. */
-    fun snap(from: Double) {
-        val steps = (from * currency.perUsd / stepLocal).roundToInt().coerceAtLeast(1)
-        onValueChange((steps * stepLocal / currency.perUsd).coerceIn(minUsd, maxUsd))
+    fun applyDelta(dxPx: Float) {
+        val next = (local - (dxPx / pxPerStep) * stepUsd).coerceIn(minUsd, maxUsd)
+        if (abs(next - lastTick) >= stepUsd * 0.98) {
+            lastTick = next
+            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        }
+        local = next
+        push(next, force = false)
+    }
+
+    fun settle() {
+        val steps = (local * currency.perUsd / stepLocal).roundToInt().coerceAtLeast(1)
+        local = (steps * stepLocal / currency.perUsd).coerceIn(minUsd, maxUsd)
+        push(local, force = true)
     }
 
     val dragState = rememberDraggableState { delta -> applyDelta(delta) }
@@ -119,93 +145,88 @@ fun BudgetTape(
                 .draggable(
                     state = dragState,
                     orientation = Orientation.Horizontal,
+                    onDragStarted = {
+                        dragging = true
+                        onDragging(true)
+                    },
                     onDragStopped = { velocity ->
                         scope.launch {
-                            // The fling runs off a local accumulator: recomposition
-                            // can't feed the loop a fresh value mid-animation.
                             var last = 0f
-                            var current = valueUsd
-                            AnimationState(initialValue = 0f, initialVelocity = velocity / 2.2f)
+                            AnimationState(initialValue = 0f, initialVelocity = velocity / 2.4f)
                                 .animateDecay(decay) {
                                     val d = value - last
                                     last = value
-                                    current = (current - (d / pxPerStep) * stepUsd)
-                                        .coerceIn(minUsd, maxUsd)
-                                    if (abs(current - lastTick) >= stepUsd * 0.98) {
-                                        lastTick = current.toFloat()
-                                        haptics.performHapticFeedback(
-                                            HapticFeedbackType.TextHandleMove,
-                                        )
-                                    }
-                                    onValueChange(current)
+                                    applyDelta(d)
                                 }
-                            snap(current)
+                            settle()
+                            dragging = false
+                            onDragging(false)
                         }
                     },
                 ),
         ) {
             val cx = size.width / 2f
-            val localValue = valueUsd * currency.perUsd
-            val stepsFromZero = localValue / stepLocal
+            val localAmount = local * currency.perUsd
+            val stepsFromZero = localAmount / stepLocal
 
             val firstStep = (stepsFromZero - (cx / pxPerStep) - 1).toInt()
             val lastStep = (stepsFromZero + (cx / pxPerStep) + 1).toInt()
 
-            for (s in firstStep..lastStep) {
-                if (s < 0) continue
-                val x = cx + ((s - stepsFromZero) * pxPerStep).toFloat()
-                val major = s % 5 == 0
-                val distance = abs(x - cx) / cx
-                val fade = (1f - distance).coerceIn(0f, 1f)
-                val h = if (major) 26f else 14f
+            for (st in firstStep..lastStep) {
+                if (st < 0) continue
+                val x = cx + ((st - stepsFromZero) * pxPerStep).toFloat()
+                val major = st % 5 == 0
+                val fade = (1f - abs(x - cx) / cx).coerceIn(0f, 1f)
+                val h = if (major) 28f else 14f
                 drawLine(
                     color = if (major) {
-                        RangePalette.Mist.copy(alpha = 0.35f + 0.60f * fade)
+                        RangePalette.Mist.copy(alpha = 0.30f + 0.65f * fade)
                     } else {
-                        RangePalette.MistDim.copy(alpha = 0.22f + 0.45f * fade)
+                        RangePalette.MistDim.copy(alpha = 0.18f + 0.45f * fade)
                     },
                     start = Offset(x, size.height / 2f - h / 2f),
                     end = Offset(x, size.height / 2f + h / 2f),
-                    strokeWidth = if (major) 2.2f else 1.2f,
+                    strokeWidth = if (major) 2.4f else 1.3f,
                     cap = StrokeCap.Round,
                 )
-                if (major && fade > 0.06f) {
-                    val amount = (s * stepLocal)
-                    val label = when {
-                        currency == Currency.INR && amount >= 100_000 ->
-                            "${(amount / 100_000).let { if (it % 1.0 == 0.0) it.toInt().toString() else String.format("%.1f", it) }}L"
-                        amount >= 1000 ->
-                            "${(amount / 1000).let { if (it % 1.0 == 0.0) it.toInt().toString() else String.format("%.1f", it) }}k"
-                        else -> amount.roundToInt().toString()
+                if (major && fade > 0.05f) {
+                    val layout = labelCache.getOrPut(st) {
+                        measurer.measure(
+                            tickLabel(st * stepLocal, currency),
+                            style = TextStyle(color = labelColor, fontSize = 10.sp),
+                        )
                     }
-                    val layout = measurer.measure(
-                        label,
-                        style = TextStyle(
-                            color = RangePalette.MistDim.copy(alpha = 0.35f + 0.6f * fade),
-                            fontSize = 10.sp,
-                        ),
-                    )
                     drawText(
                         layout,
+                        color = labelColor.copy(alpha = 0.35f + 0.6f * fade),
                         topLeft = Offset(x - layout.size.width / 2f, size.height / 2f + 18f),
                     )
                 }
             }
 
-            // Centre marker.
             drawLine(
                 brush = Brush.verticalGradient(
                     listOf(RangePalette.AuroraBright, RangePalette.Sky),
                 ),
-                start = Offset(cx, 4f),
-                end = Offset(cx, size.height - 22f),
-                strokeWidth = 3.5f,
+                start = Offset(cx, 2f),
+                end = Offset(cx, size.height - 20f),
+                strokeWidth = 4f,
                 cap = StrokeCap.Round,
             )
-            drawCircle(RangePalette.AuroraBright, radius = 4.5f, center = Offset(cx, 4f))
+            drawCircle(RangePalette.AuroraBright, radius = 5f, center = Offset(cx, 2f))
         }
     }
 }
+
+private fun tickLabel(amount: Double, currency: Currency): String = when {
+    currency == Currency.INR && amount >= 100_000 ->
+        "${trimNumber(amount / 100_000)}L"
+    amount >= 1000 -> "${trimNumber(amount / 1000)}k"
+    else -> amount.roundToInt().toString()
+}
+
+private fun trimNumber(v: Double): String =
+    if (v % 1.0 == 0.0) v.toInt().toString() else ((v * 10).roundToInt() / 10.0).toString()
 
 /** Sliding-pill selector used for Budget / Comfort / Luxury choices. */
 @Composable
