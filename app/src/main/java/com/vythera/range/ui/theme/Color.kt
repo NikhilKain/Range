@@ -129,12 +129,18 @@ data class CostColors(
 val costColors: CostColors
     @Composable get() = MaterialTheme.colorScheme.let { s ->
         CostColors(
+            // The scheme's primary/secondary/tertiary are a harmonised triad —
+            // they are built to sit together. The container roles are *background*
+            // tones, and using them as foreground fills put an unrelated red and
+            // blue next to each other in the same bar. The three biggest lines
+            // get the accents; the minor ones step down through the neutrals,
+            // which also reads as a visual hierarchy rather than six equals.
             transport = s.primary,
             stay = s.secondary,
             food = s.tertiary,
-            local = s.primaryContainer,
-            experiences = s.tertiaryContainer,
-            overhead = s.outline,
+            local = s.onSurfaceVariant,
+            experiences = s.outline,
+            overhead = s.outlineVariant,
         )
     }
 

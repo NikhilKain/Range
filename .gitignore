@@ -12,4 +12,10 @@ app/build/
 
 # Build outputs are published as CI artifacts and releases, not committed
 dist/
-ci/shots/
+ci/
+
+# Release signing. The keystore lives outside the repo; these are the belt and
+# braces so a stray copy can never be committed either.
+keystore.properties
+*.jks
+*.keystore

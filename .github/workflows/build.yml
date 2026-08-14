@@ -1,14 +1,18 @@
-name: Build Debug APK
+name: Build
 
 on:
   push:
     branches:
       - main
       - 'claude/**'
+  pull_request:
   workflow_dispatch:
 
+# Read-only. This workflow used to push build reports back to the branch and
+# force-replace a `dist` branch, which buried real history under `[skip ci]`
+# commits. Everything it produces is now an artifact instead.
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: build-${{ github.ref }}
@@ -92,59 +96,27 @@ jobs:
           fi
           echo "apk: ${APK:-none}" >> ci/last-build.txt
 
-      - name: Upload APK artifact
+      # Debug APK and build report are artifacts on the run, not commits and not
+      # a "release". Shipping an unsigned debug build as the download people
+      # find first was the wrong default; real downloads come from a tagged
+      # release built by release.yml.
+      - name: Upload debug APK
         if: hashFiles('dist/range-debug.apk') != ''
         uses: actions/upload-artifact@v4
         with:
           name: range-debug-apk
           path: dist/range-debug.apk
           if-no-files-found: ignore
+          retention-days: 14
 
-      - name: Push report back to branch
-        run: |
-          git config user.name "range-ci"
-          git config user.email "ci@users.noreply.github.com"
-          git add -f ci/last-build.txt || true
-          if ! git diff --cached --quiet; then
-            git commit -m "ci: build report for ${GITHUB_SHA:0:7} [skip ci]"
-            for i in 1 2 3; do
-              git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && break
-              sleep $((i*3))
-            done
-          fi
-
-      - name: Publish APK to the dist branch
-        if: steps.assemble.outputs.code == '0' && github.ref == 'refs/heads/main'
-        run: |
-          # A single-commit orphan branch, force-replaced each build: the APK is
-          # always fetchable but the repo never accumulates 20 MB binaries.
-          rm -rf /tmp/distrepo && mkdir -p /tmp/distrepo
-          cp dist/range-debug.apk /tmp/distrepo/
-          cd /tmp/distrepo
-          {
-            echo "# Range — latest debug build"
-            echo
-            echo "Built from \`${GITHUB_SHA:0:7}\` on $(date -u +%F\ %T) UTC."
-            echo "This branch is replaced on every build and holds no history."
-          } > README.md
-          git init -q
-          git checkout -q -b dist
-          git config user.name "range-ci"
-          git config user.email "ci@users.noreply.github.com"
-          git add -A
-          git commit -q -m "range-debug.apk @ ${GITHUB_SHA:0:7}"
-          git push -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" dist
-
-      - name: Publish rolling debug release
-        if: steps.assemble.outputs.code == '0' && github.ref == 'refs/heads/main'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release delete debug --yes --cleanup-tag 2>/dev/null || true
-          gh release create debug dist/range-debug.apk \
-            --title "Range — latest debug build" \
-            --notes "Debug APK built from \`${GITHUB_SHA:0:7}\` on $(date -u +%F). Install on any Android 8.0+ device." \
-            --latest
+      - name: Upload build report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-report
+          path: ci/last-build.txt
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Fail if build failed
         run: exit ${{ steps.assemble.outputs.code }}
