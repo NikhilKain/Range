@@ -20,7 +20,8 @@ data class RangeSettings(
     val originId: String = "del",
     val currency: String = "INR",
     val themeMode: String = "DARK",
-    val dynamicColor: Boolean = false,
+    /** Material You is the default look; the fixed slate scheme is the opt-out. */
+    val dynamicColor: Boolean = true,
     val reduceMotion: Boolean = false,
     val hapticsEnabled: Boolean = true,
     val onboarded: Boolean = false,
@@ -47,7 +48,7 @@ class RangeStore(private val context: Context) {
             originId = p[Keys.ORIGIN] ?: "del",
             currency = p[Keys.CURRENCY] ?: "INR",
             themeMode = p[Keys.THEME] ?: "DARK",
-            dynamicColor = p[Keys.DYNAMIC] ?: false,
+            dynamicColor = p[Keys.DYNAMIC] ?: true,
             reduceMotion = p[Keys.REDUCE_MOTION] ?: false,
             hapticsEnabled = p[Keys.HAPTICS] ?: true,
             onboarded = p[Keys.ONBOARDED] ?: false,

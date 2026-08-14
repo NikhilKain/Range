@@ -1,5 +1,6 @@
 @file:OptIn(
     androidx.compose.material3.ExperimentalMaterial3Api::class,
+    androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
     androidx.compose.foundation.layout.ExperimentalLayoutApi::class,
     androidx.compose.animation.ExperimentalSharedTransitionApi::class,
     androidx.compose.ui.ExperimentalComposeUiApi::class,
@@ -12,6 +13,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.rememberSplineBasedDecay
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,7 +24,9 @@ import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -35,6 +39,8 @@ import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -66,7 +72,6 @@ import androidx.compose.animation.core.animateDecay
 import com.vythera.range.domain.Currency
 import com.vythera.range.domain.rate
 import com.vythera.range.ui.theme.PillShape
-import com.vythera.range.ui.theme.RangePalette
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -109,7 +114,14 @@ fun BudgetTape(
     if (!dragging && local != valueUsd) local = valueUsd
 
     val labelCache = remember(currency) { mutableMapOf<Int, TextLayoutResult>() }
-    val labelColor = RangePalette.MistDim
+    // Canvas draws outside composition, so every colour it needs is resolved up
+    // here and captured — that is what keeps the ruler on the Material You
+    // scheme instead of a hardcoded slate.
+    val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val tickMajor = MaterialTheme.colorScheme.onSurface
+    val tickMinor = MaterialTheme.colorScheme.onSurfaceVariant
+    val needleTop = MaterialTheme.colorScheme.primary
+    val needleBottom = MaterialTheme.colorScheme.secondary
 
     fun push(value: Double, force: Boolean) {
         onPreview(value)
@@ -181,9 +193,9 @@ fun BudgetTape(
                 val h = if (major) 28f else 14f
                 drawLine(
                     color = if (major) {
-                        RangePalette.Mist.copy(alpha = 0.30f + 0.65f * fade)
+                        tickMajor.copy(alpha = 0.30f + 0.65f * fade)
                     } else {
-                        RangePalette.MistDim.copy(alpha = 0.18f + 0.45f * fade)
+                        tickMinor.copy(alpha = 0.18f + 0.45f * fade)
                     },
                     start = Offset(x, size.height / 2f - h / 2f),
                     end = Offset(x, size.height / 2f + h / 2f),
@@ -206,15 +218,13 @@ fun BudgetTape(
             }
 
             drawLine(
-                brush = Brush.verticalGradient(
-                    listOf(RangePalette.AuroraBright, RangePalette.Sky),
-                ),
+                brush = Brush.verticalGradient(listOf(needleTop, needleBottom)),
                 start = Offset(cx, 2f),
                 end = Offset(cx, size.height - 20f),
                 strokeWidth = 4f,
                 cap = StrokeCap.Round,
             )
-            drawCircle(RangePalette.AuroraBright, radius = 5f, center = Offset(cx, 2f))
+            drawCircle(needleTop, radius = 5f, center = Offset(cx, 2f))
         }
     }
 }
@@ -228,71 +238,6 @@ private fun tickLabel(amount: Double, currency: Currency): String = when {
 
 private fun trimNumber(v: Double): String =
     if (v % 1.0 == 0.0) v.toInt().toString() else ((v * 10).roundToInt() / 10.0).toString()
-
-/** Sliding-pill selector used for Budget / Comfort / Luxury choices. */
-@Composable
-fun <T> SegmentedSelector(
-    options: List<T>,
-    selected: T,
-    onSelect: (T) -> Unit,
-    label: (T) -> String,
-    modifier: Modifier = Modifier,
-    accent: Color = MaterialTheme.colorScheme.primary,
-) {
-    val index = options.indexOf(selected).coerceAtLeast(0)
-    val haptics = LocalHapticFeedback.current
-    Box(
-        modifier
-            .clip(PillShape)
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, PillShape)
-            .padding(4.dp),
-    ) {
-        Row(Modifier.fillMaxWidth()) {
-            options.forEachIndexed { i, option ->
-                val active = i == index
-                val bg by animateColorAsState(
-                    if (active) accent.copy(alpha = 0.18f) else Color.Transparent,
-                    tween(260),
-                    label = "segBg",
-                )
-                val fg by animateColorAsState(
-                    if (active) accent else MaterialTheme.colorScheme.onSurfaceVariant,
-                    tween(260),
-                    label = "segFg",
-                )
-                val scale by animateFloatAsState(if (active) 1f else 0.97f, Motion.snappy, label = "segScale")
-                Box(
-                    Modifier
-                        .weight(1f)
-                        .clip(PillShape)
-                        .background(bg)
-                        .then(
-                            if (active) {
-                                Modifier.border(1.dp, accent.copy(alpha = 0.5f), PillShape)
-                            } else {
-                                Modifier
-                            },
-                        )
-                        .clickable {
-                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onSelect(option)
-                        }
-                        .padding(vertical = 10.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        label(option),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = fg,
-                        fontWeight = if (active) FontWeight.W800 else FontWeight.W600,
-                        modifier = Modifier.scale(scale),
-                    )
-                }
-            }
-        }
-    }
-}
 
 /** Big, satisfying +/- control for travellers and nights. */
 @Composable
@@ -363,7 +308,21 @@ private fun StepButton(
     }
 }
 
-/** Chip with an optional leading icon; animates its fill and border on select. */
+/**
+ * The app's chip, now a Material 3 Expressive [ToggleButton].
+ *
+ * The selection cue is the *shape*, not just the colour: a pill when idle, a
+ * rounded square when chosen, and a third squashed shape while your finger is
+ * down — all morphed on springs by the component rather than tweened by hand.
+ * That shape change is the single most recognisable Expressive behaviour, and
+ * because this chip backs the transport picker, the filters, the region and
+ * vibe pickers and the wishlist, changing it here changes the feel of most of
+ * the app at once.
+ *
+ * The container stays a tint of [accent] rather than a solid fill so that the
+ * non-primary accents the app uses (coral for the wishlist, sand for warnings)
+ * keep their contrast against the dark ground.
+ */
 @Composable
 fun RangeChip(
     label: String,
@@ -375,63 +334,44 @@ fun RangeChip(
     enabled: Boolean = true,
 ) {
     val haptics = LocalHapticFeedback.current
-    val bg by animateColorAsState(
-        when {
-            !enabled -> Color.Transparent
-            selected -> accent.copy(alpha = 0.18f)
-            else -> MaterialTheme.colorScheme.surfaceContainerLow
+    ToggleButton(
+        checked = selected,
+        onCheckedChange = {
+            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+            onClick()
         },
-        tween(240),
-        label = "chipBg",
-    )
-    val border by animateColorAsState(
-        when {
-            !enabled -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
-            selected -> accent.copy(alpha = 0.65f)
-            else -> MaterialTheme.colorScheme.outlineVariant
+        modifier = modifier,
+        enabled = enabled,
+        shapes = ToggleButtonDefaults.shapes(
+            shape = ToggleButtonDefaults.roundShape,
+            pressedShape = ToggleButtonDefaults.pressedShape,
+            checkedShape = ToggleButtonDefaults.squareShape,
+        ),
+        colors = ToggleButtonDefaults.toggleButtonColors(
+            // Filled even when unselected. A bare outline on this dark ground
+            // read as a hairline sketch rather than a control you could press,
+            // and it left the selected state doing all the work.
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            checkedContainerColor = accent.copy(alpha = 0.24f),
+            checkedContentColor = accent,
+        ),
+        border = if (selected) {
+            BorderStroke(1.5.dp, accent.copy(alpha = 0.75f))
+        } else {
+            null
         },
-        tween(240),
-        label = "chipBorder",
-    )
-    val fg by animateColorAsState(
-        when {
-            !enabled -> MaterialTheme.colorScheme.outline
-            selected -> accent
-            else -> MaterialTheme.colorScheme.onSurfaceVariant
-        },
-        tween(240),
-        label = "chipFg",
-    )
-    val scale by animateFloatAsState(if (selected) 1.03f else 1f, Motion.bouncy, label = "chipScale")
-    val corner by animateFloatAsState(
-        if (selected) 14f else 50f,
-        Motion.springOf(0.55f, 320f),
-        label = "chipCorner",
-    )
-    val shape = RoundedCornerShape(corner.dp)
-
-    Row(
-        modifier
-            .scale(scale)
-            .clip(shape)
-            .background(bg)
-            .border(1.dp, border, shape)
-            .clickable(enabled = enabled) {
-                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                onClick()
-            }
-            .padding(horizontal = 14.dp, vertical = 9.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 9.dp),
     ) {
         if (icon != null) {
-            Icon(icon, contentDescription = null, tint = fg, modifier = Modifier.size(16.dp))
+            Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp))
+            Spacer(Modifier.width(6.dp))
         }
         Text(
             label,
             style = MaterialTheme.typography.labelLarge,
-            color = fg,
             fontWeight = if (selected) FontWeight.W800 else FontWeight.W600,
+            maxLines = 1,
         )
     }
 }

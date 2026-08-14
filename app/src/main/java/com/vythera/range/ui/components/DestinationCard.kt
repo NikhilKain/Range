@@ -1,4 +1,7 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:OptIn(
+    androidx.compose.material3.ExperimentalMaterial3Api::class,
+    androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
+)
 
 package com.vythera.range.ui.components
 
@@ -32,7 +35,9 @@ import androidx.compose.material.icons.rounded.LocalTaxi
 import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Train
+import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.vythera.range.data.model.TransportMode
@@ -52,7 +58,6 @@ import com.vythera.range.domain.formatKm
 import com.vythera.range.domain.formatMoney
 import com.vythera.range.ui.theme.ExpressiveShapes
 import com.vythera.range.ui.theme.PillShape
-import com.vythera.range.ui.theme.RangePalette
 
 fun transportIcon(mode: TransportMode): ImageVector = when (mode) {
     TransportMode.FLIGHT -> Icons.Rounded.Flight
@@ -100,7 +105,13 @@ fun DestinationCard(
             .pressScale(interaction)
             .clip(RoundedCornerShape(32.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .clickable(interactionSource = interaction, indication = null, onClick = onClick)
+            .clickable(
+                interactionSource = interaction,
+                indication = null,
+                onClickLabel = "Open ${d.city}",
+                role = Role.Button,
+                onClick = onClick,
+            )
             .padding(10.dp),
     ) {
         Box(
@@ -123,16 +134,24 @@ fun DestinationCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     rankLabel?.let {
+                        // A lobed shape derives its radius from the *shorter*
+                        // side, so on a wide badge it collapses to a circle and
+                        // eats the label — "BEST VALUE" was rendering as "T VA".
+                        // Wide badges get the pill; the lobed shapes are for
+                        // square marks only.
                         Box(
                             Modifier
-                                .clip(ExpressiveShapes.cookie)
-                                .background(RangePalette.AuroraBright)
+                                .clip(PillShape)
+                                .background(MaterialTheme.colorScheme.primary)
                                 .padding(horizontal = 14.dp, vertical = 8.dp),
                         ) {
                             Text(
                                 it,
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFF04121B),
+                                // onPrimary, not a fixed near-black: the badge
+                                // sits on `primary`, which is now wallpaper-derived
+                                // and can land light or dark.
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 fontWeight = FontWeight.W800,
                             )
                         }
@@ -147,23 +166,29 @@ fun DestinationCard(
                             Text(
                                 "Just over",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = RangePalette.Sand,
+                                color = MaterialTheme.colorScheme.tertiary,
                             )
                         }
                     }
                 }
-                Box(
-                    Modifier
-                        .size(38.dp)
-                        .clip(ExpressiveShapes.squircle)
-                        .background(Color.Black.copy(alpha = 0.34f))
-                        .clickable(onClick = onWishlist),
-                    contentAlignment = Alignment.Center,
+                // Expressive toggle: the container itself morphs from a rounded
+                // square to a circle as it's checked, and squashes under the
+                // finger. Saving a place should feel like a small event.
+                FilledIconToggleButton(
+                    checked = wishlisted,
+                    onCheckedChange = { onWishlist() },
+                    modifier = Modifier.size(38.dp),
+                    shapes = IconButtonDefaults.toggleableShapes(),
+                    colors = IconButtonDefaults.filledIconToggleButtonColors(
+                        containerColor = Color.Black.copy(alpha = 0.34f),
+                        contentColor = Color.White,
+                        checkedContainerColor = MaterialTheme.colorScheme.error,
+                        checkedContentColor = MaterialTheme.colorScheme.onError,
+                    ),
                 ) {
                     Icon(
                         if (wishlisted) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
                         contentDescription = "Save ${d.city}",
-                        tint = if (wishlisted) RangePalette.Coral else Color.White,
                         modifier = Modifier.size(18.dp),
                     )
                 }
@@ -234,13 +259,13 @@ fun DestinationCard(
                         Icon(
                             Icons.Rounded.Bolt,
                             null,
-                            tint = RangePalette.Sand,
+                            tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier.size(13.dp),
                         )
                         Text(
                             " best season",
                             style = MaterialTheme.typography.labelSmall,
-                            color = RangePalette.Sand,
+                            color = MaterialTheme.colorScheme.tertiary,
                         )
                     }
                 }

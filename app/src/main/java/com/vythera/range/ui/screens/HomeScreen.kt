@@ -17,6 +17,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -45,11 +46,14 @@ import androidx.compose.material.icons.rounded.Restaurant
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -68,9 +72,12 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
 import com.vythera.range.data.OriginCatalog
 import com.vythera.range.data.model.Tier
 import com.vythera.range.data.model.TransportMode
@@ -87,14 +94,12 @@ import com.vythera.range.ui.components.ExpressiveLoader
 import com.vythera.range.ui.components.Motion
 import com.vythera.range.ui.components.RangeChip
 import com.vythera.range.ui.components.RangeMark
-import com.vythera.range.ui.components.ShapeBlob
 import com.vythera.range.ui.components.pressScale
 import com.vythera.range.ui.components.rememberInteraction
 import com.vythera.range.ui.components.transportIcon
 import com.vythera.range.ui.state.ExploreState
 import com.vythera.range.ui.theme.ExpressiveShapes
 import com.vythera.range.ui.theme.PillShape
-import com.vythera.range.ui.theme.RangePalette
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -126,6 +131,7 @@ fun HomeScreen(
     var splitTiers by remember { mutableStateOf(false) }
     var showMore by remember { mutableStateOf(false) }
     var scrubbing by remember { mutableStateOf(false) }
+    var showBudgetEntry by remember { mutableStateOf(false) }
     var budgetDraft by remember { mutableStateOf(query.budgetUsd) }
     if (!scrubbing && budgetDraft != query.budgetUsd) budgetDraft = query.budgetUsd
     val origin = OriginCatalog.find(query.originId)
@@ -139,7 +145,7 @@ fun HomeScreen(
                     .fillMaxSize()
                     .verticalScroll(scroll)
                     .padding(horizontal = 18.dp)
-                    .padding(top = topInset + 8.dp, bottom = bottomInset + 122.dp),
+                    .padding(top = topInset + 8.dp, bottom = bottomInset + 156.dp),
             ) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     RangeMark(Modifier.size(38.dp))
@@ -161,51 +167,83 @@ fun HomeScreen(
 
                 // ---------- 1. the money ----------
                 StepLabel(1, "How much can you spend?")
-                Spacer(Modifier.height(6.dp))
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 10.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    ShapeBlob(
-                        Modifier
-                            .size(300.dp)
-                            .scale(1f, 0.42f),
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.07f),
-                        lobes = 8,
-                    )
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        AnimatedNumber(
-                            text = formatMoney(budgetDraft, currency),
-                            style = MaterialTheme.typography.displayMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            animate = !scrubbing,
-                        )
-                        Text(
-                            if (query.budgetIsPerPerson) {
-                                "each · ${formatMoney(budgetDraft * query.travelers, currency)} in total"
-                            } else {
-                                "total, everything included"
-                            },
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-                BudgetTape(
-                    valueUsd = query.budgetUsd,
-                    currency = currency,
-                    onPreview = { v -> budgetDraft = v },
-                    onCommit = { v -> onQueryChange { it.copy(budgetUsd = v) } },
-                    onDragging = { scrubbing = it },
-                )
                 Spacer(Modifier.height(10.dp))
-                Row(
+                // The amount and the ruler that sets it belong to each other, so
+                // they live on one tonal surface rather than floating separately
+                // on the backdrop. Two problems went away with it: the figure was
+                // stranded in a 300dp box (the squashing `scale` is draw-only and
+                // never shrank the space it claimed, leaving a hole mid-screen),
+                // and an unbounded control on a dark ground read as decoration
+                // rather than something you could grab.
+                Column(
                     Modifier
                         .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
+                        .clip(RoundedCornerShape(32.dp))
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                        .padding(top = 18.dp, bottom = 10.dp),
+                ) {
+                    // No decorative blob in here. Against the card's own tone it
+                    // rendered as a dark stain sitting across the digits rather
+                    // than a glow behind them; the tonal surface is doing that
+                    // job now.
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(104.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            // Tapping the figure opens a keypad. The tape is
+                            // lovely for exploring but hopeless when you already
+                            // know you have exactly ₹60,000, and scrubbing to an
+                            // exact number was the most irritating thing here.
+                            AnimatedNumber(
+                                text = formatMoney(budgetDraft, currency),
+                                style = MaterialTheme.typography.displayMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                animate = !scrubbing,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(18.dp))
+                                    .clickable(
+                                        onClickLabel = "Type an exact budget",
+                                        role = Role.Button,
+                                    ) { showBudgetEntry = true }
+                                    .padding(horizontal = 12.dp, vertical = 2.dp),
+                            )
+                            Spacer(Modifier.height(2.dp))
+                            Text(
+                                if (query.budgetIsPerPerson) {
+                                    "each · ${formatMoney(budgetDraft * query.travelers, currency)} in total"
+                                } else {
+                                    "total, everything included"
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    BudgetTape(
+                        valueUsd = query.budgetUsd,
+                        currency = currency,
+                        onPreview = { v -> budgetDraft = v },
+                        onCommit = { v -> onQueryChange { it.copy(budgetUsd = v) } },
+                        onDragging = { scrubbing = it },
+                    )
+                    Text(
+                        "drag the ruler, or tap the amount to type it",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    )
+                }
+                Spacer(Modifier.height(12.dp))
+                // Wrapping beats a scrolling rail here: there are only ever six
+                // chips and the last one was being clipped at the gutter, which
+                // read as broken rather than scrollable.
+                FlowRow(
+                    Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     quickBudgets(currency).forEach { (label, usd) ->
                         RangeChip(
@@ -223,7 +261,7 @@ fun HomeScreen(
                         onClick = {
                             onQueryChange { it.copy(budgetIsPerPerson = !it.budgetIsPerPerson) }
                         },
-                        accent = RangePalette.Sky,
+                        accent = MaterialTheme.colorScheme.secondary,
                     )
                 }
 
@@ -292,11 +330,12 @@ fun HomeScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.height(12.dp))
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
+                // Same reasoning as the budget chips: six fixed options, so wrap
+                // them rather than hiding half off-screen behind a scroll.
+                FlowRow(
+                    Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     TransportMode.entries.forEach { mode ->
                         RangeChip(
@@ -305,7 +344,7 @@ fun HomeScreen(
                             onClick = { onToggleMode(mode) },
                             icon = transportIcon(mode),
                             accent = if (mode == TransportMode.NONE) {
-                                RangePalette.Violet
+                                MaterialTheme.colorScheme.tertiary
                             } else {
                                 MaterialTheme.colorScheme.primary
                             },
@@ -316,7 +355,7 @@ fun HomeScreen(
                     Text(
                         "Travel costs excluded — pricing the stay only.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = RangePalette.Violet,
+                        color = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.padding(top = 8.dp),
                     )
                 }
@@ -484,6 +523,19 @@ fun HomeScreen(
                 .align(Alignment.BottomCenter)
                 .padding(horizontal = 18.dp)
                 .padding(bottom = bottomInset + 14.dp),
+        )
+    }
+
+    if (showBudgetEntry) {
+        BudgetEntryDialog(
+            currentUsd = query.budgetUsd,
+            currency = currency,
+            onDismiss = { showBudgetEntry = false },
+            onConfirm = { usd ->
+                budgetDraft = usd
+                onQueryChange { it.copy(budgetUsd = usd) }
+                showBudgetEntry = false
+            },
         )
     }
 
@@ -707,18 +759,23 @@ private fun IconBubble(icon: ImageVector, description: String, onClick: () -> Un
     val interaction = rememberInteraction()
     Box(
         Modifier
-            .size(42.dp)
+            .size(48.dp)
             .pressScale(interaction)
             .clip(ExpressiveShapes.squircle)
             .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .clickable(interactionSource = interaction, indication = null, onClick = onClick),
+            .clickable(
+                interactionSource = interaction,
+                indication = null,
+                role = Role.Button,
+                onClick = onClick,
+            ),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
             icon,
             description,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(19.dp),
+            modifier = Modifier.size(20.dp),
         )
     }
 }
@@ -742,7 +799,7 @@ private fun ResultBar(
             .clip(RoundedCornerShape(34.dp))
             .background(
                 Brush.horizontalGradient(
-                    listOf(RangePalette.Aurora, RangePalette.Lagoon, RangePalette.Sky),
+                    listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.secondary),
                 ),
             )
             .clickable(
@@ -755,12 +812,12 @@ private fun ResultBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (explore.computing) {
-            ExpressiveLoader(Modifier.size(26.dp), color = Color(0xFF04121B))
+            ExpressiveLoader(Modifier.size(26.dp), color = MaterialTheme.colorScheme.onPrimary)
             Spacer(Modifier.width(14.dp))
             Text(
                 "Working out your range…",
                 style = MaterialTheme.typography.titleSmall,
-                color = Color(0xFF04121B),
+                color = MaterialTheme.colorScheme.onPrimary,
                 fontWeight = FontWeight.W700,
             )
         } else {
@@ -769,12 +826,12 @@ private fun ResultBar(
                     AnimatedNumber(
                         text = "${s.inRange}",
                         style = MaterialTheme.typography.headlineMedium,
-                        color = Color(0xFF04121B),
+                        color = MaterialTheme.colorScheme.onPrimary,
                     )
                     Text(
                         " places in reach",
                         style = MaterialTheme.typography.titleSmall,
-                        color = Color(0xFF04121B),
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontWeight = FontWeight.W700,
                         modifier = Modifier.padding(bottom = 3.dp),
                     )
@@ -787,7 +844,7 @@ private fun ResultBar(
                         "Nothing fits yet — try more budget or fewer nights"
                     },
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFF04121B).copy(alpha = 0.78f),
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.78f),
                     maxLines = 1,
                 )
             }
@@ -796,13 +853,13 @@ private fun ResultBar(
                 Modifier
                     .size(46.dp)
                     .clip(ExpressiveShapes.cookie)
-                    .background(Color(0xFF04121B).copy(alpha = 0.16f)),
+                    .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.16f)),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     Icons.Rounded.ArrowForward,
                     "See them all",
-                    tint = Color(0xFF04121B),
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(21.dp),
                 )
             }
@@ -838,4 +895,63 @@ private fun daysAway(date: LocalDate): String {
         days < 31 -> "in $days days"
         else -> "in ${days / 30} month${if (days / 30 == 1L) "" else "s"}"
     }
+}
+
+/**
+ * Keypad entry for an exact budget.
+ *
+ * The tape is built for exploring — you drag it to see what a number *buys*.
+ * That is the wrong tool when you already know the figure, and scrubbing a
+ * ruler to land on precisely ₹60,000 is genuinely irritating. This is the
+ * escape hatch: type it, done.
+ *
+ * The field works in the display currency and converts on the way out, so what
+ * you type is what you see on the dial.
+ */
+@Composable
+private fun BudgetEntryDialog(
+    currentUsd: Double,
+    currency: Currency,
+    onDismiss: () -> Unit,
+    onConfirm: (Double) -> Unit,
+) {
+    var text by remember {
+        mutableStateOf((currentUsd * currency.rate).roundToInt().toString())
+    }
+    val parsed = text.filter { it.isDigit() }.toLongOrNull()
+    val valid = parsed != null && parsed > 0
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Your budget") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { new -> text = new.filter { it.isDigit() }.take(9) },
+                    singleLine = true,
+                    prefix = { Text(currency.symbol) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    supportingText = {
+                        Text(
+                            if (valid) {
+                                "Total for the trip, everything included"
+                            } else {
+                                "Enter an amount"
+                            },
+                        )
+                    },
+                    isError = text.isNotEmpty() && !valid,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = valid,
+                onClick = { parsed?.let { onConfirm(it.toDouble() / currency.rate) } },
+            ) { Text("Set") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+    )
 }

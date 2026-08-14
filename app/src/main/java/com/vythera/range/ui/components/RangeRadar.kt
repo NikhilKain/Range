@@ -41,7 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vythera.range.data.model.Verdict
 import com.vythera.range.domain.TripEstimate
-import com.vythera.range.ui.theme.RangePalette
+import androidx.compose.material3.MaterialTheme
+import com.vythera.range.ui.theme.VerdictColors
+import com.vythera.range.ui.theme.verdictColors
 import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.ln
@@ -78,6 +80,18 @@ fun RangeRadar(
         max(2500.0, estimates.maxOfOrNull { it.distanceKm } ?: 2500.0)
     }
 
+    val scheme = MaterialTheme.colorScheme
+    val paint = RadarPaint(
+        grid = scheme.outlineVariant,
+        label = scheme.onSurfaceVariant,
+        sweep = scheme.primary,
+        fieldInner = scheme.primary,
+        fieldOuter = scheme.secondary,
+        origin = scheme.primary,
+        marker = scheme.onSurface,
+        verdicts = verdictColors,
+    )
+
     Box(modifier.fillMaxWidth()) {
         Canvas(
             Modifier
@@ -102,14 +116,33 @@ fun RangeRadar(
             val center = Offset(size.width / 2f, size.height / 2f)
             val radius = minOf(size.width, size.height) / 2f * 0.86f
 
-            drawGrid(center, radius, maxKm, measurer, reveal)
-            if (animated) drawSweep(center, radius, sweep, reveal)
-            drawReachBoundary(estimates, center, radius, maxKm, reveal)
-            drawDots(estimates, center, radius, maxKm, reveal, selectedId, pulse)
-            drawOrigin(center, pulse, reveal)
+            drawGrid(center, radius, maxKm, measurer, reveal, paint)
+            if (animated) drawSweep(center, radius, sweep, reveal, paint)
+            drawReachBoundary(estimates, center, radius, maxKm, reveal, paint)
+            drawDots(estimates, center, radius, maxKm, reveal, selectedId, pulse, paint)
+            drawOrigin(center, pulse, reveal, paint)
         }
     }
 }
+
+/**
+ * Every colour the radar draws with, resolved once per composition.
+ *
+ * The drawing below happens inside a `DrawScope`, which is not a composable
+ * scope and cannot read `MaterialTheme`. Passing a resolved bundle down is what
+ * lets the radar follow the Material You scheme instead of staying pinned to
+ * fixed brand colours.
+ */
+private data class RadarPaint(
+    val grid: Color,
+    val label: Color,
+    val sweep: Color,
+    val fieldInner: Color,
+    val fieldOuter: Color,
+    val origin: Color,
+    val marker: Color,
+    val verdicts: VerdictColors,
+)
 
 private fun plot(e: TripEstimate, center: Offset, radius: Float, maxKm: Double): Offset {
     val r = radialFraction(e.distanceKm, maxKm) * radius
@@ -129,12 +162,13 @@ private fun DrawScope.drawGrid(
     maxKm: Double,
     measurer: TextMeasurer,
     reveal: Float,
+    paint: RadarPaint,
 ) {
     val rings = listOf(500.0, 1500.0, 4000.0, 10000.0, 18000.0).filter { it <= maxKm * 1.05 }
     rings.forEach { km ->
         val r = radialFraction(km, maxKm) * radius * reveal
         drawCircle(
-            color = RangePalette.InkLine.copy(alpha = 0.75f),
+            color = paint.grid.copy(alpha = 0.75f),
             radius = r,
             center = center,
             style = Stroke(
@@ -145,7 +179,7 @@ private fun DrawScope.drawGrid(
         val label = if (km >= 1000) "${(km / 1000).toInt()}k" else "${km.toInt()}"
         val layout = measurer.measure(
             label,
-            style = TextStyle(color = RangePalette.MistDim.copy(alpha = 0.55f), fontSize = 9.sp),
+            style = TextStyle(color = paint.label.copy(alpha = 0.55f), fontSize = 9.sp),
         )
         drawText(
             layout,
@@ -156,7 +190,7 @@ private fun DrawScope.drawGrid(
     listOf(0f, 45f, 90f, 135f, 180f, 225f, 270f, 315f).forEach { deg ->
         val theta = Math.toRadians(deg.toDouble()).toFloat()
         drawLine(
-            color = RangePalette.InkLine.copy(alpha = 0.45f),
+            color = paint.grid.copy(alpha = 0.45f),
             start = center,
             end = Offset(
                 center.x + radius * reveal * sin(theta),
@@ -169,7 +203,7 @@ private fun DrawScope.drawGrid(
         val theta = Math.toRadians(deg.toDouble()).toFloat()
         val layout = measurer.measure(
             label,
-            style = TextStyle(color = RangePalette.MistDim.copy(alpha = 0.6f), fontSize = 10.sp),
+            style = TextStyle(color = paint.label.copy(alpha = 0.6f), fontSize = 10.sp),
         )
         drawText(
             layout,
@@ -181,12 +215,18 @@ private fun DrawScope.drawGrid(
     }
 }
 
-private fun DrawScope.drawSweep(center: Offset, radius: Float, angle: Float, reveal: Float) {
+private fun DrawScope.drawSweep(
+    center: Offset,
+    radius: Float,
+    angle: Float,
+    reveal: Float,
+    paint: RadarPaint,
+) {
     rotate(angle, pivot = center) {
         drawArc(
             brush = Brush.sweepGradient(
                 0f to Color.Transparent,
-                0.06f to RangePalette.Aurora.copy(alpha = 0.16f * reveal),
+                0.06f to paint.sweep.copy(alpha = 0.16f * reveal),
                 0.12f to Color.Transparent,
                 center = center,
             ),
@@ -205,6 +245,7 @@ private fun DrawScope.drawReachBoundary(
     radius: Float,
     maxKm: Double,
     reveal: Float,
+    paint: RadarPaint,
 ) {
     if (estimates.isEmpty()) return
     val affordable = estimates.filter { it.withinBudget }
@@ -244,8 +285,8 @@ private fun DrawScope.drawReachBoundary(
         path,
         brush = Brush.radialGradient(
             colors = listOf(
-                RangePalette.Aurora.copy(alpha = 0.20f),
-                RangePalette.Sky.copy(alpha = 0.10f),
+                paint.fieldInner.copy(alpha = 0.20f),
+                paint.fieldOuter.copy(alpha = 0.10f),
                 Color.Transparent,
             ),
             center = center,
@@ -254,7 +295,7 @@ private fun DrawScope.drawReachBoundary(
     )
     drawPath(
         path,
-        color = RangePalette.Aurora.copy(alpha = 0.55f * reveal),
+        color = paint.fieldInner.copy(alpha = 0.55f * reveal),
         style = Stroke(width = 2f),
     )
 }
@@ -267,6 +308,7 @@ private fun DrawScope.drawDots(
     reveal: Float,
     selectedId: String?,
     pulse: Float,
+    paint: RadarPaint,
 ) {
     estimates.forEach { e ->
         val p = plot(e, center, radius, maxKm)
@@ -274,12 +316,7 @@ private fun DrawScope.drawDots(
             center.x + (p.x - center.x) * reveal,
             center.y + (p.y - center.y) * reveal,
         )
-        val base = when (e.verdict) {
-            Verdict.EASY -> RangePalette.Aurora
-            Verdict.FITS -> RangePalette.Lagoon
-            Verdict.STRETCH -> RangePalette.Sand
-            Verdict.OUT -> Color(0xFF56658A)
-        }
+        val base = paint.verdicts.of(e.verdict)
         val alpha = if (e.withinBudget) 1f else 0.42f
         val r = (2.2f + e.destination.popularity.toFloat() * 3.4f)
         if (e.withinBudget) {
@@ -295,24 +332,34 @@ private fun DrawScope.drawDots(
                 center = animated,
                 style = Stroke(width = 2f),
             )
-            drawCircle(color = Color.White, radius = r + 1.5f, center = animated, style = Stroke(width = 1.5f))
+            drawCircle(
+                color = paint.marker,
+                radius = r + 1.5f,
+                center = animated,
+                style = Stroke(width = 1.5f),
+            )
         }
     }
 }
 
-private fun DrawScope.drawOrigin(center: Offset, pulse: Float, reveal: Float) {
+private fun DrawScope.drawOrigin(
+    center: Offset,
+    pulse: Float,
+    reveal: Float,
+    paint: RadarPaint,
+) {
     drawCircle(
         brush = Brush.radialGradient(
-            listOf(RangePalette.AuroraBright.copy(alpha = 0.5f), Color.Transparent),
+            listOf(paint.origin.copy(alpha = 0.5f), Color.Transparent),
             center = center,
             radius = 26f + pulse * 18f,
         ),
         radius = 26f + pulse * 18f,
         center = center,
     )
-    drawCircle(color = Color.White.copy(alpha = reveal), radius = 4.5f, center = center)
+    drawCircle(color = paint.marker.copy(alpha = reveal), radius = 4.5f, center = center)
     drawCircle(
-        color = RangePalette.AuroraBright.copy(alpha = (1f - pulse) * reveal),
+        color = paint.origin.copy(alpha = (1f - pulse) * reveal),
         radius = 8f + pulse * 26f,
         center = center,
         style = Stroke(width = 1.5f),

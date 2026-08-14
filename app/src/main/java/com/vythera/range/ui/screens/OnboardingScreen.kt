@@ -53,7 +53,6 @@ import com.vythera.range.ui.components.RangeChip
 import com.vythera.range.ui.components.RangeMark
 import com.vythera.range.ui.components.RangeWordmark
 import com.vythera.range.ui.theme.PillShape
-import com.vythera.range.ui.theme.RangePalette
 import kotlinx.coroutines.launch
 
 @Composable
@@ -148,7 +147,7 @@ fun OnboardingScreen(
                                             label = c.code,
                                             selected = c == currency,
                                             onClick = { onCurrency(c) },
-                                            accent = RangePalette.Sky,
+                                            accent = MaterialTheme.colorScheme.secondary,
                                         )
                                     }
                             }
@@ -172,7 +171,7 @@ fun OnboardingScreen(
                             .height(7.dp)
                             .clip(PillShape)
                             .background(
-                                if (active) RangePalette.Aurora else RangePalette.InkLine,
+                                if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
                             ),
                     )
                 }
@@ -187,7 +186,7 @@ fun OnboardingScreen(
                     .clip(PillShape)
                     .background(
                         Brush.horizontalGradient(
-                            listOf(RangePalette.Aurora, RangePalette.Lagoon, RangePalette.Sky),
+                            listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.secondary),
                         ),
                     )
                     .clickable {
@@ -202,7 +201,7 @@ fun OnboardingScreen(
                 Text(
                     if (pager.currentPage < 2) "Next" else "Find my range",
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color(0xFF04121B),
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontWeight = FontWeight.W800,
                 )
             }

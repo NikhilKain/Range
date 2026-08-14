@@ -47,13 +47,15 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vythera.range.data.model.Verdict
 import com.vythera.range.ui.theme.CardShape
 import com.vythera.range.ui.theme.LocalIsDark
 import com.vythera.range.ui.theme.PillShape
-import com.vythera.range.ui.theme.RangePalette
+import com.vythera.range.ui.theme.VerdictColors
+import com.vythera.range.ui.theme.verdictColors
 
 /** Spring vocabulary — every interactive surface in Range moves on one of these. */
 object Motion {
@@ -146,11 +148,15 @@ fun SectionHeader(
     }
 }
 
-fun verdictColor(v: Verdict): Color = when (v) {
-    Verdict.EASY -> RangePalette.Aurora
-    Verdict.FITS -> RangePalette.Lagoon
-    Verdict.STRETCH -> RangePalette.Sand
-    Verdict.OUT -> Color(0xFF7C8AA5)
+@Composable
+fun verdictColor(v: Verdict): Color = verdictColors.of(v)
+
+/** Non-composable lookup, for `DrawScope` code that was handed the colours. */
+fun VerdictColors.of(v: Verdict): Color = when (v) {
+    Verdict.EASY -> easy
+    Verdict.FITS -> fits
+    Verdict.STRETCH -> stretch
+    Verdict.OUT -> out
 }
 
 @Composable
@@ -191,16 +197,25 @@ fun AnimatedNumber(
         Text(text, style = style, color = color, textAlign = TextAlign.Center, maxLines = 1, modifier = modifier)
         return
     }
+    // Rolls on the expressive motion scheme rather than a fixed tween, so the
+    // headline figure carries the same spring as everything around it. It was
+    // the one prominent element still moving to a duration curve.
+    // Resolved outside the transition lambda: `transitionSpec` is not a
+    // composable scope, so MaterialTheme cannot be read from inside it.
+    val enterSlide = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
+    val exitSlide = MaterialTheme.motionScheme.fastSpatialSpec<IntOffset>()
+    val enterFade = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
+    val exitFade = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
     AnimatedContent(
         targetState = text,
         transitionSpec = {
             val dir = if (upwards) 1 else -1
             (
-                slideInVertically(animationSpec = tween(320)) { h -> dir * h / 2 } +
-                    fadeIn(tween(220))
+                slideInVertically(animationSpec = enterSlide) { h -> dir * h / 2 } +
+                    fadeIn(enterFade)
                 ) togetherWith (
-                slideOutVertically(animationSpec = tween(320)) { h -> -dir * h / 2 } +
-                    fadeOut(tween(160))
+                slideOutVertically(animationSpec = exitSlide) { h -> -dir * h / 2 } +
+                    fadeOut(exitFade)
                 )
         },
         label = "animatedNumber",

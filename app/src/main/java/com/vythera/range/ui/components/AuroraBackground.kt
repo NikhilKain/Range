@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.material3.MaterialTheme
 import com.vythera.range.ui.theme.LocalIsDark
-import com.vythera.range.ui.theme.RangePalette
+
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
@@ -60,8 +60,11 @@ fun AuroraBackground(
 
     val dark = LocalIsDark.current
     val base = MaterialTheme.colorScheme.background
-    val bloomA = if (dark) RangePalette.Sky else RangePalette.Lagoon
-    val bloomB = RangePalette.Aurora
+    // The backdrop blooms are the largest coloured area in the app, so they take
+    // their hue from the active scheme — that is what makes Material You visible
+    // at a glance rather than only in the controls.
+    val bloomA = MaterialTheme.colorScheme.primary
+    val bloomB = MaterialTheme.colorScheme.tertiary
 
     Box(modifier.background(base)) {
         Canvas(Modifier.fillMaxSize()) {
