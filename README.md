@@ -9,7 +9,8 @@
 Range starts from your budget, not your destination.<br/>
 Tell it what you can spend — it prices the **whole trip** to 180 places and shows you everywhere that actually fits.
 
-[![Download the APK](https://img.shields.io/badge/download-v1.0.0%20APK-2ea44f?style=for-the-badge&logo=android&logoColor=white)](../../releases/latest)
+[![Download the APK](https://img.shields.io/github/v/release/NikhilKain/Range?style=for-the-badge&logo=android&logoColor=white&label=download&color=2ea44f)](../../releases/latest)
+[![Build](https://img.shields.io/github/actions/workflow/status/NikhilKain/Range/build.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=build)](../../actions/workflows/build.yml)
 [![Buy me a coffee](https://img.shields.io/badge/buy%20me%20a%20coffee-ff5f5f?style=for-the-badge&logo=gumroad&logoColor=white)](https://narzo7.gumroad.com/l/nhlevz)
 
 <sub>Android 8.0+ · Kotlin · Compose · Material 3 Expressive · no account, no ads, no tracking</sub>
