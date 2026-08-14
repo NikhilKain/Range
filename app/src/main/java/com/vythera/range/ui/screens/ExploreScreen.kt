@@ -25,8 +25,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,6 +37,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -42,12 +45,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Sort
 import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.FloatingToolbarExitDirection
+import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Switch
@@ -55,6 +64,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +75,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -91,7 +103,6 @@ import com.vythera.range.ui.state.Scope
 import com.vythera.range.ui.state.SortMode
 import com.vythera.range.ui.theme.CardShape
 import com.vythera.range.ui.theme.PillShape
-import com.vythera.range.ui.theme.RangePalette
 import kotlinx.coroutines.launch
 
 @Composable
@@ -117,25 +128,41 @@ fun ExploreScreen(
     var selected by remember { mutableStateOf<String?>(null) }
     var showFilters by remember { mutableStateOf(false) }
     var showSort by remember { mutableStateOf(false) }
-    var radarExpanded by remember { mutableStateOf(true) }
+    // Collapsed by default: at full height the radar filled over half the
+    // viewport, so the first actual result sat below the fold on every search.
+    // The summary line above it carries the headline numbers either way.
+    var radarExpanded by remember { mutableStateOf(false) }
     val topInset = androidx.compose.foundation.layout.WindowInsets.statusBars
         .asPaddingValues().calculateTopPadding()
+    val navInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
+    val toolbarScroll = FloatingToolbarDefaults.exitAlwaysScrollBehavior(
+        exitDirection = FloatingToolbarExitDirection.Bottom,
+    )
 
     AuroraBackground(modifier.fillMaxSize(), intensity = 0.7f) {
         LazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize(),
+            // Feeds scroll deltas to the floating toolbar so it can hide itself.
+            modifier = Modifier
+                .fillMaxSize()
+                .nestedScroll(toolbarScroll),
+            // Horizontal padding lives on the individual items, not here, so the
+            // filter rail below can run edge to edge and still scroll its last
+            // chip fully into view. With padding on the list, chips were being
+            // clipped at the gutter no matter how far you scrolled.
             contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                start = 20.dp,
-                end = 20.dp,
                 top = topInset + 8.dp,
-                bottom = 40.dp,
+                bottom = 120.dp,
             ),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             item("bar") {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    CircleButton(Icons.Rounded.ArrowBack, onBack)
+                Row(
+                    Modifier.padding(horizontal = 20.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    CircleButton(Icons.Rounded.ArrowBack, onBack, "Back")
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(
@@ -150,32 +177,14 @@ fun ExploreScreen(
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
-                    CircleButton(Icons.Rounded.Sort) { showSort = true }
-                    Spacer(Modifier.width(8.dp))
-                    Box {
-                        CircleButton(Icons.Rounded.FilterList) { showFilters = true }
-                        if (filters.activeCount > 0) {
-                            Box(
-                                Modifier
-                                    .align(Alignment.TopEnd)
-                                    .size(16.dp)
-                                    .clip(RoundedCornerShape(50))
-                                    .background(RangePalette.Aurora),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    "${filters.activeCount}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = Color(0xFF04121B),
-                                    fontSize = 9.sp,
-                                )
-                            }
-                        }
-                    }
+                    // Sort and filter moved to the floating toolbar below —
+                    // easier to reach one-handed, and it keeps the header to
+                    // just identity and the headline number.
                 }
             }
 
             item("summary") {
+                Box(Modifier.padding(horizontal = 20.dp)) {
                 ReachCard(
                     state = state,
                     currency = currency,
@@ -190,16 +199,21 @@ fun ExploreScreen(
                         }
                     },
                 )
+                }
             }
 
             item("quickfilters") {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
+                // Full-bleed rail: its own gutter comes from contentPadding, so
+                // chips slide right up to both screen edges instead of stopping
+                // dead at a clipped boundary.
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                        horizontal = 20.dp,
+                    ),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Scope.entries.forEach { option ->
+                    items(Scope.entries.toList(), key = { "scope_${it.name}" }) { option ->
                         RangeChip(
                             label = when (option) {
                                 Scope.DOMESTIC -> "In $originCountry"
@@ -207,32 +221,33 @@ fun ExploreScreen(
                             },
                             selected = filters.scope == option,
                             onClick = { onFilters { it.copy(scope = option) } },
-                            accent = RangePalette.Aurora,
+                            accent = MaterialTheme.colorScheme.primary,
                         )
                     }
-                    RangeChip(
-                        label = if (filters.onlyInRange) "In range only" else "Showing everything",
-                        selected = filters.onlyInRange,
-                        onClick = { onFilters { it.copy(onlyInRange = !it.onlyInRange) } },
-                    )
-                    RangeChip(
-                        label = filters.sort.label,
-                        selected = true,
-                        onClick = { showSort = true },
-                        icon = Icons.Rounded.Sort,
-                        accent = RangePalette.Sky,
-                    )
-                    RangeChip(
-                        label = "Easy visa",
-                        selected = filters.visaEasyOnly,
-                        onClick = { onFilters { it.copy(visaEasyOnly = !it.visaEasyOnly) } },
-                    )
-                    Vibe.entries.take(7).forEach { v ->
+                    item("onlyInRange") {
+                        RangeChip(
+                            label = if (filters.onlyInRange) {
+                                "In range only"
+                            } else {
+                                "Showing everything"
+                            },
+                            selected = filters.onlyInRange,
+                            onClick = { onFilters { it.copy(onlyInRange = !it.onlyInRange) } },
+                        )
+                    }
+                    item("visa") {
+                        RangeChip(
+                            label = "Easy visa",
+                            selected = filters.visaEasyOnly,
+                            onClick = { onFilters { it.copy(visaEasyOnly = !it.visaEasyOnly) } },
+                        )
+                    }
+                    items(Vibe.entries.take(7), key = { "vibe_${it.name}" }) { v ->
                         RangeChip(
                             label = v.label,
                             selected = v in filters.vibes,
                             onClick = { onToggleVibe(v) },
-                            accent = RangePalette.Violet,
+                            accent = MaterialTheme.colorScheme.tertiary,
                         )
                     }
                 }
@@ -254,7 +269,11 @@ fun ExploreScreen(
                     }
                 }
             } else if (state.visible.isEmpty()) {
-                item("empty") { EmptyState(state, currency, onClearFilters) }
+                item("empty") {
+                    Box(Modifier.padding(horizontal = 20.dp)) {
+                        EmptyState(state, currency, onClearFilters)
+                    }
+                }
             }
 
             itemsIndexed(state.visible, key = { _, e -> e.destination.id }) { index, estimate ->
@@ -268,6 +287,7 @@ fun ExploreScreen(
                 Box(
                     Modifier
                         .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
                         .graphicsAlpha(alpha),
                 ) {
                     DestinationCard(
@@ -295,8 +315,75 @@ fun ExploreScreen(
                         "Not a live fare quote.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                    modifier = Modifier.padding(top = 12.dp),
+                    modifier = Modifier.padding(top = 12.dp, start = 20.dp, end = 20.dp),
                 )
+            }
+        }
+
+        // ── Floating toolbar ────────────────────────────────────────────────
+        // The Expressive answer to a bottom app bar: a pill that hovers over the
+        // content instead of walling it off. `exitAlwaysScrollBehavior` slides it
+        // off-screen as you scroll down into the results and brings it straight
+        // back on the first upward flick — so it never permanently covers a card,
+        // and you never have to scroll back up to reach the controls.
+        HorizontalFloatingToolbar(
+            expanded = true,
+            scrollBehavior = toolbarScroll,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 24.dp + navInset),
+            colors = FloatingToolbarDefaults.vibrantFloatingToolbarColors(),
+        ) {
+            FilledIconButton(
+                onClick = { showSort = true },
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ),
+            ) {
+                Icon(Icons.Rounded.Sort, "Sort results")
+            }
+
+            Box {
+                FilledIconButton(
+                    onClick = { showFilters = true },
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ),
+                ) {
+                    Icon(Icons.Rounded.FilterList, "Filter results")
+                }
+                if (filters.activeCount > 0) {
+                    Box(
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .size(17.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(MaterialTheme.colorScheme.onPrimaryContainer),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            "${filters.activeCount}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            fontSize = 9.sp,
+                        )
+                    }
+                }
+            }
+
+            // No count here on purpose: the reach card at the top of the list
+            // already states "19 of 180", and a second, differently-scoped
+            // number in the toolbar just made the two disagree.
+            FilledIconButton(
+                onClick = { scope.launch { listState.animateScrollToItem(0) } },
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    contentColor = MaterialTheme.colorScheme.primaryContainer,
+                ),
+            ) {
+                Icon(Icons.Rounded.ArrowUpward, "Back to top")
             }
         }
     }
@@ -379,7 +466,7 @@ fun ExploreScreen(
                             label = r.label,
                             selected = r in filters.regions,
                             onClick = { onToggleRegion(r) },
-                            accent = RangePalette.Sky,
+                            accent = MaterialTheme.colorScheme.secondary,
                         )
                     }
                 }
@@ -395,7 +482,7 @@ fun ExploreScreen(
                             label = v.label,
                             selected = v in filters.vibes,
                             onClick = { onToggleVibe(v) },
-                            accent = RangePalette.Violet,
+                            accent = MaterialTheme.colorScheme.tertiary,
                         )
                     }
                 }
@@ -440,7 +527,7 @@ private fun ReachCard(
                     AnimatedNumber(
                         text = "${s.inRange}",
                         style = MaterialTheme.typography.displaySmall,
-                        color = RangePalette.Aurora,
+                        color = MaterialTheme.colorScheme.primary,
                     )
                     Text(
                         " of ${s.total} places",
@@ -514,14 +601,25 @@ private fun ReachCard(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
-                            Icon(
-                                Icons.Rounded.Close,
-                                null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier
-                                    .size(18.dp)
-                                    .clickable { onSelect(null) },
-                            )
+                            // An 18dp hit area is well under Material's 48dp
+                            // minimum — the icon stays small, the target does not.
+                            Box(
+                                Modifier
+                                    .size(48.dp)
+                                    .clip(RoundedCornerShape(50))
+                                    .clickable(
+                                        onClickLabel = "Clear selection",
+                                        role = Role.Button,
+                                    ) { onSelect(null) },
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                    Icons.Rounded.Close,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(18.dp),
+                                )
+                            }
                         }
                     }
                 }
@@ -570,23 +668,29 @@ private fun EmptyState(state: ExploreState, currency: Currency, onClear: () -> U
 private fun CircleButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     onClick: () -> Unit,
+    contentDescription: String? = null,
 ) {
     val interaction = rememberInteraction()
     Box(
         Modifier
-            .size(40.dp)
+            .size(48.dp)
             .pressScale(interaction)
             .clip(RoundedCornerShape(50))
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(50))
-            .clickable(interactionSource = interaction, indication = null, onClick = onClick),
+            .clickable(
+                interactionSource = interaction,
+                indication = null,
+                role = Role.Button,
+                onClick = onClick,
+            ),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
             icon,
-            null,
+            contentDescription = contentDescription,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier.size(20.dp),
         )
     }
 }

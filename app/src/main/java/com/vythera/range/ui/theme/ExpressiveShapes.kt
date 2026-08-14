@@ -1,5 +1,10 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
+
 package com.vythera.range.ui.theme
 
+import androidx.compose.material3.MaterialShapes
+import androidx.compose.material3.toShape
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
@@ -56,7 +61,15 @@ fun lobedPoints(
     }
 }
 
-/** A lobed shape usable anywhere a Compose [Shape] is accepted. */
+/**
+ * A lobed shape usable anywhere a Compose [Shape] is accepted.
+ *
+ * **Only use this on roughly square elements.** The radius is derived from the
+ * *shorter* side, so on a wide box the rosette collapses to a circle centred in
+ * it and clips everything either side — a "BEST VALUE" badge once shipped
+ * rendering as "T VA" for exactly this reason. Wide surfaces want [PillShape]
+ * or a rounded rectangle.
+ */
 class LobedShape(
     private val lobes: Int,
     private val amplitude: Float,
@@ -105,4 +118,37 @@ object ExpressiveShapes {
     val flower = LobedShape(lobes = 6, amplitude = 0.11f)
     val squircle = SquircleShape(4.2f)
     val softSquircle = SquircleShape(5.5f)
+}
+
+/**
+ * The real Material 3 Expressive shape catalogue.
+ *
+ * The hand-built lobed shapes above are still here because they can be morphed
+ * frame by frame, which the stock ones cannot. But for anything static — a
+ * badge, a thumbnail, an avatar — these are the genuine article: the same
+ * polygons Material ships, correctly proportioned and corner-rounded, rather
+ * than an approximation of them.
+ *
+ * They are composable accessors because `toShape()` reads the density it needs
+ * from composition.
+ */
+object M3Shape {
+    val cookie9: androidx.compose.ui.graphics.Shape
+        @Composable get() = MaterialShapes.Cookie9Sided.toShape()
+    val cookie4: androidx.compose.ui.graphics.Shape
+        @Composable get() = MaterialShapes.Cookie4Sided.toShape()
+    val clover: androidx.compose.ui.graphics.Shape
+        @Composable get() = MaterialShapes.Clover4Leaf.toShape()
+    val sunny: androidx.compose.ui.graphics.Shape
+        @Composable get() = MaterialShapes.Sunny.toShape()
+    val verySunny: androidx.compose.ui.graphics.Shape
+        @Composable get() = MaterialShapes.VerySunny.toShape()
+    val pill: androidx.compose.ui.graphics.Shape
+        @Composable get() = MaterialShapes.Pill.toShape()
+    val gem: androidx.compose.ui.graphics.Shape
+        @Composable get() = MaterialShapes.Gem.toShape()
+    val square: androidx.compose.ui.graphics.Shape
+        @Composable get() = MaterialShapes.Square.toShape()
+    val slanted: androidx.compose.ui.graphics.Shape
+        @Composable get() = MaterialShapes.Slanted.toShape()
 }

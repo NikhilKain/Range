@@ -81,20 +81,21 @@ import com.vythera.range.ui.components.rememberInteraction
 import com.vythera.range.ui.components.transportIcon
 import com.vythera.range.ui.theme.CardShape
 import com.vythera.range.ui.theme.PillShape
-import com.vythera.range.ui.theme.RangePalette
+import com.vythera.range.ui.theme.costColors
 import java.time.format.TextStyle as JTextStyle
 import java.util.Locale
 import kotlin.math.roundToInt
 
-private fun costColor(key: CostKey): Color = when (key) {
-    CostKey.TRANSPORT -> RangePalette.Sky
-    CostKey.STAY -> RangePalette.Aurora
-    CostKey.FOOD -> RangePalette.Sand
-    CostKey.LOCAL -> RangePalette.Lagoon
-    CostKey.EXPERIENCES -> RangePalette.Violet
-    CostKey.VISA -> Color(0xFF7C8AA5)
-    CostKey.INSURANCE -> Color(0xFF5B7FA8)
-    CostKey.BUFFER -> Color(0xFF3F4E6B)
+@Composable
+private fun costColor(key: CostKey): Color = costColors.let { c ->
+    when (key) {
+        CostKey.TRANSPORT -> c.transport
+        CostKey.STAY -> c.stay
+        CostKey.FOOD -> c.food
+        CostKey.LOCAL -> c.local
+        CostKey.EXPERIENCES -> c.experiences
+        else -> c.overhead
+    }
 }
 
 @Composable
@@ -243,7 +244,7 @@ fun DetailScreen(
                     Text(
                         estimate.seasonNote,
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (estimate.inSeason) RangePalette.Sand else RangePalette.Lagoon,
+                        color = if (estimate.inSeason) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary,
                     )
                 }
 
@@ -270,7 +271,7 @@ fun DetailScreen(
                         AnimatedNumber(
                             text = "$previewNights",
                             style = MaterialTheme.typography.displaySmall,
-                            color = if (preview.withinBudget) RangePalette.Aurora else RangePalette.Sand,
+                            color = if (preview.withinBudget) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary,
                         )
                         Text(
                             " nights · ${formatMoney(preview.totalUsd, currency)}",
@@ -411,7 +412,7 @@ fun DetailScreen(
                             .clip(PillShape)
                             .background(
                                 Brush.horizontalGradient(
-                                    listOf(RangePalette.Aurora, RangePalette.Lagoon),
+                                    listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary),
                                 ),
                             )
                             .clickable(interactionSource = interaction, indication = null) {
@@ -424,14 +425,14 @@ fun DetailScreen(
                             Icon(
                                 if (saved) Icons.Rounded.BookmarkAdded else Icons.Rounded.BookmarkBorder,
                                 null,
-                                tint = Color(0xFF04121B),
+                                tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(19.dp),
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
                                 if (saved) "Saved to trips" else "Save this trip",
                                 style = MaterialTheme.typography.titleSmall,
-                                color = Color(0xFF04121B),
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 fontWeight = FontWeight.W800,
                             )
                         }
@@ -448,7 +449,7 @@ fun DetailScreen(
                         Icon(
                             if (wishlisted) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
                             null,
-                            tint = if (wishlisted) RangePalette.Coral else MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = if (wishlisted) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(22.dp),
                         )
                     }
@@ -687,7 +688,7 @@ private fun TierCompareRow(
             Text(
                 formatMoney(estimate.totalUsd, currency),
                 style = MaterialTheme.typography.titleSmall,
-                color = if (estimate.withinBudget) RangePalette.Aurora else RangePalette.Sand,
+                color = if (estimate.withinBudget) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary,
             )
             Text(
                 if (estimate.withinBudget) "fits" else "over",

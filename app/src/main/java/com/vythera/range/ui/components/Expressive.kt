@@ -1,4 +1,7 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:OptIn(
+    androidx.compose.material3.ExperimentalMaterial3Api::class,
+    androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
+)
 
 package com.vythera.range.ui.components
 
@@ -13,20 +16,30 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearWavyProgressIndicator
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,49 +57,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.vythera.range.ui.theme.RangePalette
 import com.vythera.range.ui.theme.lobedPoints
 import com.vythera.range.ui.theme.smoothClosedPath
 import kotlin.math.sin
 
 /**
- * The Material 3 Expressive loading indicator: a filled shape that morphs
- * between lobe counts as it spins. Drawn by hand so the morph is continuous.
+ * The Material 3 Expressive loading indicator — the real one.
+ *
+ * This used to be drawn by hand. Material now ships the seven-shape morphing
+ * indicator itself, animated on the expressive motion scheme, so the hand-rolled
+ * version was strictly worse: same idea, less correct timing, more code.
  */
 @Composable
 fun ExpressiveLoader(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.primary,
 ) {
-    val t = rememberInfiniteTransition(label = "loader")
-    val spin by t.animateFloat(
-        0f,
-        360f,
-        infiniteRepeatable(tween(2600, easing = LinearEasing), RepeatMode.Restart),
-        label = "spin",
-    )
-    val morph by t.animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(tween(1300, easing = LinearEasing), RepeatMode.Reverse),
-        label = "morph",
-    )
-    Canvas(modifier) {
-        val lobes = 4 + (morph * 5).toInt()
-        val amp = 0.10f + 0.06f * sin(morph * Math.PI.toFloat())
-        val r = minOf(size.width, size.height) / 2f / (1f + amp)
-        val pts = lobedPoints(
-            center = Offset(size.width / 2f, size.height / 2f),
-            radius = r,
-            lobes = lobes,
-            amplitude = amp,
-            rotationDeg = spin,
-        )
-        rotate(spin) { drawPath(smoothClosedPath(pts), color) }
-    }
+    LoadingIndicator(modifier = modifier, color = color)
 }
 
-/** Expressive wavy progress track — the squiggle, drawn to any width. */
+/** Contained variant — sits in its own tonal container. Used on full-screen waits. */
+@Composable
+fun ExpressiveLoaderContained(modifier: Modifier = Modifier) {
+    ContainedLoadingIndicator(modifier = modifier)
+}
+
+/**
+ * Expressive wavy progress track — the squiggle.
+ *
+ * Material's own indicator, which animates its amplitude down to a flat line as
+ * a value approaches completion. That detail is the tell of the real component
+ * and is worth more than the custom sine wave it replaces.
+ */
 @Composable
 fun WavyProgress(
     progress: Float,
@@ -96,47 +98,29 @@ fun WavyProgress(
     amplitude: Dp = 4.dp,
     animated: Boolean = true,
 ) {
-    val phase = ambientPhase(durationMs = 1_800, steps = 36, label = "wavePhase") *
-        (2 * Math.PI).toFloat()
-    val p by animateFloatAsState(progress.coerceIn(0f, 1f), tween(700), label = "wavyProgress")
-    Canvas(modifier.height(amplitude * 3 + 6.dp)) {
-        val midY = size.height / 2f
-        val amp = amplitude.toPx()
-        val strokeW = 5f
-        val endX = size.width * p
-
-        drawLine(
-            trackColor,
-            Offset(0f, midY),
-            Offset(size.width, midY),
-            strokeW,
-            StrokeCap.Round,
-        )
-
-        if (endX > 2f) {
-            val path = Path()
-            path.moveTo(0f, midY)
-            var x = 0f
-            while (x <= endX) {
-                val wave = sin(x / 22f + if (animated) phase else 0f) * amp
-                path.lineTo(x, midY + wave)
-                x += 3f
-            }
-            drawPath(
-                path,
-                brush = Brush.horizontalGradient(
-                    listOf(color.copy(alpha = 0.75f), color),
-                    endX = endX.coerceAtLeast(1f),
-                ),
-                style = Stroke(width = strokeW, cap = StrokeCap.Round),
-            )
-        }
-    }
+    val p by animateFloatAsState(
+        progress.coerceIn(0f, 1f),
+        MaterialTheme.motionScheme.slowSpatialSpec(),
+        label = "wavyProgress",
+    )
+    LinearWavyProgressIndicator(
+        progress = { p },
+        modifier = modifier.height(amplitude * 3 + 6.dp),
+        color = color,
+        trackColor = trackColor,
+        // A full-budget bar has nothing left to say, so let the wave flatten as
+        // it fills; a half-used budget stays lively.
+        amplitude = { frac -> if (!animated) 0f else (1f - frac).coerceIn(0f, 1f) },
+    )
 }
 
 /**
- * Connected button group: the expressive replacement for a segmented control.
- * The selected cell swells and rounds, its neighbours squeeze to make room.
+ * Connected button group — Material's, not ours.
+ *
+ * The expressive behaviour here is subtle and hard to fake: pressing a cell
+ * widens it while its immediate neighbours *compress* to make room, then
+ * everything springs back. `animateWidth` wires that to the interaction source
+ * for us, which is why the whole hand-rolled weight/corner animation went away.
  */
 @Composable
 fun <T> ButtonGroup(
@@ -149,180 +133,63 @@ fun <T> ButtonGroup(
     accent: Color = MaterialTheme.colorScheme.primary,
 ) {
     val haptics = LocalHapticFeedback.current
-    Row(
-        modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    val interactions = remember(options) { options.map { MutableInteractionSource() } }
+
+    ButtonGroup(
+        overflowIndicator = {},
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
     ) {
-        options.forEach { option ->
+        options.forEachIndexed { index, option ->
             val active = option == selected
-            val weight by animateFloatAsState(
-                if (active) 1.45f else 1f,
-                Motion.springOf(0.6f, 340f),
-                label = "groupWeight",
-            )
-            val corner by animateFloatAsState(
-                if (active) 26f else 14f,
-                Motion.springOf(0.6f, 340f),
-                label = "groupCorner",
-            )
-            val bg by animateColorAsState(
-                if (active) accent else MaterialTheme.colorScheme.surfaceContainerHighest,
-                tween(280),
-                label = "groupBg",
-            )
-            val fg by animateColorAsState(
-                if (active) {
-                    MaterialTheme.colorScheme.onPrimary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-                tween(280),
-                label = "groupFg",
-            )
-            Column(
-                Modifier
-                    .weight(weight)
-                    .height(58.dp)
-                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(corner.dp))
-                    .background(bg)
-                    .clickable {
-                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onSelect(option)
+            customItem(
+                buttonGroupContent = {
+                    ToggleButton(
+                        checked = active,
+                        onCheckedChange = {
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onSelect(option)
+                        },
+                        modifier = Modifier
+                            .weight(if (active) 1.35f else 1f)
+                            .height(58.dp)
+                            .animateWidth(interactions[index]),
+                        // Round when idle, squarer when selected: the shape
+                        // itself reports state, which is the expressive idiom.
+                        shapes = ToggleButtonDefaults.shapes(
+                            shape = ToggleButtonDefaults.roundShape,
+                            pressedShape = ToggleButtonDefaults.pressedShape,
+                            checkedShape = ToggleButtonDefaults.squareShape,
+                        ),
+                        colors = ToggleButtonDefaults.toggleButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            checkedContainerColor = accent,
+                            checkedContentColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
+                        interactionSource = interactions[index],
+                        contentPadding = PaddingValues(horizontal = 6.dp),
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            icon?.invoke(option)?.let {
+                                Icon(it, null, modifier = Modifier.size(18.dp))
+                            }
+                            Text(
+                                label(option),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = if (active) FontWeight.W800 else FontWeight.W600,
+                                textAlign = TextAlign.Center,
+                                maxLines = 1,
+                            )
+                        }
                     }
-                    .padding(horizontal = 6.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                icon?.invoke(option)?.let {
-                    Icon(it, null, tint = fg, modifier = Modifier.size(18.dp))
-                }
-                Text(
-                    label(option),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = fg,
-                    fontWeight = if (active) FontWeight.W800 else FontWeight.W600,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                )
-            }
-        }
-    }
-}
-
-/** A big, friendly tile — the expressive way to show one fact you can tap. */
-@Composable
-fun FactTile(
-    label: String,
-    value: String,
-    icon: ImageVector,
-    modifier: Modifier = Modifier,
-    container: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
-    onContainer: Color = MaterialTheme.colorScheme.onSurface,
-    accent: Color = MaterialTheme.colorScheme.primary,
-    onClick: (() -> Unit)? = null,
-    trailing: @Composable (() -> Unit)? = null,
-) {
-    val interaction = rememberInteraction()
-    Column(
-        modifier
-            .pressScale(interaction)
-            .clip(androidx.compose.foundation.shape.RoundedCornerShape(26.dp))
-            .background(container)
-            .then(
-                if (onClick != null) {
-                    Modifier.clickable(
-                        interactionSource = interaction,
-                        indication = null,
-                        onClick = onClick,
-                    )
-                } else {
-                    Modifier
                 },
+                menuContent = {},
             )
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, null, tint = accent, modifier = Modifier.size(17.dp))
-            androidx.compose.foundation.layout.Spacer(Modifier.size(7.dp))
-            Text(
-                label,
-                style = MaterialTheme.typography.labelSmall,
-                color = onContainer.copy(alpha = 0.7f),
-            )
-        }
-        androidx.compose.foundation.layout.Spacer(Modifier.height(6.dp))
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                value,
-                style = MaterialTheme.typography.titleMedium,
-                color = onContainer,
-                fontWeight = FontWeight.W700,
-                maxLines = 1,
-            )
-            trailing?.invoke()
         }
     }
 }
 
-/** Decorative blob used behind hero numbers to add expressive colour. */
-@Composable
-fun ShapeBlob(
-    modifier: Modifier = Modifier,
-    color: Color = RangePalette.Aurora,
-    lobes: Int = 7,
-    amplitude: Float = 0.1f,
-    spinSeconds: Int = 26,
-) {
-    val spin = ambientPhase(
-        durationMs = spinSeconds * 1000,
-        steps = 90,
-        label = "blobSpin",
-    ) * 360f
-    Canvas(modifier) {
-        val r = minOf(size.width, size.height) / 2f / (1f + amplitude)
-        val pts = lobedPoints(
-            Offset(size.width / 2f, size.height / 2f),
-            r,
-            lobes,
-            amplitude,
-            spin,
-        )
-        drawPath(smoothClosedPath(pts), color)
-    }
-}
-
-@Composable
-fun ExpressiveDivider(modifier: Modifier = Modifier) {
-    val color = MaterialTheme.colorScheme.outlineVariant
-    Canvas(modifier.fillMaxWidth().height(10.dp)) {
-        val path = Path()
-        val midY = size.height / 2f
-        path.moveTo(0f, midY)
-        var x = 0f
-        while (x <= size.width) {
-            path.lineTo(x, midY + sin(x / 16f) * 3f)
-            x += 3f
-        }
-        drawPath(path, color, style = Stroke(width = 2f, cap = StrokeCap.Round))
-    }
-}
-
-/** Full-bleed loading state for the explore screen. */
-@Composable
-fun LoadingPane(message: String, modifier: Modifier = Modifier) {
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            ExpressiveLoader(Modifier.size(64.dp))
-            androidx.compose.foundation.layout.Spacer(Modifier.height(18.dp))
-            Text(
-                message,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}

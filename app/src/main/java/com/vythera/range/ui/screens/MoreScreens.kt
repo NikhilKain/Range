@@ -42,8 +42,14 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -73,7 +79,6 @@ import com.vythera.range.ui.components.RangeMark
 import com.vythera.range.ui.components.SectionHeader
 import com.vythera.range.ui.theme.CardShape
 import com.vythera.range.ui.theme.PillShape
-import com.vythera.range.ui.theme.RangePalette
 import com.vythera.range.ui.theme.ThemeMode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -183,13 +188,69 @@ fun SavedScreen(
                 items(trips, key = { it.id }) { trip ->
                     val dest = DestinationCatalog.find(trip.destinationId)
                     val origin = OriginCatalog.find(trip.originId)
+                    val haptics = LocalHapticFeedback.current
+
+                    // Swipe either way to delete. The tiny bin icon was a
+                    // 18dp target next to a full-width tappable row — easy to
+                    // hit by accident and hard to hit on purpose. A swipe is
+                    // the expected gesture for a saved list and gives the row
+                    // somewhere to go instead of just vanishing.
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = { value ->
+                            if (value != SwipeToDismissBoxValue.Settled) {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onDelete(trip.id)
+                                true
+                            } else {
+                                false
+                            }
+                        },
+                    )
+
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        backgroundContent = {
+                            val active = dismissState.targetValue != SwipeToDismissBoxValue.Settled
+                            val alignment =
+                                if (dismissState.dismissDirection ==
+                                    SwipeToDismissBoxValue.StartToEnd
+                                ) {
+                                    Alignment.CenterStart
+                                } else {
+                                    Alignment.CenterEnd
+                                }
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .clip(CardShape)
+                                    .background(
+                                        if (active) {
+                                            MaterialTheme.colorScheme.errorContainer
+                                        } else {
+                                            MaterialTheme.colorScheme.surfaceContainerLow
+                                        },
+                                    )
+                                    .padding(horizontal = 24.dp),
+                                contentAlignment = alignment,
+                            ) {
+                                Icon(
+                                    Icons.Rounded.DeleteOutline,
+                                    "Delete trip",
+                                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                                )
+                            }
+                        },
+                    ) {
                     Row(
                         Modifier
                             .fillMaxWidth()
                             .clip(CardShape)
                             .background(MaterialTheme.colorScheme.surfaceContainer)
                             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CardShape)
-                            .clickable { dest?.let { onOpenDestination(it.id) } }
+                            .clickable(
+                                onClickLabel = "Open saved trip",
+                                role = Role.Button,
+                            ) { dest?.let { onOpenDestination(it.id) } }
                             .padding(14.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -225,21 +286,19 @@ fun SavedScreen(
                                 formatMoney(trip.totalUsd, currency),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = if (trip.totalUsd <= trip.budgetUsd) {
-                                    RangePalette.Aurora
+                                    MaterialTheme.colorScheme.primary
                                 } else {
-                                    RangePalette.Sand
+                                    MaterialTheme.colorScheme.tertiary
                                 },
                             )
                             Spacer(Modifier.height(4.dp))
-                            Icon(
-                                Icons.Rounded.DeleteOutline,
-                                "Delete",
-                                tint = MaterialTheme.colorScheme.outline,
-                                modifier = Modifier
-                                    .size(18.dp)
-                                    .clickable { onDelete(trip.id) },
+                            Text(
+                                "swipe to delete",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.outline,
                             )
                         }
+                    }
                     }
                 }
             }
@@ -260,7 +319,7 @@ fun SavedScreen(
                                     selected = true,
                                     onClick = { onOpenDestination(id) },
                                     icon = Icons.Rounded.FavoriteBorder,
-                                    accent = RangePalette.Coral,
+                                    accent = MaterialTheme.colorScheme.error,
                                 )
                             }
                         }
@@ -454,8 +513,8 @@ fun SettingsScreen(
                     )
                     Spacer(Modifier.height(10.dp))
                     Text(
-                        "Range is designed midnight-first, but the light theme keeps the same " +
-                            "aurora palette over paper.",
+                        "Range takes its colour from your wallpaper by default, in either " +
+                            "theme. Turn off the dynamic palette below for a fixed slate scheme.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -529,7 +588,8 @@ fun SettingsScreen(
                     )
                     SettingToggle(
                         "Reduce motion",
-                        "Calms the background and radar animations",
+                        "Calms the background and radar, and drops the springy " +
+                            "expressive motion across every control",
                         settings.reduceMotion,
                         onReduceMotion,
                     )

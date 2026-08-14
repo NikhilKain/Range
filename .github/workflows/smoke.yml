@@ -49,7 +49,7 @@ jobs:
       - name: Run app on emulator and capture screens
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: 36
           target: google_apis
           arch: x86_64
           profile: pixel_6
