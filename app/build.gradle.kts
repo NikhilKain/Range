@@ -81,6 +81,9 @@ android {
 
     buildFeatures {
         compose = true
+        // So the Settings screen can show the version it was actually built
+        // with instead of a literal that drifts.
+        buildConfig = true
     }
 
     packaging {

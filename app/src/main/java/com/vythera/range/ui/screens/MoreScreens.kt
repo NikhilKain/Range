@@ -48,6 +48,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.runtime.Composable
@@ -55,6 +56,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import android.content.Intent
+import androidx.core.net.toUri
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,6 +65,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.vythera.range.BuildConfig
 import com.vythera.range.data.DestinationCatalog
 import com.vythera.range.data.OriginCatalog
 import com.vythera.range.data.RangeSettings
@@ -455,7 +459,13 @@ fun SettingsScreen(
     onHaptics: (Boolean) -> Unit,
     onBack: () -> Unit,
 ) {
-    ScreenScaffold(title = "Settings", subtitle = "Range v1.0", onBack = onBack) {
+    // Read from BuildConfig rather than a literal, so it can't drift from the
+    // version actually shipped.
+    ScreenScaffold(
+        title = "Settings",
+        subtitle = "Range v${BuildConfig.VERSION_NAME}",
+        onBack = onBack,
+    ) {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             item {
                 GlassCard {
@@ -601,6 +611,7 @@ fun SettingsScreen(
                     )
                 }
             }
+            item { SupportCard() }
             item {
                 GlassCard {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -663,5 +674,76 @@ private fun SettingToggle(
             )
         }
         Switch(checked = checked, onCheckedChange = onChange)
+    }
+}
+
+/**
+ * Support card.
+ *
+ * Range is free, carries no ads and tracks nothing, so this is the only place
+ * it ever asks for anything — and it sits below the settings rather than in
+ * front of the thing you actually opened the app to do.
+ */
+private const val SUPPORT_URL = "https://narzo7.gumroad.com/l/nhlevz"
+
+@Composable
+private fun SupportCard() {
+    val context = LocalContext.current
+
+    GlassCard {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("☕", style = MaterialTheme.typography.headlineSmall)
+            Spacer(Modifier.width(10.dp))
+            Text(
+                "Buy me a coffee",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "Range is free, with no ads and nothing tracking you. If it saved you " +
+                "a planning headache, a coffee genuinely helps keep it going.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.height(16.dp))
+
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clip(PillShape)
+                .background(MaterialTheme.colorScheme.primary)
+                .clickable(
+                    onClickLabel = "Open the support page in your browser",
+                    role = Role.Button,
+                ) {
+                    // runCatching: a device with no browser would otherwise
+                    // crash the app on ActivityNotFoundException.
+                    runCatching {
+                        context.startActivity(
+                            Intent(Intent.ACTION_VIEW, SUPPORT_URL.toUri())
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                        )
+                    }
+                }
+                .padding(vertical = 15.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.Rounded.FavoriteBorder,
+                null,
+                tint = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(Modifier.width(9.dp))
+            Text(
+                "Buy me a coffee",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontWeight = FontWeight.W800,
+            )
+        }
     }
 }

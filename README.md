@@ -9,8 +9,8 @@
 Range starts from your budget, not your destination.<br/>
 Tell it what you can spend — it prices the **whole trip** to 180 places and shows you everywhere that actually fits.
 
-[![Latest release](https://img.shields.io/github/v/release/NikhilKain/Range?label=download&style=for-the-badge)](../../releases/latest)
-[![Build](https://img.shields.io/github/actions/workflow/status/NikhilKain/Range/build.yml?branch=main&style=for-the-badge)](../../actions/workflows/build.yml)
+[![Download the APK](https://img.shields.io/badge/download-v1.0.0%20APK-2ea44f?style=for-the-badge&logo=android&logoColor=white)](../../releases/latest)
+[![Buy me a coffee](https://img.shields.io/badge/buy%20me%20a%20coffee-ff5f5f?style=for-the-badge&logo=gumroad&logoColor=white)](https://narzo7.gumroad.com/l/nhlevz)
 
 <sub>Android 8.0+ · Kotlin · Compose · Material 3 Expressive · no account, no ads, no tracking</sub>
 
@@ -179,6 +179,18 @@ UI tests drive components directly rather than walking the app from onboarding, 
 CI additionally boots an emulator, walks the app and uploads screenshots as a run artifact.
 
 ---
+
+## Support
+
+Range is free, has no ads and tracks nothing. If it saved you a planning headache:
+
+<div align="center">
+
+### [☕ Buy me a coffee](https://narzo7.gumroad.com/l/nhlevz)
+
+</div>
+
+There's the same button in the app under **Settings**. Every contribution genuinely helps. ❤️
 
 ## Privacy
 
