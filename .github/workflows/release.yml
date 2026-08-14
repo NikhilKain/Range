@@ -18,22 +18,38 @@ permissions:
 
 jobs:
   release:
-    # Skipped (not failed) when signing secrets aren't configured, so a tag
-    # pushed on a fork or before setup doesn't leave a red X. Add the four
-    # RANGE_* secrets to turn automated releases on.
-    if: ${{ secrets.RANGE_KEYSTORE_BASE64 != '' }}
     runs-on: ubuntu-latest
     steps:
+      # The `secrets` context is not available in a job-level `if`, so the guard
+      # lives here instead. Without the signing secrets the job stops early and
+      # green rather than failing: a tag pushed on a fork, or before signing is
+      # set up, should not look like a broken build.
+      - name: Check signing secrets
+        id: guard
+        env:
+          KEYSTORE_B64: ${{ secrets.RANGE_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "::notice::No signing secrets configured — skipping the release. Add RANGE_KEYSTORE_BASE64, RANGE_STORE_PASSWORD, RANGE_KEY_ALIAS and RANGE_KEY_PASSWORD to enable automated releases."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v4
+        if: steps.guard.outputs.ok == 'true'
 
       - uses: actions/setup-java@v4
+        if: steps.guard.outputs.ok == 'true'
         with:
           distribution: temurin
           java-version: '21'
 
       - uses: gradle/actions/setup-gradle@v4
+        if: steps.guard.outputs.ok == 'true'
 
       - name: Unit tests
+        if: steps.guard.outputs.ok == 'true'
         run: |
           chmod +x ./gradlew
           ./gradlew --no-daemon testDebugUnitTest
@@ -41,6 +57,7 @@ jobs:
       # The keystore never lives in the repo. CI reconstitutes it from a
       # base64 secret into a temp file, and the file is gone with the runner.
       - name: Restore keystore
+        if: steps.guard.outputs.ok == 'true'
         id: keystore
         env:
           KEYSTORE_B64: ${{ secrets.RANGE_KEYSTORE_BASE64 }}
@@ -49,6 +66,7 @@ jobs:
           echo "path=$RUNNER_TEMP/range-release.jks" >> "$GITHUB_OUTPUT"
 
       - name: Assemble signed release
+        if: steps.guard.outputs.ok == 'true'
         env:
           RANGE_STORE_FILE: ${{ steps.keystore.outputs.path }}
           RANGE_STORE_PASSWORD: ${{ secrets.RANGE_STORE_PASSWORD }}
@@ -57,6 +75,7 @@ jobs:
         run: ./gradlew --no-daemon assembleRelease
 
       - name: Verify it is actually signed
+        if: steps.guard.outputs.ok == 'true'
         run: |
           APK=$(find app/build/outputs/apk/release -name '*.apk' | head -1)
           [ -n "$APK" ] || { echo "no APK produced" >&2; exit 1; }
@@ -67,6 +86,7 @@ jobs:
           ls -l dist/
 
       - name: Publish release
+        if: steps.guard.outputs.ok == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
