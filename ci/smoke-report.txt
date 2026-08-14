@@ -5,59 +5,62 @@ Performing Streamed Install
 Success
 == launch ==
 Activity: com.vythera.range/.MainActivity
-TotalTime: 8750
-WaitTime: 8945
+TotalTime: 10197
+WaitTime: 10199
 Complete
-shot 01-onboarding: 832581 bytes
+shot 01-onboarding: 15580 bytes
 == onboarding ==
-  tap 'Next': not found
-shot 02-onboarding-2: 781287 bytes
-  tap 'Next': not found
-shot 03-onboarding-3: 15580 bytes
+  tap 'Next' -> 540 2102
+shot 02-onboarding-2: 15845 bytes
+  tap 'Next' -> 540 2102
+shot 03-onboarding-3: 15879 bytes
   tap 'Find my range': not found
-shot 04-home: 898760 bytes
+shot 04-home: 15845 bytes
   home: NO
-  tap 'Skip' -> 540 2249
+  tap 'Skip' -> 541 2249
 == home ==
-shot 05-home-when: 890514 bytes
-shot 06-home-travel: 745109 bytes
-shot 07-home-comfort: 807155 bytes
+shot 05-home-when: 21785 bytes
+shot 06-home-travel: 21818 bytes
+shot 07-home-comfort: 17825 bytes
 == explore ==
   tap 'places in reach': not found
-shot 08-explore: 765626 bytes
+shot 08-explore: 19654 bytes
   explore: NO
-shot 09-explore-list: 780504 bytes
-shot 10-explore-list2: 766281 bytes
+shot 09-explore-list: 18814 bytes
+shot 10-explore-list2: 18814 bytes
 == detail ==
-shot 11-detail: 757366 bytes
+shot 11-detail: 19170 bytes
   detail: NO
-shot 12-detail-breakdown: 763593 bytes
-shot 13-detail-nights: 810625 bytes
-shot 14-detail-transport: 729709 bytes
-shot 15-home-again: 1387449 bytes
+shot 12-detail-breakdown: 19876 bytes
+shot 13-detail-nights: 19793 bytes
+shot 14-detail-transport: 19793 bytes
+shot 15-home-again: 1371072 bytes
 == settings and light theme ==
   tap 'Settings': not found
-shot 16-settings: 1387449 bytes
+shot 16-settings: 1371214 bytes
   tap 'Light': not found
-shot 17-settings-light: 1387449 bytes
-shot 18-home-light: 1387449 bytes
+shot 17-settings-light: 1371214 bytes
+shot 18-home-light: 1371214 bytes
   tap 'places in reach': not found
-shot 19-explore-light: 1388000 bytes
-shot 20-detail-light: 1388133 bytes
+shot 19-explore-light: 1371267 bytes
+shot 20-detail-light: 1371267 bytes
 == crash check ==
 == app errors ==
-08-13 15:33:36.187   528   565 E ActivityManager: Timeout waiting for provider com.google.android.gms/10128 for provider com.google.android.gms.fonts caller=ProcessRecord{ef62711 2679:com.vythera.range/u0a192}
-08-13 15:33:38.705   528  2689 E ActivityManager:   22% 2679/com.vythera.range: 9.3% user + 13% kernel / faults: 94222 minor 1727 major
-08-13 15:33:38.705   528  2689 E ActivityManager:   39% 2679/com.vythera.range: 2.1% user + 37% kernel / faults: 15 minor
-08-13 15:33:46.495   528  2689 E ActivityManager:   16% 2679/com.vythera.range: 4.2% user + 11% kernel / faults: 3122 minor
-08-13 15:33:47.049   528  2689 E ActivityManager:   16% 2679/com.vythera.range: 4.2% user + 11% kernel / faults: 3122 minor
-08-13 15:33:47.432   528  2689 E ActivityManager:   16% 2679/com.vythera.range: 4.2% user + 11% kernel / faults: 3122 minor
-08-13 15:33:55.756   528  2537 E ActivityTaskManager: setVisibility=true while transition is not collecting or finishing ActivityRecord{6ce902e u0 com.vythera.range/.MainActivity t8} caller=com.android.server.wm.ActivityRecord.setVisibility:5287 com.android.server.wm.TaskFragment.resumeTopActivity:1393 com.android.server.wm.Task.resumeTopActivityInnerLocked:5044 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:4974 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:5025 com.android.server.wm.RootWindowContainer.lambda$applySleepTokens$20:2428 com.android.server.wm.RootWindowContainer.$r8$lambda$9xL80GDJRExKql35hTmQVg_ieD8:0 com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda10.accept:0 
-08-13 15:34:09.018   528  4504 E ActivityManager:   12% 2679/com.vythera.range: 3.3% user + 9% kernel / faults: 2922 minor
-08-13 15:34:56.675   528  5207 E ActivityManager:   19% 2679/com.vythera.range: 5.3% user + 14% kernel / faults: 70073 minor
-08-13 15:34:56.675   528  5207 E ActivityManager:   20% 2679/com.vythera.range: 7% user + 13% kernel / faults: 1198 minor
-08-13 15:34:56.785   528  5207 E ActivityManager:   19% 2679/com.vythera.range: 5.3% user + 14% kernel / faults: 70073 minor
-08-13 15:35:05.641   528  2110 E ActivityTaskManager: setVisibility=true while transition is not collecting or finishing ActivityRecord{6ce902e u0 com.vythera.range/.MainActivity t8} caller=com.android.server.wm.ActivityRecord.setVisibility:5287 com.android.server.wm.TaskFragment.resumeTopActivity:1393 com.android.server.wm.Task.resumeTopActivityInnerLocked:5044 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:4974 com.android.server.wm.Task.resumeTopActivityUncheckedLocked:5025 com.android.server.wm.RootWindowContainer.lambda$applySleepTokens$20:2428 com.android.server.wm.RootWindowContainer.$r8$lambda$9xL80GDJRExKql35hTmQVg_ieD8:0 com.android.server.wm.RootWindowContainer$$ExternalSyntheticLambda10.accept:0 
-08-13 15:35:36.504   528  6022 E ActivityManager:   27% 2679/com.vythera.range: 5.8% user + 21% kernel / faults: 3556 minor
+08-14 02:40:01.916   654  1966 E ActivityManager:   20% 1963/com.vythera.range: 17% user + 2.5% kernel / faults: 2901 minor
+08-14 02:40:01.994   654   684 E AppHibernationService: Package com.vythera.range is not installed for user 0
+08-14 02:40:01.995   654   684 E AppHibernationService: Package com.vythera.range is not installed for any user
+08-14 02:40:01.995   654   684 E AppHibernationService: Package com.vythera.range is not installed for user 0
+08-14 02:40:01.995   654   684 E AppHibernationService: Package com.vythera.range is not installed for any user
+08-14 02:40:02.552   654  1966 E ActivityManager:   19% 1963/com.vythera.range: 15% user + 3.3% kernel / faults: 22141 minor
+08-14 02:40:03.015   654   800 E InputDispatcher: channel '1faa987 Splash Screen com.vythera.range' ~ Channel is unrecoverably broken and will be disposed!
+08-14 02:40:03.645   654  1966 E ActivityManager:   19% 1963/com.vythera.range: 15% user + 3.3% kernel / faults: 22141 minor
+08-14 02:40:26.126  1963  1963 E m.vythera.range: hiddenapi: Accessing hidden method Landroid/view/accessibility/AccessibilityNodeInfo;->getSelection()Landroid/view/accessibility/AccessibilityNodeInfo$Selection; (runtime_flags=0, domain=platform, api=blocked) from /data/app/~~0bHoGP_38W3DQpcj9nHtlg==/com.vythera.range-Q-E8gUEfSro2OUR5uxi-UA==/base.apk!classes12.dex (domain=app) using linking: denied
+08-14 02:40:26.148  1963  1963 E m.vythera.range: hiddenapi: Accessing hidden method Landroid/view/accessibility/AccessibilityNodeInfo;->setSelection(Landroid/view/accessibility/AccessibilityNodeInfo$Selection;)V (runtime_flags=0, domain=platform, api=blocked) from /data/app/~~0bHoGP_38W3DQpcj9nHtlg==/com.vythera.range-Q-E8gUEfSro2OUR5uxi-UA==/base.apk!classes12.dex (domain=app) using linking: denied
+08-14 02:40:26.148  1963  1963 E m.vythera.range: hiddenapi: Accessing hidden method Landroid/view/accessibility/AccessibilityNodeInfo;->setSelection(Landroid/view/accessibility/AccessibilityNodeInfo$Selection;)V (runtime_flags=0, domain=platform, api=blocked) from /data/app/~~0bHoGP_38W3DQpcj9nHtlg==/com.vythera.range-Q-E8gUEfSro2OUR5uxi-UA==/base.apk!classes12.dex (domain=app) using linking: denied
+08-14 02:41:15.279   654  3148 E ActivityManager:   16% 1963/com.vythera.range: 5.5% user + 11% kernel / faults: 1196 minor
+08-14 02:41:52.251   654  3637 E ActivityManager:   17% 1963/com.vythera.range: 3.2% user + 14% kernel / faults: 479 minor
+08-14 02:43:59.896   654  4760 E ActivityManager: ANR in com.vythera.range (com.vythera.range/.MainActivity)
+08-14 02:43:59.896   654  4760 E ActivityManager: Parent: com.vythera.range/.MainActivity
+08-14 02:43:59.896   654  4760 E ActivityManager:   17% 1963/com.vythera.range: 2.6% user + 14% kernel / faults: 5925 minor
+08-14 02:43:59.896   654  4760 E ActivityManager:   29% 1963/com.vythera.range: 18% user + 10% kernel / faults: 481 minor 4 major
 == still running? ==
-2679
