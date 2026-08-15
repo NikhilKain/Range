@@ -105,6 +105,31 @@ A live fare is applied **before** the cheapest transport mode is chosen, not aft
 
 Only the airfare is ever live. Hotels, food, getting around and everything else stay modelled, and the app says so on screen rather than letting one live number imply the whole total is a quote. **Totals remain planning estimates, not bookable prices.**
 
+### Check real prices
+
+Every destination has a **Check real prices** section that opens a real search for that exact trip — same route, same dates, same party — already filled in. No credentials, nothing to sign up for, and it works whether or not live fares are enabled.
+
+| | |
+|---|---|
+| **Flights** | Google Flights, Skyscanner, Kayak, Momondo, Kiwi.com, Aviasales — plus MakeMyTrip, Cleartrip and Ixigo when flying from India |
+| **Stays** | Booking.com, Agoda, Hostelworld, Airbnb, Hotels.com — plus MakeMyTrip and Goibibo from India |
+
+Flight links are hidden when the trip isn't being flown, so a train journey to Rishikesh doesn't offer to sell you a plane ticket.
+
+<details>
+<summary><b>Why links rather than scraping those sites</b></summary>
+
+The obvious version of this feature is to scrape the fare out of MakeMyTrip and show it inside Range. It doesn't survive contact with reality:
+
+- **Nothing to auto-update.** Range is sideloaded. When a scraper breaks — and it breaks whenever those sites ship — every phone that already installed the APK stays broken until that person manually reinstalls. An API contract fails loudly and falls back to the model; a scraper returns a plausible number parsed from the wrong element.
+- **The prices aren't in the HTML.** These sites render client-side and fetch fares from internal endpoints behind session tokens and bot protection. Verifying these very deep links, MakeMyTrip answered an automated browser with *"we are unable to connect to our systems from your device"* — on the first request, with no scraping attempted.
+- **It would burn users' IPs.** Scraping from the app means requests come from real people's home connections, and they'd get soft-banned on sites they actually use.
+- **It wouldn't be free.** Doing it reliably needs residential proxies and a server, so "no signup" becomes a monthly bill.
+
+A URL with query parameters is a public interface these sites maintain deliberately. Their internal JSON endpoints are not. That difference is the whole argument.
+
+</details>
+
 ---
 
 ## Build it yourself

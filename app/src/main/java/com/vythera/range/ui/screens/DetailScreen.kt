@@ -70,9 +70,15 @@ import com.vythera.range.domain.compassLabel
 import com.vythera.range.domain.formatHours
 import com.vythera.range.domain.formatKm
 import com.vythera.range.domain.formatMoney
+import android.content.Intent
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.net.toUri
+import com.vythera.range.data.live.BookingLink
+import com.vythera.range.data.live.BookingLinks
 import com.vythera.range.data.live.FareQuote
+import com.vythera.range.data.model.Place
 import com.vythera.range.ui.components.AnimatedNumber
 import com.vythera.range.ui.components.BudgetMeter
 import com.vythera.range.ui.components.DestinationArt
@@ -385,6 +391,10 @@ fun DetailScreen(
                             )
                         }
                 }
+
+                Spacer(Modifier.height(16.dp))
+
+                BookingLinksCard(origin, destination, query, estimate.mode)
 
                 Spacer(Modifier.height(16.dp))
 
@@ -752,6 +762,99 @@ private fun TierCompareRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+    }
+}
+
+/**
+ * One-tap handoffs to the sites that actually sell flights and rooms.
+ *
+ * Range models its numbers; these are where the bookable ones live. Rather
+ * than scraping those sites — which a sideloaded app cannot keep working,
+ * since nobody auto-updates an APK from GitHub — this hands the traveller
+ * over with the search already filled in.
+ */
+@Composable
+private fun BookingLinksCard(
+    origin: Place,
+    destination: Destination,
+    query: TripQuery,
+    mode: TransportMode,
+) {
+    val context = LocalContext.current
+
+    // A flight search is noise on a trip being taken by train, and there is
+    // nothing to book at all when the traveller is already there.
+    val flights = remember(origin.id, destination.id, query, mode) {
+        if (mode == TransportMode.FLIGHT) BookingLinks.flights(origin, destination, query)
+        else emptyList()
+    }
+    val stays = remember(origin.id, destination.id, query) {
+        if (query.nights > 0) BookingLinks.stays(origin, destination, query) else emptyList()
+    }
+    if (flights.isEmpty() && stays.isEmpty()) return
+
+    fun open(link: BookingLink) {
+        // runCatching: a device with no browser would otherwise take the whole
+        // screen down on ActivityNotFoundException.
+        runCatching {
+            context.startActivity(
+                Intent(Intent.ACTION_VIEW, link.url.toUri())
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            )
+        }
+    }
+
+    GlassCard {
+        SectionHeader("CHECK REAL PRICES")
+        Spacer(Modifier.height(6.dp))
+        Text(
+            "Everything above is Range's estimate. These open a real search for " +
+                "this exact trip — same route, same dates, ${query.travelers} " +
+                "traveller${if (query.travelers == 1) "" else "s"} — already filled in.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        if (flights.isNotEmpty()) {
+            Spacer(Modifier.height(14.dp))
+            Text(
+                "FLIGHTS",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                letterSpacing = 1.2.sp,
+            )
+            Spacer(Modifier.height(8.dp))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                flights.forEach { link -> ActionPill(link.name) { open(link) } }
+            }
+        }
+
+        if (stays.isNotEmpty()) {
+            Spacer(Modifier.height(14.dp))
+            Text(
+                "STAYS IN ${destination.city.uppercase()}",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                letterSpacing = 1.2.sp,
+            )
+            Spacer(Modifier.height(8.dp))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                stays.forEach { link -> ActionPill(link.name) { open(link) } }
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+        Text(
+            "Range doesn't see what you do on these sites.",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
