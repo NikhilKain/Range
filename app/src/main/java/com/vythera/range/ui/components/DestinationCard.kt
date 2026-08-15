@@ -243,15 +243,25 @@ fun DestinationCard(
             }
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    // The live badge displaces the duration chip rather than
+                    // joining it: three chips overflow the column at the narrow
+                    // widths this row hits on a small phone, and "this price is
+                    // real" is worth more than "9h flight".
+                    estimate.liveFare?.let { LiveFareBadge(it) }
                     MetaChip(transportIcon(estimate.mode), estimate.mode.label)
-                    MetaChip(
-                        Icons.Rounded.Schedule,
-                        formatHours(
-                            estimate.transportOptions
-                                .firstOrNull { it.mode == estimate.mode }?.hoursOneWay ?: 0.0,
-                        ),
-                    )
+                    if (estimate.liveFare == null) {
+                        MetaChip(
+                            Icons.Rounded.Schedule,
+                            formatHours(
+                                estimate.transportOptions
+                                    .firstOrNull { it.mode == estimate.mode }?.hoursOneWay ?: 0.0,
+                            ),
+                        )
+                    }
                 }
                 if (estimate.inSeason) {
                     Spacer(Modifier.height(6.dp))

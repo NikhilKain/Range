@@ -25,6 +25,12 @@ data class RangeSettings(
     val reduceMotion: Boolean = false,
     val hapticsEnabled: Boolean = true,
     val onboarded: Boolean = false,
+    /**
+     * Fetch real fares for the results actually being looked at. On by default,
+     * but the app is fully usable with it off — that is the whole point of
+     * keeping the model as the base layer rather than replacing it.
+     */
+    val livePrices: Boolean = true,
 )
 
 /** Small, boring persistence layer — settings plus the traveller's saved trips. */
@@ -41,6 +47,8 @@ class RangeStore(private val context: Context) {
         val RATES = stringPreferencesKey("fx_rates")
         val TRIPS = stringPreferencesKey("saved_trips")
         val WISHLIST = stringPreferencesKey("wishlist")
+        val LIVE_PRICES = booleanPreferencesKey("live_prices")
+        val FARES = stringPreferencesKey("fare_cache")
     }
 
     val settings: Flow<RangeSettings> = context.dataStore.data.map { p ->
@@ -52,10 +60,13 @@ class RangeStore(private val context: Context) {
             reduceMotion = p[Keys.REDUCE_MOTION] ?: false,
             hapticsEnabled = p[Keys.HAPTICS] ?: true,
             onboarded = p[Keys.ONBOARDED] ?: false,
+            livePrices = p[Keys.LIVE_PRICES] ?: true,
         )
     }
 
     val cachedRates: Flow<String?> = context.dataStore.data.map { it[Keys.RATES] }
+
+    val cachedFares: Flow<String?> = context.dataStore.data.map { it[Keys.FARES] }
 
     val savedTrips: Flow<List<SavedTrip>> = context.dataStore.data.map { p ->
         decodeTrips(p[Keys.TRIPS])
@@ -77,6 +88,8 @@ class RangeStore(private val context: Context) {
     suspend fun setReduceMotion(on: Boolean) = context.dataStore.edit { it[Keys.REDUCE_MOTION] = on }
     suspend fun setHaptics(on: Boolean) = context.dataStore.edit { it[Keys.HAPTICS] = on }
     suspend fun setOnboarded(done: Boolean) = context.dataStore.edit { it[Keys.ONBOARDED] = done }
+    suspend fun setLivePrices(on: Boolean) = context.dataStore.edit { it[Keys.LIVE_PRICES] = on }
+    suspend fun setFares(encoded: String) = context.dataStore.edit { it[Keys.FARES] = encoded }
 
     suspend fun toggleWishlist(destinationId: String) = context.dataStore.edit { p ->
         val current = (p[Keys.WISHLIST] ?: "").split(',').filter { it.isNotBlank() }.toMutableSet()

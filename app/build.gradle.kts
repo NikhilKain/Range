@@ -28,6 +28,30 @@ fun signingValue(key: String, env: String): String? =
 val releaseStoreFile = signingValue("storeFile", "RANGE_STORE_FILE")
 val hasSigningConfig = releaseStoreFile != null && file(releaseStoreFile).exists()
 
+/**
+ * Live-fare API credentials.
+ *
+ * Same shape as the signing config above — `local.properties` (gitignored)
+ * with an environment-variable fallback so CI can inject from secrets.
+ *
+ * A missing key is **not** an error. The provider reports itself unconfigured,
+ * the repository skips it, and every price falls back to the model — which is
+ * exactly what a fresh clone of a public repo should do.
+ *
+ * Note these are compiled into BuildConfig and therefore ship inside the APK,
+ * where a determined person can read them back out. That is an acceptable
+ * trade for the free, rate-limited tiers used here: the worst case is someone
+ * burning a public quota. Never put a credential with a bill attached here —
+ * anything metered belongs behind a proxy you control.
+ */
+val localProperties = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+
+fun credential(property: String, env: String): String =
+    (localProperties.getProperty(property) ?: System.getenv(env) ?: "").trim()
+
 android {
     namespace = "com.vythera.range"
     compileSdk = 37
@@ -40,6 +64,19 @@ android {
         versionName = "1.0.0"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "AMADEUS_CLIENT_ID", "\"${credential("amadeus.clientId", "AMADEUS_CLIENT_ID")}\"")
+        buildConfigField("String", "AMADEUS_CLIENT_SECRET", "\"${credential("amadeus.clientSecret", "AMADEUS_CLIENT_SECRET")}\"")
+        // Amadeus ships a free test environment and a paid production one on
+        // identical paths. Default to test — production needs a card on file,
+        // so silently defaulting to it would be a nasty surprise.
+        buildConfigField(
+            "String",
+            "AMADEUS_HOST",
+            "\"${credential("amadeus.host", "AMADEUS_HOST").ifEmpty { "test.api.amadeus.com" }}\"",
+        )
+        buildConfigField("String", "TRAVELPAYOUTS_TOKEN", "\"${credential("travelpayouts.token", "TRAVELPAYOUTS_TOKEN")}\"")
+        buildConfigField("String", "TRAVELPAYOUTS_MARKER", "\"${credential("travelpayouts.marker", "TRAVELPAYOUTS_MARKER")}\"")
     }
 
     signingConfigs {
@@ -91,6 +128,15 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    testOptions {
+        unitTests {
+            // The fare providers log through android.util.Log, which is a stub
+            // that throws under plain JUnit. Without this, testing an error
+            // path means testing the logging framework instead.
+            isReturnDefaultValues = true
+        }
+    }
 }
 
 dependencies {
@@ -117,6 +163,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.ui.test.junit4)

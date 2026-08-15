@@ -77,6 +77,8 @@ fun RangeApp(
     val savedTrips by viewModel.savedTrips.collectAsStateWithLifecycle()
     val ratesUpdatedAt by viewModel.ratesUpdatedAt.collectAsStateWithLifecycle()
     val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
+    val liveFares by viewModel.liveFares.collectAsStateWithLifecycle()
+    val fetchingFares by viewModel.fetchingFares.collectAsStateWithLifecycle()
 
     val loaded = settingsLoaded
     if (loaded == null) {
@@ -179,6 +181,9 @@ fun RangeApp(
                     onSaveTrip = { viewModel.saveTrip(it) },
                     onApplyQuery = viewModel::update,
                     onBack = { navController.popBackStack() },
+                    liveFare = liveFares[id],
+                    fareLoading = id in fetchingFares,
+                    onRequestLiveFare = { viewModel.requestLiveFare(id) },
                 )
             }
         }
@@ -221,6 +226,8 @@ fun RangeApp(
                 onDynamicColor = viewModel::setDynamicColor,
                 onReduceMotion = viewModel::setReduceMotion,
                 onHaptics = viewModel::setHaptics,
+                onLivePrices = { viewModel.setLivePrices(it) },
+                livePricesAvailable = viewModel.liveFaresAvailable,
                 onBack = { navController.popBackStack() },
             )
         }

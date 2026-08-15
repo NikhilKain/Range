@@ -17,6 +17,9 @@ import com.vythera.range.data.OriginCatalog
 import com.vythera.range.data.RangeSettings
 import com.vythera.range.data.LiveRates
 import com.vythera.range.data.RangeStore
+import com.vythera.range.data.live.FareQuote
+import com.vythera.range.data.live.FareRepository
+import com.vythera.range.data.live.FareRequest
 import com.vythera.range.data.model.Region
 import com.vythera.range.data.model.SavedTrip
 import com.vythera.range.data.model.Tier
@@ -33,10 +36,14 @@ import com.vythera.range.ui.theme.ThemeMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
@@ -135,12 +142,30 @@ class RangeViewModel(private val store: RangeStore) : ViewModel() {
         .mapLatest { s -> Currency.entries.firstOrNull { it.code == s.currency } ?: Currency.INR }
         .stateIn(viewModelScope, SharingStarted.Eagerly, Currency.INR)
 
-    private val computed: StateFlow<ExploreState> = _query
-        .debounce(90)
-        .mapLatest { q ->
+    private val fares = FareRepository(store)
+
+    /** Real fares that have arrived, keyed by destination id. */
+    private val _liveFares = MutableStateFlow<Map<String, FareQuote>>(emptyMap())
+    val liveFares: StateFlow<Map<String, FareQuote>> = _liveFares.asStateFlow()
+
+    /** Destination ids with a fetch in flight, so cards can show a spinner. */
+    private val _fetchingFares = MutableStateFlow<Set<String>>(emptySet())
+    val fetchingFares: StateFlow<Set<String>> = _fetchingFares.asStateFlow()
+
+    /** False when this build carries no fare credentials — the UI hides the toggle. */
+    val liveFaresAvailable: Boolean get() = fares.configured
+
+    private val computed: StateFlow<ExploreState> = combine(
+        _query.debounce(90),
+        _liveFares,
+    ) { q, quotes -> q to quotes }
+        .mapLatest { (q, quotes) ->
             withContext(Dispatchers.Default) {
                 val origin = OriginCatalog.find(q.originId)
-                val all = BudgetEngine.explore(origin, DestinationCatalog.all, q)
+                // Only ever *already known* fares here. This runs on every frame
+                // of the budget ruler, so it stays pure — nothing in this block
+                // may touch the network.
+                val all = BudgetEngine.explore(origin, DestinationCatalog.all, q, quotes)
                 ExploreState(
                     computing = false,
                     all = all,
@@ -181,6 +206,91 @@ class RangeViewModel(private val store: RangeStore) : ViewModel() {
         _refreshing.value = false
     }
 
+    /**
+     * Fetch real fares for the results the traveller is actually looking at.
+     *
+     * The hard rule here is that this never fans out across the catalogue. 180
+     * destinations against a metered API would spend a month's quota on one
+     * screen, so only the top [TOP_FARE_FETCHES] in-budget flight results get
+     * a request. Everything else keeps the modelled price, which is a complete
+     * answer on its own.
+     */
+    private suspend fun refreshTopFares(q: TripQuery) {
+        if (!fares.configured || !settings.value.livePrices) return
+        if (TransportMode.FLIGHT !in q.modes) return
+
+        val origin = OriginCatalog.find(q.originId)
+        val returnDate = q.departDate.plusDays(q.nights.toLong().coerceAtLeast(1))
+        val wanted = explore.value.visible
+            .asSequence()
+            .filter { it.fits && it.mode == TransportMode.FLIGHT }
+            .filter { it.destination.iata.isNotBlank() && origin.iata.isNotBlank() }
+            .take(TOP_FARE_FETCHES)
+            .toList()
+        if (wanted.isEmpty()) return
+
+        _fetchingFares.value = wanted.map { it.destination.id }.toSet()
+        val fetched = coroutineScope {
+            wanted.map { estimate ->
+                async {
+                    val quote = fares.quote(
+                        FareRequest(
+                            originIata = origin.iata,
+                            destIata = estimate.destination.iata,
+                            departDate = q.departDate,
+                            returnDate = returnDate,
+                            travelers = q.travelers,
+                        ),
+                    )
+                    estimate.destination.id to quote
+                }
+            }.awaitAll()
+        }
+        _fetchingFares.value = emptySet()
+
+        // One batched update rather than one per arrival: each change to this
+        // map re-prices the whole catalogue, and eight sequential re-prices
+        // would be visible as jank for no benefit.
+        val arrived = fetched.mapNotNull { (id, quote) -> quote?.let { id to it } }
+        if (arrived.isNotEmpty()) _liveFares.value = _liveFares.value + arrived
+    }
+
+    /**
+     * Fetch one destination on demand — called when its detail screen opens.
+     * A destination the traveller opened is worth a request even if it did not
+     * make the top of the list.
+     */
+    fun requestLiveFare(destinationId: String) = viewModelScope.launch {
+        if (!fares.configured || !settings.value.livePrices) return@launch
+        if (_liveFares.value.containsKey(destinationId)) return@launch
+
+        val q = _query.value
+        if (TransportMode.FLIGHT !in q.modes) return@launch
+        val origin = OriginCatalog.find(q.originId)
+        val dest = DestinationCatalog.all.firstOrNull { it.id == destinationId } ?: return@launch
+        if (origin.iata.isBlank() || dest.iata.isBlank()) return@launch
+
+        _fetchingFares.value = _fetchingFares.value + destinationId
+        val quote = fares.quote(
+            FareRequest(
+                originIata = origin.iata,
+                destIata = dest.iata,
+                departDate = q.departDate,
+                returnDate = q.departDate.plusDays(q.nights.toLong().coerceAtLeast(1)),
+                travelers = q.travelers,
+            ),
+        )
+        _fetchingFares.value = _fetchingFares.value - destinationId
+        if (quote != null) _liveFares.value = _liveFares.value + (destinationId to quote)
+    }
+
+    fun setLivePrices(on: Boolean) = viewModelScope.launch {
+        store.setLivePrices(on)
+        // Turning it off must actually revert the numbers on screen, not just
+        // stop future fetches — otherwise the setting looks broken.
+        if (!on) _liveFares.value = emptyMap()
+    }
+
     init {
         viewModelScope.launch {
             LiveRates.decode(store.cachedRates.first())?.let {
@@ -188,6 +298,15 @@ class RangeViewModel(private val store: RangeStore) : ViewModel() {
                 _ratesUpdatedAt.value = it.fetchedAtMs
             }
             refreshRates()
+        }
+        viewModelScope.launch {
+            fares.restore(store.cachedFares.first())
+        }
+        viewModelScope.launch {
+            // A much longer debounce than the 90 ms used for pricing: dragging
+            // the budget ruler must never cost a network request, so fares are
+            // only chased once the traveller has actually settled on something.
+            _query.debounce(1_500).collectLatest { q -> refreshTopFares(q) }
         }
         viewModelScope.launch {
             val first = store.settings
@@ -331,10 +450,25 @@ class RangeViewModel(private val store: RangeStore) : ViewModel() {
     fun estimateFor(destinationId: String): TripEstimate? {
         val q = _query.value
         val dest = DestinationCatalog.find(destinationId) ?: return null
-        return BudgetEngine.estimate(OriginCatalog.find(q.originId), dest, q)
+        return BudgetEngine.estimate(
+            OriginCatalog.find(q.originId),
+            dest,
+            q,
+            // Without this the detail screen would price off the model while
+            // the card that opened it showed a live total — same trip, two
+            // different numbers.
+            _liveFares.value[destinationId],
+        )
     }
 
     companion object {
+        /**
+         * How many results get a real fare request. Small on purpose: the free
+         * API tiers are metered per month, and nobody reads past the first
+         * screen of results before changing something anyway.
+         */
+        private const val TOP_FARE_FETCHES = 8
+
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer { RangeViewModel(ServiceLocator.store) }
         }

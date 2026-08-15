@@ -1,5 +1,6 @@
 @file:OptIn(
     androidx.compose.material3.ExperimentalMaterial3Api::class,
+    androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
     androidx.compose.foundation.layout.ExperimentalLayoutApi::class,
     androidx.compose.ui.ExperimentalComposeUiApi::class,
 )
@@ -69,10 +70,15 @@ import com.vythera.range.domain.compassLabel
 import com.vythera.range.domain.formatHours
 import com.vythera.range.domain.formatKm
 import com.vythera.range.domain.formatMoney
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.runtime.LaunchedEffect
+import com.vythera.range.data.live.FareQuote
 import com.vythera.range.ui.components.AnimatedNumber
 import com.vythera.range.ui.components.BudgetMeter
 import com.vythera.range.ui.components.DestinationArt
 import com.vythera.range.ui.components.GlassCard
+import com.vythera.range.ui.components.LiveFareBadge
+import com.vythera.range.ui.components.fareAgeLabel
 import com.vythera.range.ui.components.MetaChip
 import com.vythera.range.ui.components.SectionHeader
 import com.vythera.range.ui.components.VerdictPill
@@ -109,16 +115,24 @@ fun DetailScreen(
     onApplyQuery: ((TripQuery) -> TripQuery) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    liveFare: FareQuote? = null,
+    fareLoading: Boolean = false,
+    onRequestLiveFare: () -> Unit = {},
 ) {
     val scroll = rememberScrollState()
     val origin = remember(query.originId) { OriginCatalog.find(query.originId) }
-    val estimate = remember(destination.id, query) {
-        BudgetEngine.estimate(origin, destination, query)
+    val estimate = remember(destination.id, query, liveFare) {
+        BudgetEngine.estimate(origin, destination, query, liveFare)
     }
     var previewNights by remember(destination.id) { mutableStateOf(query.nights) }
-    val preview = remember(destination.id, query, previewNights) {
-        BudgetEngine.estimate(origin, destination, query.copy(nights = previewNights))
+    val preview = remember(destination.id, query, previewNights, liveFare) {
+        BudgetEngine.estimate(origin, destination, query.copy(nights = previewNights), liveFare)
     }
+
+    // A destination someone opened is worth a real fare even if it never made
+    // the top of the results. The repository dedupes, so re-entering a screen
+    // costs nothing.
+    LaunchedEffect(destination.id) { onRequestLiveFare() }
     var saved by remember(destination.id) { mutableStateOf(false) }
     val topInset = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
@@ -246,6 +260,48 @@ fun DetailScreen(
                         style = MaterialTheme.typography.bodySmall,
                         color = if (estimate.inSeason) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary,
                     )
+
+                    // Provenance for the headline number. Silent when there is
+                    // nothing live to say — an "estimated" label on every card
+                    // would be noise, since estimated is the norm.
+                    when {
+                        estimate.liveFare != null -> {
+                            Spacer(Modifier.height(12.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                LiveFareBadge(estimate.liveFare!!, showSource = true)
+                                Text(
+                                    "airfare ${fareAgeLabel(estimate.liveFare!!)}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                "The flight is a real fare. Everything else on this " +
+                                    "screen is still Range's estimate.",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+
+                        fareLoading -> {
+                            Spacer(Modifier.height(12.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            ) {
+                                LoadingIndicator(Modifier.size(20.dp))
+                                Text(
+                                    "Checking live fares…",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
                 }
 
                 Spacer(Modifier.height(16.dp))

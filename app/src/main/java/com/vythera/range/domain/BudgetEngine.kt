@@ -1,5 +1,6 @@
 package com.vythera.range.domain
 
+import com.vythera.range.data.live.FareQuote
 import com.vythera.range.data.model.CostKey
 import com.vythera.range.data.model.Destination
 import com.vythera.range.data.model.Place
@@ -68,16 +69,27 @@ data class TripEstimate(
     val query: TripQuery,
     val seasonNote: String,
     val inSeason: Boolean,
+    /**
+     * The real fare this estimate was priced with, when one was available.
+     *
+     * Non-null means the transport line is an actual quote rather than the
+     * model, and the UI is expected to say so — a number the user might book
+     * against has to be distinguishable from one the app invented.
+     */
+    val liveFare: FareQuote? = null,
 ) {
     /** Longest trip this budget supports at the chosen tiers, in nights. */
     val maxNights: Int by lazy(LazyThreadSafetyMode.NONE) {
-        BudgetEngine.longestStay(origin, destination, query, budgetUsd)
+        BudgetEngine.longestStay(origin, destination, query, budgetUsd, liveFare)
     }
 
     /** Total if every tier drops to Budget — powers the "it fits if…" nudge. */
     val leanTotalUsd: Double by lazy(LazyThreadSafetyMode.NONE) {
-        BudgetEngine.leanTotal(origin, destination, query)
+        BudgetEngine.leanTotal(origin, destination, query, liveFare)
     }
+
+    /** True when the headline total rests on a real quote. */
+    val isLive: Boolean get() = liveFare != null
 
     /** Same country as the traveller's starting city. */
     val domestic: Boolean get() = VisaPolicy.isDomestic(origin.country, destination.country)
@@ -281,10 +293,44 @@ object BudgetEngine {
 
     // ---- full estimate ----------------------------------------------------
 
-    fun estimate(origin: Place, dest: Destination, query: TripQuery): TripEstimate {
+    /**
+     * Replace the modelled flight cost with a real quote.
+     *
+     * Applied to the option list *before* the cheapest mode is picked, which is
+     * the whole reason this is a separate step rather than a patch on the final
+     * total: if the model guessed £400 for the flight and £300 for the train it
+     * would pick the train, but a real £250 fare should flip that choice. Doing
+     * this after selection would keep the train and quietly ignore the fare.
+     *
+     * Only the flight line is touched — the providers quote air fares, and
+     * there is nothing live to say about a bus.
+     */
+    private fun withLiveFare(
+        options: List<TransportOption>,
+        liveFare: FareQuote?,
+    ): List<TransportOption> {
+        if (liveFare == null) return options
+        return options.map { option ->
+            if (option.mode != TransportMode.FLIGHT || !option.available) {
+                option
+            } else {
+                option.copy(
+                    costUsd = liveFare.totalUsd,
+                    note = "Live fare via ${liveFare.source.label}",
+                )
+            }
+        }
+    }
+
+    fun estimate(
+        origin: Place,
+        dest: Destination,
+        query: TripQuery,
+        liveFare: FareQuote? = null,
+    ): TripEstimate {
         val gcKm = haversineKm(origin.lat, origin.lon, dest.lat, dest.lon)
         val bearing = bearingDeg(origin.lat, origin.lon, dest.lat, dest.lon)
-        val options = transportOptions(origin, dest, query)
+        val options = withLiveFare(transportOptions(origin, dest, query), liveFare)
 
         val wantsNoTravel = query.modes == setOf(TransportMode.NONE)
         val allowed = options.filter { it.available && it.mode in query.modes }
@@ -319,6 +365,10 @@ object BudgetEngine {
             query = query,
             seasonNote = seasonNote(dest, query.departDate, inSeason),
             inSeason = inSeason,
+            // Only claim the estimate is live if the fare actually reached the
+            // total. A flight quote on a trip the traveller is taking by train
+            // changed nothing, and badging it "live" would be a lie.
+            liveFare = liveFare?.takeIf { chosen.mode == TransportMode.FLIGHT },
         )
     }
 
@@ -401,9 +451,19 @@ object BudgetEngine {
         }
     }
 
-    internal fun leanTotal(origin: Place, dest: Destination, query: TripQuery): Double {
+    // Both of the following take the live fare too. The flight is the largest
+    // single line in most trips, so leaving these on the model while the
+    // headline total is live would contradict it — "₹58,000" next to "budget
+    // tiers would make this work" computed against a different airfare.
+
+    internal fun leanTotal(
+        origin: Place,
+        dest: Destination,
+        query: TripQuery,
+        liveFare: FareQuote? = null,
+    ): Double {
         val lean = query.copy(stay = Tier.BUDGET, food = Tier.BUDGET, experience = Tier.BUDGET)
-        val options = transportOptions(origin, dest, lean)
+        val options = withLiveFare(transportOptions(origin, dest, lean), liveFare)
         val transport = options.filter { it.available && it.mode in lean.modes }
             .minByOrNull { it.costUsd }
             ?: options.first { it.mode == TransportMode.NONE }
@@ -411,11 +471,19 @@ object BudgetEngine {
     }
 
     /** How many nights this budget stretches to, holding every other choice fixed. */
-    internal fun longestStay(origin: Place, dest: Destination, query: TripQuery, budget: Double): Int {
+    internal fun longestStay(
+        origin: Place,
+        dest: Destination,
+        query: TripQuery,
+        budget: Double,
+        liveFare: FareQuote? = null,
+    ): Int {
         var best = 0
         for (n in 1..30) {
             val q = query.copy(nights = n)
-            val opts = transportOptions(origin, dest, q)
+            // The fare does not change with nights — only the dates would, and
+            // those are held fixed here — so the same quote applies throughout.
+            val opts = withLiveFare(transportOptions(origin, dest, q), liveFare)
             val t = opts.filter { it.available && it.mode in q.modes }.minByOrNull { it.costUsd }
                 ?: opts.first { it.mode == TransportMode.NONE }
             val total = costLines(origin, dest, q, t).sumOf { it.amountUsd }
@@ -426,14 +494,23 @@ object BudgetEngine {
 
     // ---- exploration ------------------------------------------------------
 
+    /**
+     * Price the whole catalogue.
+     *
+     * [liveFares] is keyed by destination id and is only ever what is *already*
+     * cached — this runs on every budget-ruler frame, so it must stay pure and
+     * instant. Fetching is the ViewModel's job, and it fetches for a handful of
+     * results, never for all 180.
+     */
     fun explore(
         origin: Place,
         destinations: List<Destination>,
         query: TripQuery,
+        liveFares: Map<String, FareQuote> = emptyMap(),
     ): List<TripEstimate> = destinations
         .asSequence()
         .filter { it.id != origin.id }
-        .map { estimate(origin, it, query) }
+        .map { estimate(origin, it, query, liveFares[it.id]) }
         .filter { it.distanceKm > 40 }
         .toList()
 

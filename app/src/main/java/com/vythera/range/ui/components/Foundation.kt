@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import com.vythera.range.data.live.FareQuote
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -179,6 +180,51 @@ fun VerdictPill(
             color = c,
             fontWeight = FontWeight.W700,
         )
+    }
+}
+
+/**
+ * Marks a total that rests on a real fare rather than the model.
+ *
+ * The distinction matters more than it looks: a modelled number is a planning
+ * estimate the user should sanity-check, a live one is close to bookable. The
+ * badge names its source and its age because a six-hour-old quote and a
+ * six-second-old one deserve different amounts of trust, and only the app knows
+ * which this is.
+ */
+@Composable
+fun LiveFareBadge(
+    quote: FareQuote,
+    modifier: Modifier = Modifier,
+    showSource: Boolean = false,
+) {
+    val accent = MaterialTheme.colorScheme.primary
+    Row(
+        modifier
+            .clip(PillShape)
+            .background(accent.copy(alpha = 0.16f))
+            .border(1.dp, accent.copy(alpha = 0.45f), PillShape)
+            .padding(horizontal = 9.dp, vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+    ) {
+        Dot(accent, 6.dp)
+        Text(
+            if (showSource) "LIVE · ${quote.source.label}" else "LIVE",
+            style = MaterialTheme.typography.labelSmall,
+            color = accent,
+            fontWeight = FontWeight.W700,
+        )
+    }
+}
+
+/** "just now", "2h ago" — deliberately vague, because the precision is fake. */
+fun fareAgeLabel(quote: FareQuote, now: Long = System.currentTimeMillis()): String {
+    val minutes = quote.ageMs(now) / 60_000
+    return when {
+        minutes < 2 -> "checked just now"
+        minutes < 60 -> "checked ${minutes}m ago"
+        else -> "checked ${minutes / 60}h ago"
     }
 }
 

@@ -86,7 +86,24 @@ Everything is modelled **on device**. Nothing is scraped and no fare API is call
 
 Seasonality comes from each destination's best months plus global holiday spikes. Lead time ranges from ×1.55 (three days out) to ×0.93 (six months out).
 
-Exchange rates are fetched from [Frankfurter](https://www.frankfurter.app/) (keyless) and cached, falling back to rates shipped with the app. **Totals are planning estimates, not fare quotes.**
+Exchange rates are fetched from [Frankfurter](https://www.frankfurter.app/) (keyless) and cached, falling back to rates shipped with the app.
+
+### Live airfares
+
+The model is the base layer, not the ceiling. When the build carries fare-API credentials, Range fetches **real airfares** for the results you're actually looking at — the top handful in the list, plus any destination you open — and the live price replaces the modelled one in the total.
+
+It never fans out across the catalogue. 180 destinations against a metered API would spend a month's quota on a single screen, so everything else keeps the modelled price, which is a complete answer on its own.
+
+| | |
+|---|---|
+| **Providers** | [Amadeus Self-Service](https://developers.amadeus.com/) first (real GDS inventory), [Travelpayouts](https://www.travelpayouts.com/) second (looser limits, better India coverage) |
+| **Cache** | Six hours on disk, keyed by route, dates and party size. "No fare on this route" is cached for 24 hours — a negative answer is still an answer |
+| **Degrading** | Offline, out of quota, no credentials and unflown route are all the same thing to the caller: fall back to the model, silently |
+| **Basis** | Every quote is normalised to round-trip, whole-party, USD before it reaches the engine — Amadeus quotes the party, Travelpayouts quotes one seat |
+
+A live fare is applied **before** the cheapest transport mode is chosen, not after, so a real fare that undercuts the modelled train actually flips the trip to flying.
+
+Only the airfare is ever live. Hotels, food, getting around and everything else stay modelled, and the app says so on screen rather than letting one live number imply the whole total is a quote. **Totals remain planning estimates, not bookable prices.**
 
 ---
 
@@ -102,6 +119,31 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
 No API keys and no `local.properties` secrets are needed for a debug build. Debug installs as `com.vythera.range.debug`, so it sits alongside a release install.
+
+<details>
+<summary><b>Enabling live airfares</b></summary>
+
+Both providers have a free tier. Without credentials the app builds and runs exactly as it does now — the providers report themselves unconfigured, the Settings toggle is hidden, and no fare API is ever contacted.
+
+Add to `local.properties` (gitignored):
+
+```properties
+# https://developers.amadeus.com — free Self-Service tier, ~2000 calls/month
+amadeus.clientId=…
+amadeus.clientSecret=…
+# Defaults to the free test environment. Production needs a card on file.
+# amadeus.host=api.amadeus.com
+
+# https://www.travelpayouts.com — free, and pays affiliate commission
+travelpayouts.token=…
+travelpayouts.marker=…
+```
+
+CI reads the same values from `AMADEUS_CLIENT_ID`, `AMADEUS_CLIENT_SECRET`, `AMADEUS_HOST`, `TRAVELPAYOUTS_TOKEN` and `TRAVELPAYOUTS_MARKER`.
+
+> These compile into `BuildConfig` and therefore ship inside the APK, where they can be read back out. That is an acceptable trade for free, rate-limited tiers — the worst case is a spent public quota. **Never put a credential with a bill attached here**; anything metered belongs behind a proxy you control.
+
+</details>
 
 <details>
 <summary><b>Signed release builds</b></summary>
@@ -140,6 +182,8 @@ app/src/main/java/com/vythera/range/
 │   │                           hotel/food anchors, vibes, seasons, visas, terrain
 │   ├── OriginCatalog.kt        93 origin cities across every region
 │   ├── LiveRates.kt            keyless FX fetch, cached, offline fallback
+│   ├── live/                   real airfares — Amadeus + Travelpayouts behind one
+│   │                           interface, TTL cache, quota-aware, always optional
 │   ├── RangeStore.kt           DataStore: settings, saved trips, wishlist
 │   └── Palettes.kt             per-destination gradients derived from vibe
 ├── domain/
@@ -173,6 +217,8 @@ app/src/main/java/com/vythera/range/
 
 Unit tests cover catalog integrity (unique ids, sane prices, valid coordinates), known real-world distances, that luxury always costs more than budget, that sharing rooms beats booking singles, that booking late costs more than booking early, and the transport reachability rules.
 
+The live-fare tests target the failures that produce a plausible *wrong* number rather than an obvious crash: a fare applied after the transport mode was chosen, a flight quote leaking into a trip taken by train, a cached miss being re-requested on every scroll, and two concurrent callers paying twice for one route.
+
 UI tests drive components directly rather than walking the app from onboarding, so they fail when the behaviour under test breaks rather than for four unrelated reasons.
 
 > `connectedDebugAndroidTest` **uninstalls the app when it finishes** — run `./gradlew installDebug` afterwards if you want it back on the device.
@@ -195,11 +241,13 @@ There's the same button in the app under **Settings**. Every contribution genuin
 
 ## Privacy
 
-No account, no analytics, no ad SDK, no location access. The only network call is the exchange-rate refresh. Saved trips and settings never leave the device. See [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
+No account, no analytics, no ad SDK, no location access. Saved trips and settings never leave the device. See [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
+
+The **released APK ships without fare-API credentials**, so its only network call is the exchange-rate refresh. If you build with credentials of your own, Range additionally sends a route and a date to the fare provider for the results on screen — never anything about you, and it is a toggle in Settings.
 
 ## Roadmap
 
-- Live fares from a real inventory provider — the transport layer is already an interface, so it slots in behind the model as a fallback
+- Live hotel rates, the same way airfares work now — model first, real prices for what's on screen
 - Multi-city and open-jaw trips
 - Sharing a costed trip as an image
 

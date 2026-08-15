@@ -457,6 +457,9 @@ fun SettingsScreen(
     onDynamicColor: (Boolean) -> Unit,
     onReduceMotion: (Boolean) -> Unit,
     onHaptics: (Boolean) -> Unit,
+    onLivePrices: (Boolean) -> Unit,
+    /** False when the build ships no fare credentials — then the toggle would lie. */
+    livePricesAvailable: Boolean,
     onBack: () -> Unit,
 ) {
     // Read from BuildConfig rather than a literal, so it can't drift from the
@@ -578,12 +581,36 @@ fun SettingsScreen(
                     Spacer(Modifier.height(10.dp))
                     Text(
                         "Range fetches exchange rates over the internet and falls back to the " +
-                            "rates it ships with when you're offline. Trip totals themselves are " +
-                            "modelled on device from distance, season, booking lead time and " +
-                            "local cost of living — a planning estimate, not a live fare quote.",
+                            "rates it ships with when you're offline. Hotels, food, getting " +
+                            "around and everything else are modelled on device from distance, " +
+                            "season, booking lead time and local cost of living — planning " +
+                            "estimates rather than quotes.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                }
+            }
+            if (livePricesAvailable) {
+                item {
+                    GlassCard {
+                        SectionHeader("PRICES")
+                        Spacer(Modifier.height(6.dp))
+                        SettingToggle(
+                            "Live airfares",
+                            "Fetches real fares for the results you're actually " +
+                                "looking at, and for any destination you open. " +
+                                "Everything else stays Range's own estimate.",
+                            settings.livePrices,
+                            onLivePrices,
+                        )
+                        Text(
+                            "Off means the app never touches a fare API and every " +
+                                "number comes from the model, exactly as before.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
                 }
             }
             item {
