@@ -47,6 +47,24 @@ for tag in re.findall(r"<node[^>]*>", xml):
             break
 ')
   if [ -z "$coords" ]; then
+    sleep 2
+    coords=$(dump_ui | NEEDLE="$needle" python3 -c '
+import os, re, sys
+xml = sys.stdin.read()
+needle = os.environ["NEEDLE"].lower()
+for tag in re.findall(r"<node[^>]*>", xml):
+    t = re.search(r"text=\"([^\"]*)\"", tag)
+    d = re.search(r"content-desc=\"([^\"]*)\"", tag)
+    hay = ((t.group(1) if t else "") + " " + (d.group(1) if d else "")).lower()
+    if needle and needle in hay:
+        b = re.search(r"bounds=\"\[(\d+),(\d+)\]\[(\d+),(\d+)\]\"", tag)
+        if b:
+            x1, y1, x2, y2 = map(int, b.groups())
+            print((x1 + x2) // 2, (y1 + y2) // 2)
+            break
+')
+  fi
+  if [ -z "$coords" ]; then
     log "  tap '$needle': not found"
     return 1
   fi
@@ -68,7 +86,8 @@ home_screen() {
   adb shell am force-stop "$PKG" >/dev/null 2>&1
   sleep 1
   adb shell am start -n "$PKG/.MainActivity" >/dev/null 2>&1
-  sleep 5
+  wait_for_app || log "  app window never came back"
+  sleep 3
   if on_screen "How much can you spend"; then
     log "  back at home"
   else
@@ -77,6 +96,14 @@ home_screen() {
 }
 
 in_app() { adb shell dumpsys window 2>/dev/null | grep -q "$PKG"; }
+
+wait_for_app() {
+  for _ in $(seq 1 12); do
+    if in_app && dump_ui | grep -q "$PKG"; then return 0; fi
+    sleep 2
+  done
+  return 1
+}
 
 swipe_up() { adb shell input swipe $((W/2)) $((H*78/100)) $((W/2)) $((H*22/100)) "${1:-280}"; sleep 1; }
 
