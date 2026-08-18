@@ -62,8 +62,13 @@ on_screen() { dump_ui | grep -qiF "$1"; }
 # presses walks out of the app the moment a screen is one level shallower than
 # the script assumed, and every shot after that is of the launcher.
 home_screen() {
+  # force-stop first: a plain `am start` resumes the task wherever it was
+  # left, so "go home" would silently land on whatever screen was already
+  # open. Settings survive in DataStore, so a restart costs nothing.
+  adb shell am force-stop "$PKG" >/dev/null 2>&1
+  sleep 1
   adb shell am start -n "$PKG/.MainActivity" >/dev/null 2>&1
-  sleep 3
+  sleep 5
   if on_screen "How much can you spend"; then
     log "  back at home"
   else
