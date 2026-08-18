@@ -123,24 +123,32 @@ swipe_up; shot 14-detail-transport 2
 home_screen
 shot 15-home-again 2
 
-log "== settings and light theme =="
-tap_text "Settings" 3
-shot 16-settings 2
-if ! on_screen "STARTING CITY"; then
-  log "  not in settings — retrying from home"
+# Both themes, explicitly. The app defaults to following the system, so which
+# theme a screenshot shows depends on the emulator rather than on the app —
+# which is exactly how a broken light theme stayed invisible for days. Each
+# pass now sets the theme by name first, so the evidence means something.
+theme_pass() {
+  local mode="$1" prefix="$2"
+  log "== $mode theme pass =="
   home_screen
-  tap_text "Settings" 3
-  shot 16b-settings 2
-fi
-tap_text "Light" 3
-shot 17-settings-light 3
-if in_app; then log "  still in app after theme tap: yes"; else log "  LEFT THE APP"; fi
-home_screen
-shot 18-home-light 3
-tap_text "places in reach" 5
-shot 19-explore-light 4
-adb shell input tap $((W/2)) $((H*50/100)); sleep 3
-shot 20-detail-light 3
+  tap_text "Settings" 3 || { log "  could not reach settings"; return 1; }
+  if ! on_screen "STARTING CITY"; then
+    log "  settings did not open"
+    return 1
+  fi
+  tap_text "$mode" 3 || { log "  could not set $mode"; return 1; }
+  home_screen
+  shot "${prefix}-home" 3
+  tap_text "places in reach" 5
+  shot "${prefix}-explore" 4
+  adb shell input tap $((W/2)) $((H*50/100))
+  sleep 3
+  shot "${prefix}-detail" 3
+  home_screen
+}
+
+theme_pass "Dark" "21-dark"
+theme_pass "Light" "24-light"
 
 log "== crash check =="
 adb logcat -d -b crash | grep -i "$PKG" -A 10 | tail -30 | tee -a "$REPORT"

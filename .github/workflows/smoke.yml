@@ -106,20 +106,22 @@ jobs:
               return hits[0] if hits else None
 
           problems = []
-          # The dark theme is the default, so these must read as dark.
-          for prefix in ("04-home", "08-explore"):
+          # Each pass sets its theme by name first, so these are real
+          # assertions about the app and not about the emulator's system
+          # setting. A theme that silently fails to apply looks perfectly fine
+          # in a green build and wrong on a phone; this is what catches it.
+          for prefix in ("21-dark-home", "21-dark-explore", "21-dark-detail"):
               v = mean_of(prefix)
-              if v is not None and v > 140:
-                  problems.append(f"{prefix} should be dark but is bright ({v:.0f})")
-          # And the light-theme pass must actually be light. This is the check
-          # that matters: a light theme that silently stays dark looks fine in
-          # a green build and wrong on a phone.
-          for prefix in ("18-home-light", "19-explore-light", "20-detail-light"):
+              if v is None:
+                  problems.append(f"{prefix} was never captured")
+              elif v > 140:
+                  problems.append(f"{prefix} is not dark ({v:.0f}) — dark theme did not apply")
+          for prefix in ("24-light-home", "24-light-explore", "24-light-detail"):
               v = mean_of(prefix)
               if v is None:
                   problems.append(f"{prefix} was never captured")
               elif v < 140:
-                  problems.append(f"{prefix} is not light ({v:.0f}) — theme switch did not take")
+                  problems.append(f"{prefix} is not light ({v:.0f}) — light theme did not apply")
 
           blanks = [k for k, v in shots.items() if v < 3]
           if blanks:
