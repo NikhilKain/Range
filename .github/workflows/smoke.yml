@@ -68,6 +68,9 @@ jobs:
         if: always()
         run: |
           mkdir -p ci/shots
+          # Stale frames from an earlier run are worse than none: they get read
+          # as if they were this run's evidence.
+          rm -f ci/shots/*.png
           cp -f /tmp/shots/*.png ci/shots/ 2>/dev/null || true
           # Downscale: full-resolution frames bloat the repo fast.
           for f in ci/shots/*.png; do
@@ -75,6 +78,60 @@ jobs:
           done
           cp -f /tmp/shots/report.txt ci/smoke-report.txt 2>/dev/null || true
           ls -l ci/shots || true
+
+      - name: Check the themes actually rendered
+        if: always()
+        run: |
+          python3 - <<'CHECK'
+          import glob, os, sys
+          from PIL import Image
+
+          def brightness(path):
+              im = Image.open(path).convert("L").resize((48, 96))
+              px = list(im.getdata())
+              return sum(px) / len(px)
+
+          shots = {os.path.basename(f): brightness(f) for f in sorted(glob.glob("ci/shots/*.png"))}
+          if not shots:
+              print("no screenshots captured")
+              sys.exit(0)
+
+          print(f"{'screenshot':34s} {'mean':>6s}  verdict")
+          for name, value in shots.items():
+              tag = "LIGHT" if value > 140 else ("dark" if value > 12 else "BLANK")
+              print(f"{name:34s} {value:6.1f}  {tag}")
+
+          def mean_of(prefix):
+              hits = [v for k, v in shots.items() if k.startswith(prefix)]
+              return hits[0] if hits else None
+
+          problems = []
+          # The dark theme is the default, so these must read as dark.
+          for prefix in ("04-home", "08-explore"):
+              v = mean_of(prefix)
+              if v is not None and v > 140:
+                  problems.append(f"{prefix} should be dark but is bright ({v:.0f})")
+          # And the light-theme pass must actually be light. This is the check
+          # that matters: a light theme that silently stays dark looks fine in
+          # a green build and wrong on a phone.
+          for prefix in ("18-home-light", "19-explore-light", "20-detail-light"):
+              v = mean_of(prefix)
+              if v is None:
+                  problems.append(f"{prefix} was never captured")
+              elif v < 140:
+                  problems.append(f"{prefix} is not light ({v:.0f}) — theme switch did not take")
+
+          blanks = [k for k, v in shots.items() if v < 3]
+          if blanks:
+              print(f"\nnote: {len(blanks)} blank frame(s), usually a mid-animation grab: {blanks}")
+
+          if problems:
+              print("\nTHEME CHECK FAILED")
+              for p in problems:
+                  print(" -", p)
+              sys.exit(1)
+          print("\nTheme check passed.")
+          CHECK
 
       - name: Upload screenshots
         if: always()

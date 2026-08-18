@@ -19,3 +19,4 @@ ci/
 keystore.properties
 *.jks
 *.keystore
+ci/shots/

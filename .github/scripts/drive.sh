@@ -58,6 +58,21 @@ for tag in re.findall(r"<node[^>]*>", xml):
 
 on_screen() { dump_ui | grep -qiF "$1"; }
 
+# Relaunching is the only reliable way back to a known screen — counting BACK
+# presses walks out of the app the moment a screen is one level shallower than
+# the script assumed, and every shot after that is of the launcher.
+home_screen() {
+  adb shell am start -n "$PKG/.MainActivity" >/dev/null 2>&1
+  sleep 3
+  if on_screen "How much can you spend"; then
+    log "  back at home"
+  else
+    log "  WARNING: not at home after relaunch"
+  fi
+}
+
+in_app() { adb shell dumpsys window 2>/dev/null | grep -q "$PKG"; }
+
 swipe_up() { adb shell input swipe $((W/2)) $((H*78/100)) $((W/2)) $((H*22/100)) "${1:-280}"; sleep 1; }
 
 adb wait-for-device
@@ -105,14 +120,22 @@ swipe_up; shot 12-detail-breakdown 2
 swipe_up; shot 13-detail-nights 2
 swipe_up; shot 14-detail-transport 2
 
-adb shell input keyevent KEYCODE_BACK; sleep 3
-adb shell input keyevent KEYCODE_BACK; sleep 3
+home_screen
 shot 15-home-again 2
 
 log "== settings and light theme =="
-tap_text "Settings" 3; shot 16-settings 2
-tap_text "Light" 3;    shot 17-settings-light 3
-adb shell input keyevent KEYCODE_BACK; sleep 3
+tap_text "Settings" 3
+shot 16-settings 2
+if ! on_screen "STARTING CITY"; then
+  log "  not in settings — retrying from home"
+  home_screen
+  tap_text "Settings" 3
+  shot 16b-settings 2
+fi
+tap_text "Light" 3
+shot 17-settings-light 3
+if in_app; then log "  still in app after theme tap: yes"; else log "  LEFT THE APP"; fi
+home_screen
 shot 18-home-light 3
 tap_text "places in reach" 5
 shot 19-explore-light 4
